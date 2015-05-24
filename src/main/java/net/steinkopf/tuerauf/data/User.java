@@ -37,7 +37,7 @@ public class User {
     private boolean newUser;
 
 
-    protected User() {
+    public User() {
     }
 
     public User(final String username) {
