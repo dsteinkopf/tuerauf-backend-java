@@ -24,6 +24,9 @@ public class TueraufApplication extends SpringBootServletInitializer {
 
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
+
+        // see also class UserAdministration
+
         LightAdmin.configure(servletContext)
                 .basePackage("net.steinkopf.tuerauf")
                 .baseUrl("/admin")
@@ -42,6 +45,7 @@ public class TueraufApplication extends SpringBootServletInitializer {
     }
 
 
+    // see http://docs.spring.io/spring-boot/docs/current-SNAPSHOT/reference/htmlsingle/#boot-features-security
     @Configuration
     @Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
     protected static class ApplicationSecurity extends WebSecurityConfigurerAdapter {
@@ -51,7 +55,7 @@ public class TueraufApplication extends SpringBootServletInitializer {
 
         @Override
         protected void configure(HttpSecurity http) throws Exception {
-            http.authorizeRequests()
+            http    .authorizeRequests()
                     .antMatchers("/frontend/**").access("hasRole('ROLE_USER')")
                     .antMatchers("/**").access("hasRole('ROLE_ADMIN')")
                     .and().httpBasic();
@@ -59,10 +63,10 @@ public class TueraufApplication extends SpringBootServletInitializer {
 
         @Override
         public void configure(AuthenticationManagerBuilder auth) throws Exception {
-            auth.inMemoryAuthentication()
+            auth
+                    .inMemoryAuthentication()
                     .withUser("admin").password("admin").roles("ADMIN", "USER").and()
                     .withUser("user").password("user").roles("USER");
         }
-
     }
 }

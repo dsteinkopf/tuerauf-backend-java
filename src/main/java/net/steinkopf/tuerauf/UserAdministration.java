@@ -9,6 +9,10 @@ import org.lightadmin.api.config.unit.EntityMetadataConfigurationUnit;
 import org.lightadmin.api.config.unit.FieldSetConfigurationUnit;
 import org.lightadmin.api.config.unit.ScreenContextConfigurationUnit;
 
+
+/**
+ * see http://lightadmin.org/getting-started/spring-boot/
+ */
 public class UserAdministration extends AdministrationConfiguration<User> {
 
     public EntityMetadataConfigurationUnit configuration(EntityMetadataConfigurationUnitBuilder configurationBuilder) {
