@@ -3,6 +3,7 @@ package net.steinkopf.tuerauf.rest;
 import net.steinkopf.tuerauf.repository.UserRepository;
 import net.steinkopf.tuerauf.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -22,7 +23,7 @@ public class FrontendAPIRestController {
     // @RolesAllowed("ROLE_USER")
     // @RolesAllowed(value = { "USER" })
     // @PreAuthorize("hasAuthority('ROLE_USER')")
-    // @Secured({"ROLE_ADMIN"})
+    @Secured({"ROLE_USER"})
 	@RequestMapping(value="registerUser", method= RequestMethod.GET )
 	public String registerUser(@RequestParam("username") String username,
                                @RequestParam("pin") String pin,

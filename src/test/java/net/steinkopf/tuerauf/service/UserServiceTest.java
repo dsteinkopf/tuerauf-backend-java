@@ -19,7 +19,7 @@ import static org.junit.Assert.assertThat;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = TueraufApplication.class)
-public class UserServiceTest {
+public class UserServiceTest extends SecuredTest {
 
     @Autowired
     UserRepository userRepository;
@@ -33,6 +33,9 @@ public class UserServiceTest {
 
     @Before
     public void setup() {
+
+        super.setup();
+
         User user1 = new User("testusername");
         userRepository.save(user1);
     }
