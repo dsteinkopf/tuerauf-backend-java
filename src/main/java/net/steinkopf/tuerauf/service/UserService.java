@@ -25,4 +25,10 @@ public class UserService {
         List<User> userList = userRepository.findByActiveFalseAndNewUserTrue();
         userList.forEach(user -> { user.setActive(true); userRepository.save(user); });
     }
+
+    public String registerUser(final String username, final String pin, final String installationId) {
+
+        // TODO
+        return "All OK. username=" + username;
+    }
 }
