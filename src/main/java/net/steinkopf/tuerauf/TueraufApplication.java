@@ -1,5 +1,6 @@
 package net.steinkopf.tuerauf;
 
+import net.steinkopf.tuerauf.rest.AppsecretChecker;
 import org.lightadmin.api.config.LightAdmin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
@@ -16,6 +17,9 @@ import org.springframework.security.config.annotation.authentication.configurers
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -52,6 +56,11 @@ public class TueraufApplication extends SpringBootServletInitializer {
     @Bean
     public ApplicationSecurity applicationSecurity() {
         return new ApplicationSecurity();
+    }
+
+    //@Bean
+    public WebMvcConfigurerAdapter myWebMvcConfigurerAdapter() {
+        return new MyWebMvcConfigurerAdapter();
     }
 
 
@@ -104,6 +113,23 @@ public class TueraufApplication extends SpringBootServletInitializer {
                     .inMemoryAuthentication()
                     .withUser("admin").password("admin").roles("ADMIN", "USER").and()
                     .withUser("user").password("user").roles("USER");
+        }
+    }
+
+    @Component
+    protected static class MyWebMvcConfigurerAdapter extends WebMvcConfigurerAdapter {
+
+        @Autowired
+        public AppsecretChecker appsecretChecker;
+
+        @Bean
+        public AppsecretChecker appsecretChecker() {
+            return appsecretChecker;
+        }
+
+        @Override
+        public void addInterceptors(InterceptorRegistry registry) {
+            registry.addInterceptor(appsecretChecker());
         }
     }
 }
