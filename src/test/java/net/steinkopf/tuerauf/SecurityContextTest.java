@@ -1,4 +1,4 @@
-package net.steinkopf.tuerauf.service;
+package net.steinkopf.tuerauf;
 
 import org.junit.Before;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -11,7 +11,7 @@ import java.security.Principal;
 /**
  * Test needing some security context (= authenticated user/admin).
  */
-public abstract class SecuredTest {
+public abstract class SecurityContextTest {
 
     /**
      * Name of security user needed for the test to run.

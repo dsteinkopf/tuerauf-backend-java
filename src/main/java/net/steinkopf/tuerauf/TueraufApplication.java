@@ -73,9 +73,10 @@ public class TueraufApplication extends SpringBootServletInitializer {
 
         @Override
         protected void configure(HttpSecurity http) throws Exception {
-            http.authorizeRequests().anyRequest().fullyAuthenticated().and().httpBasic();
+            http    .authorizeRequests()
+                    .anyRequest().fullyAuthenticated()
+                    .and().httpBasic();
         }
-
     }
 
     // see http://docs.spring.io/spring-boot/docs/current-SNAPSHOT/reference/htmlsingle/#boot-features-security

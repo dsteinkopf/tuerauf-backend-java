@@ -1,5 +1,6 @@
 package net.steinkopf.tuerauf.service;
 
+import net.steinkopf.tuerauf.SecurityContextTest;
 import net.steinkopf.tuerauf.TueraufApplication;
 import net.steinkopf.tuerauf.data.User;
 import net.steinkopf.tuerauf.repository.UserRepository;
@@ -19,7 +20,7 @@ import static org.junit.Assert.assertThat;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = TueraufApplication.class)
-public class UserServiceTest extends SecuredTest {
+public class UserServiceTest extends SecurityContextTest {
 
     @Autowired
     UserRepository userRepository;
