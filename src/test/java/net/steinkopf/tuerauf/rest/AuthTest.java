@@ -72,6 +72,10 @@ public class AuthTest {
         doAuthTest("user",  "user",  "/users/", HttpStatus.FORBIDDEN, null);
         doAuthTest("admin", "admin", "/users/", HttpStatus.OK, "users");
 
+        doAuthTest(null,    null,    "/", HttpStatus.UNAUTHORIZED, null);
+        doAuthTest("user",  "user",  "/", HttpStatus.OK, "users");
+        doAuthTest("admin", "admin", "/", HttpStatus.OK, "users");
+
         // geht nicht, weil Test als jar läuft - nicht war... doAuthTest(null,    null,    "/admin/", HttpStatus.UNAUTHORIZED, null);
         // geht nicht, weil Test als jar läuft - nicht war... doAuthTest("user",  "user",  "/admin/", HttpStatus.FORBIDDEN, null);
         // geht nicht, weil Test als jar läuft - nicht war... doAuthTest("admin", "admin", "/admin/", HttpStatus.OK, "LightAdmin");

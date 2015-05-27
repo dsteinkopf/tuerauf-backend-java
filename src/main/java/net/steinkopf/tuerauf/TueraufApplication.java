@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configurers.GlobalAuthenticationConfigurerAdapter;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -73,7 +74,9 @@ public class TueraufApplication extends SpringBootServletInitializer {
 
         @Override
         protected void configure(HttpSecurity http) throws Exception {
-            http    .authorizeRequests()
+            http
+                    .authorizeRequests()
+                    // does not work here to set ROLE_ADMIN as default. Results in any request required to be ADMIN: .antMatchers("/**").access("hasRole('ROLE_ADMIN')")
                     .anyRequest().fullyAuthenticated()
                     .and().httpBasic();
         }

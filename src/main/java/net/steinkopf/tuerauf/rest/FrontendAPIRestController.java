@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value="/frontend")
+@Secured({"ROLE_USER"})
 public class FrontendAPIRestController {
 
 	@Autowired
@@ -23,7 +24,6 @@ public class FrontendAPIRestController {
     // @RolesAllowed("ROLE_USER")
     // @RolesAllowed(value = { "USER" })
     // @PreAuthorize("hasAuthority('ROLE_USER')")
-    @Secured({"ROLE_USER"})
 	@RequestMapping(value="registerUser", method= RequestMethod.GET )
 	public String registerUser(@RequestParam("username") String username,
                                @RequestParam("pin") String pin,
