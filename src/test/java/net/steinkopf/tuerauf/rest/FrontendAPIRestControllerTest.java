@@ -50,7 +50,7 @@ public class FrontendAPIRestControllerTest {
         if (false) {
             // Test fails like this. Why is the user not recognised?
 
-            UsernamePasswordAuthenticationToken principal = new UsernamePasswordAuthenticationToken((Principal) () -> "aaa", "xxx");
+            UsernamePasswordAuthenticationToken principal = new UsernamePasswordAuthenticationToken((Principal) () -> "user", "user");
 
             SecurityContext mockSecurityContext = Mockito.mock(SecurityContext.class);
             Mockito.when(mockSecurityContext.getAuthentication()).thenReturn(principal);
@@ -60,10 +60,10 @@ public class FrontendAPIRestControllerTest {
                     HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
                     mockSecurityContext);
 
-            this.mvc.perform(get("/frontend/registerUser?username=abc&pin=1111&installationId=123456789").session(mockHttpSession))
+            this.mvc.perform(get(FrontendAPIRestController.FRONTEND_URL + "/registerUser?username=abc&pin=1111&installationId=123456789&appsecret=secretApp").session(mockHttpSession))
                     .andExpect(status().is4xxClientError());
         }
-        this.mvc.perform(get("/frontend/registerUser?username=abc&pin=1111&installationId=123456789"))
+        this.mvc.perform(get(FrontendAPIRestController.FRONTEND_URL + "/registerUser?username=abc&pin=1111&installationId=123456789&appsecret=secretApp"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("All OK. username=abc")));
     }

@@ -64,12 +64,17 @@ public class AuthTest {
     @Test
     public void authTest() throws Exception {
 
-        String registerUserUrl = "/frontend/registerUser?appsecret=secretApp&username=test&pin=1111&installationId=999999";
+        String registerUserUrl = FrontendAPIRestController.FRONTEND_URL + "/registerUser?username=test&pin=1111&installationId=999999";
+        String registerUserUrlWithAppSecret = registerUserUrl + "&appsecret=secretApp";
 
         if (true) {
             doAuthTest(null,    null,    registerUserUrl, HttpStatus.UNAUTHORIZED, null);
-            doAuthTest("user", "user",   registerUserUrl, HttpStatus.OK, "OK");
-            doAuthTest("admin", "admin", registerUserUrl, HttpStatus.OK, "OK");
+            doAuthTest("user", "user",   registerUserUrl, HttpStatus.UNAUTHORIZED, null);
+            doAuthTest("admin", "admin", registerUserUrl, HttpStatus.UNAUTHORIZED, null);
+
+            doAuthTest(null,    null,    registerUserUrlWithAppSecret, HttpStatus.OK, "OK");
+            doAuthTest("user", "user",   registerUserUrlWithAppSecret, HttpStatus.OK, "OK");
+            doAuthTest("admin", "admin", registerUserUrlWithAppSecret, HttpStatus.OK, "OK");
 
             doAuthTest(null, null, "/users/", HttpStatus.UNAUTHORIZED, null);
             doAuthTest("user", "user", "/users/", HttpStatus.FORBIDDEN, null);

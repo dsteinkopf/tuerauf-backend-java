@@ -3,16 +3,18 @@ package net.steinkopf.tuerauf.rest;
 import net.steinkopf.tuerauf.repository.UserRepository;
 import net.steinkopf.tuerauf.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(value="/frontend")
-@Secured({"ROLE_USER"})
+@RequestMapping(value=FrontendAPIRestController.FRONTEND_URL)
+// restricted by AppsecretChecker: @Secured({"ROLE_USER"})
 public class FrontendAPIRestController {
+
+	public static final String FRONTEND_URL = "/frontend";
+	public static final String FRONTEND_URL_PATTERN = FRONTEND_URL + "/**";
 
 	@Autowired
 	private UserRepository userRepository;

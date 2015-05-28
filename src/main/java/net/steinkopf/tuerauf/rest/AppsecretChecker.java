@@ -22,8 +22,6 @@ public class AppsecretChecker extends HandlerInterceptorAdapter {
     @Value("${tuerauf.appsecret}")
     private String appsecret;
 
-    private String urlPatternToCheck = "/frontend/**";
-
 
     public AppsecretChecker() {
 
@@ -34,7 +32,7 @@ public class AppsecretChecker extends HandlerInterceptorAdapter {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response,
                              Object handler) throws Exception {
 
-        String urlPattern = request.getContextPath() + urlPatternToCheck;
+        String urlPattern = request.getContextPath() + FrontendAPIRestController.FRONTEND_URL_PATTERN;
         boolean isFrontendRequest = new AntPathMatcher().match(urlPattern, request.getRequestURI());
         if ( ! isFrontendRequest) {
             return true;
@@ -44,7 +42,7 @@ public class AppsecretChecker extends HandlerInterceptorAdapter {
 
         String appsecretParam = request.getParameter("appsecret");
         if ( ! appsecret.equals(appsecretParam)) {
-            throw new AuthenticationCredentialsNotFoundException("URL param appsecret is missing or wrong: " + appsecret);
+            throw new AuthenticationCredentialsNotFoundException("URL param appsecret is missing or wrong: " + appsecretParam);
         }
         return true;
     }
