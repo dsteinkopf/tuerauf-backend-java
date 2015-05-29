@@ -1,5 +1,6 @@
 package net.steinkopf.tuerauf.rest;
 
+import net.steinkopf.tuerauf.data.User;
 import net.steinkopf.tuerauf.repository.UserRepository;
 import net.steinkopf.tuerauf.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,8 +30,21 @@ public class FrontendAPIRestController {
 	@RequestMapping(value="registerUser", method= RequestMethod.GET )
 	public String registerUser(@RequestParam("username") String username,
                                @RequestParam("pin") String pin,
-                               @RequestParam("installationId") String installationId) {
+                               @RequestParam("installationId") String installationId)
+    throws Exception {
 
-		return userService.registerUser(username, pin, installationId);
+		final User user = userService.registerOrUpdateUser(username, pin, installationId);
+
+        if (user.getUsernameOld() != null) {
+            // TODO logAndMail("user $user->usernameOld changed name to $user->username (installationId=$user->installationId)");
+        }
+        if (user.getPinOld() != null) {
+            // TODO logAndMail("user $user->username changed pin (installationId=$user->installationId)");
+        }
+        // TODO logAndMail("user $user->username saved (installationId=$user->installationId)");
+
+        return "saved:"
+                + (user.isNewUser() ? " new" : " changed")
+                + (user.isActive() ? " active": " inactive");
 	}
 }

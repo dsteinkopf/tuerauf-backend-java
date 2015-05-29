@@ -30,4 +30,6 @@ public interface UserRepository extends PagingAndSortingRepository<User, Long> {
     List<User> findByActive(boolean active);
 
     List<User> findByActiveFalseAndNewUserTrue();
+
+    List<User> findByInstallationId(String installationId);
 }

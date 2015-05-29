@@ -1,9 +1,12 @@
 package net.steinkopf.tuerauf.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import net.steinkopf.tuerauf.data.User;
 import net.steinkopf.tuerauf.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import java.util.List;
 
@@ -13,8 +16,12 @@ import java.util.List;
 @Service
 public class UserService {
 
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
+
     @Autowired
     private UserRepository userRepository;
+
+    private final int MAX_SERIAL_ID = 16;
 
 
     /**
@@ -26,9 +33,43 @@ public class UserService {
         userList.forEach(user -> { user.setActive(true); userRepository.save(user); });
     }
 
-    public String registerUser(final String username, final String pin, final String installationId) {
+    public User registerOrUpdateUser(final String username, final String pin, final String installationId) throws Exception {
 
-        // TODO
-        return "All OK. username=" + username;
+        Assert.isTrue(username.length() >= 2, "username must be at least 2 characters");
+        Assert.isTrue(pin.length() == 4, "pin must be exactly 4 characters");
+        Assert.isTrue(installationId.length() >= 10, "installationId must be at least 10 characters");
+
+        List<User> existingUser = userRepository.findByInstallationId(installationId); // can only be 1 or none.
+        User user;
+        if (existingUser.isEmpty()) {
+            // create new User
+            user = new User(installationId);
+            user.setSerialId(findFreeSerialId());
+        }
+        else {
+            // update existing User
+            user = existingUser.get(0);
+        }
+        user.updateData(username, pin);
+        userRepository.save(user);
+
+        return user;
     }
+
+    private int findFreeSerialId() throws Exception {
+
+        boolean serialIdIsUsed[] = new boolean[MAX_SERIAL_ID];
+        userRepository.findAll().forEach(user -> {
+            serialIdIsUsed[user.getSerialId()] = true;
+        });
+        for (int serialId = 0; serialId < MAX_SERIAL_ID; serialId++) {
+            if ( ! serialIdIsUsed[serialId]) {
+                logger.debug("findFreeSerialId returns serialId {}", serialId);
+                return serialId;
+            }
+        }
+        // TODO Montoring-Mail
+        throw new Exception("too many users - MAX_SERIAL_ID reached");
+    }
+
 }

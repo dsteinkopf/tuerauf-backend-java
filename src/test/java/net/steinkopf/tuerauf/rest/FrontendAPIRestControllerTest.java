@@ -1,7 +1,11 @@
 package net.steinkopf.tuerauf.rest;
 
+import net.steinkopf.tuerauf.SecurityContextTest;
 import net.steinkopf.tuerauf.TueraufApplication;
+import net.steinkopf.tuerauf.data.User;
+import net.steinkopf.tuerauf.repository.UserRepository;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -18,8 +22,10 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.security.Principal;
+import java.util.List;
 
-import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -30,12 +36,25 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = TueraufApplication.class)
 @WebAppConfiguration
-public class FrontendAPIRestControllerTest {
+public class FrontendAPIRestControllerTest extends SecurityContextTest {
 
     @Autowired
     private WebApplicationContext context;
 
+    @Autowired
+    private UserRepository userRepository;
+
     private MockMvc mvc;
+
+    private final static String REGISTER_USER_URL = FrontendAPIRestController.FRONTEND_URL + "/registerUser";
+
+    private final static String TEST_INSTALLATION_ID = "1234567890";
+    private final static String TEST_PIN = "1111";
+    private final static String TEST_PIN2 = "2222";
+    private final static String TEST_USERNAME = "New Username";
+    private final static String TEST_USERNAME2 = "Updated Username";
+    private final static int TEST_SERIAL_ID = 0;
+    private final static int TEST_SERIAL_ID2 = 1;
 
 
     @Before
@@ -47,24 +66,117 @@ public class FrontendAPIRestControllerTest {
     @Test
     public void testRegisterUser() throws Exception {
 
-        if (false) {
-            // Test fails like this. Why is the user not recognised?
+        // Pre-Check
+        assertThat(userRepository.findByActive(false).size(), is(equalTo(0)));
+        assertThat(userRepository.findByActive(true).size(), is(equalTo(0)));
 
-            UsernamePasswordAuthenticationToken principal = new UsernamePasswordAuthenticationToken((Principal) () -> "user", "user");
+        // Run
+        doRegisterNewTestUser();
 
-            SecurityContext mockSecurityContext = Mockito.mock(SecurityContext.class);
-            Mockito.when(mockSecurityContext.getAuthentication()).thenReturn(principal);
+        // Check
+        assertThat(userRepository.findByActive(false).size(), is(equalTo(1)));
 
-            MockHttpSession mockHttpSession = new MockHttpSession();
-            mockHttpSession.setAttribute(
-                    HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
-                    mockSecurityContext);
+        List<User> newUserList = userRepository.findByInstallationId(TEST_INSTALLATION_ID);
+        assertThat(newUserList.size(), is(equalTo(1)));
 
-            this.mvc.perform(get(FrontendAPIRestController.FRONTEND_URL + "/registerUser?username=abc&pin=1111&installationId=123456789&appsecret=secretApp").session(mockHttpSession))
-                    .andExpect(status().is4xxClientError());
-        }
-        this.mvc.perform(get(FrontendAPIRestController.FRONTEND_URL + "/registerUser?username=abc&pin=1111&installationId=123456789&appsecret=secretApp"))
+        User newUser = newUserList.get(0);
+        assertThat(newUser.getInstallationId(), is(equalTo(TEST_INSTALLATION_ID)));
+        assertThat(newUser.getPin(), is(equalTo(TEST_PIN)));
+        assertThat(newUser.getUsername(), is(equalTo(TEST_USERNAME)));
+        assertThat(newUser.isActive(), is(equalTo(false)));
+        assertThat(newUser.isNewUser(), is(equalTo(true)));
+        assertThat(newUser.getSerialId(), is(equalTo(TEST_SERIAL_ID)));
+        assertThat(newUser.getUsernameOld(), is(equalTo(null)));
+        assertThat(newUser.getPinOld(), is(equalTo(null)));
+    }
+
+    @Test
+    public void testUpdateUser() throws Exception {
+
+        // Pre-Check
+        assertThat(userRepository.findByActive(false).size(), is(equalTo(0)));
+        assertThat(userRepository.findByActive(true).size(), is(equalTo(0)));
+
+        // Prepare
+        doRegisterNewTestUser();
+        User user = userRepository.findByInstallationId(TEST_INSTALLATION_ID).get(0);
+        user.setActive(true);
+        userRepository.save(user);
+        assertThat(userRepository.findByActive(false).size(), is(equalTo(0)));
+        assertThat(userRepository.findByActive(true).size(), is(equalTo(1)));
+
+        // Run
+        this.mvc.perform(get(REGISTER_USER_URL)
+                        .param("username", TEST_USERNAME2)
+                        .param("pin", TEST_PIN2)
+                        .param("installationId", TEST_INSTALLATION_ID)
+                        .param("appsecret", "secretApp")
+        )
                 .andExpect(status().isOk())
-                .andExpect(content().string(containsString("All OK. username=abc")));
+                .andExpect(content().string(containsString("saved")))
+                .andExpect(content().string(containsString("changed")))
+                .andExpect(content().string(containsString(" active")));
+
+        // Check
+        assertThat(userRepository.findByActive(true).size(), is(equalTo(1))); // user will not be deactivated by updating data.
+
+        List<User> newUserList = userRepository.findByInstallationId(TEST_INSTALLATION_ID);
+        assertThat(newUserList.size(), is(equalTo(1)));
+
+        User newUser = newUserList.get(0);
+        assertThat(newUser.getInstallationId(), is(equalTo(TEST_INSTALLATION_ID)));
+        assertThat(newUser.getPin(), is(equalTo(TEST_PIN2)));
+        assertThat(newUser.getUsername(), is(equalTo(TEST_USERNAME2)));
+        assertThat(newUser.isActive(), is(equalTo(true)));
+        assertThat(newUser.isNewUser(), is(equalTo(false)));
+        assertThat(newUser.getPinOld(), is(equalTo(TEST_PIN)));
+        assertThat(newUser.getUsernameOld(), is(equalTo(TEST_USERNAME)));
+        assertThat(newUser.getSerialId(), is(equalTo(TEST_SERIAL_ID)));
+
+        // Run - 2: Reset Old values.
+        User user2 = userRepository.findByInstallationId(TEST_INSTALLATION_ID).get(0);
+        user2.setActive(true);
+        userRepository.save(user2);
+        assertThat(userRepository.findByActive(false).size(), is(equalTo(0)));
+        assertThat(userRepository.findByActive(true).size(), is(equalTo(1)));
+
+        // Check - 2
+        User user3 = userRepository.findByInstallationId(TEST_INSTALLATION_ID).get(0); // re-read because newUser won't be updated.
+        user3.setActive(true);
+        userRepository.save(user3);
+        assertThat(user3.getPinOld(), is(equalTo(null)));
+        assertThat(user3.getUsernameOld(), is(equalTo(null)));
+    }
+
+    private void doRegisterNewTestUser() throws Exception {
+
+        this.mvc.perform(get(REGISTER_USER_URL)
+                        .param("username", TEST_USERNAME)
+                        .param("pin", TEST_PIN)
+                        .param("installationId", TEST_INSTALLATION_ID)
+                        .param("appsecret", "secretApp")
+        )
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("saved")))
+                .andExpect(content().string(containsString("new")))
+                .andExpect(content().string(containsString("inactive")));
+    }
+
+    @Test
+    @Ignore("Test fails like this. Why is the user not recognised?")
+    public void testRegisterUser2() throws Exception {
+
+        UsernamePasswordAuthenticationToken principal = new UsernamePasswordAuthenticationToken((Principal) () -> "user", "user");
+
+        SecurityContext mockSecurityContext = Mockito.mock(SecurityContext.class);
+        Mockito.when(mockSecurityContext.getAuthentication()).thenReturn(principal);
+
+        MockHttpSession mockHttpSession = new MockHttpSession();
+        mockHttpSession.setAttribute(
+                HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+                mockSecurityContext);
+
+        this.mvc.perform(get(FrontendAPIRestController.FRONTEND_URL + "/registerUser?username=abc&pin=1111&installationId=123456789&appsecret=secretApp").session(mockHttpSession))
+                .andExpect(status().is4xxClientError());
     }
 }
