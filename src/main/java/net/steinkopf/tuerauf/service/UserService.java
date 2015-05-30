@@ -21,7 +21,7 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    private final int MAX_SERIAL_ID = 16;
+    final static int MAX_SERIAL_ID = 16;
 
 
     /**
@@ -56,7 +56,12 @@ public class UserService {
         return user;
     }
 
-    private int findFreeSerialId() throws Exception {
+    /**
+     * Find the lowest free (usable) serial id
+     * @return free serial id.
+     * @throws Exception if all serial ids are used.
+     */
+    public int findFreeSerialId() throws IndexOutOfBoundsException {
 
         boolean serialIdIsUsed[] = new boolean[MAX_SERIAL_ID];
         userRepository.findAll().forEach(user -> {
@@ -69,7 +74,7 @@ public class UserService {
             }
         }
         // TODO Montoring-Mail
-        throw new Exception("too many users - MAX_SERIAL_ID reached");
+        throw new IndexOutOfBoundsException("too many users - MAX_SERIAL_ID reached");
     }
 
 }

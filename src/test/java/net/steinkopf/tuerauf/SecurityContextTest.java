@@ -31,7 +31,7 @@ public abstract class SecurityContextTest {
      * Adds a valid (authenticated) principal to SecurityContextHolder.
      */
     @Before
-    public void setup() {
+    public void setup() throws Exception {
 
         // add principal object to SecurityContextHolder
         Principal principal = new Principal() {

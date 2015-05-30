@@ -90,6 +90,7 @@ public class TueraufApplication extends SpringBootServletInitializer {
                     .antMatchers(FrontendAPIRestController.FRONTEND_URL_PATTERN).anonymous() // restricted by AppsecretChecker
                     .antMatchers(FrontendAPIRestController.FRONTEND_URL_PATTERN).permitAll() // restricted by AppsecretChecker
                     .antMatchers("/admin/**").access("hasRole('ROLE_ADMIN')")
+                    .antMatchers("/users/**").access("hasRole('ROLE_ADMIN')")
                     .anyRequest().fullyAuthenticated()
                     .and().httpBasic();
         }

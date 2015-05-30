@@ -49,6 +49,7 @@ public class FrontendAPIRestControllerTest extends SecurityContextTest {
     private final static String REGISTER_USER_URL = FrontendAPIRestController.FRONTEND_URL + "/registerUser";
 
     private final static String TEST_INSTALLATION_ID = "1234567890";
+    private final static String TEST_INSTALLATION_ID2 = "1234567891";
     private final static String TEST_PIN = "1111";
     private final static String TEST_PIN2 = "2222";
     private final static String TEST_USERNAME = "New Username";
@@ -66,90 +67,11 @@ public class FrontendAPIRestControllerTest extends SecurityContextTest {
     @Test
     public void testRegisterUser() throws Exception {
 
-        // Pre-Check
-        assertThat(userRepository.findByActive(false).size(), is(equalTo(0)));
-        assertThat(userRepository.findByActive(true).size(), is(equalTo(0)));
-
-        // Run
-        doRegisterNewTestUser();
-
-        // Check
-        assertThat(userRepository.findByActive(false).size(), is(equalTo(1)));
-
-        List<User> newUserList = userRepository.findByInstallationId(TEST_INSTALLATION_ID);
-        assertThat(newUserList.size(), is(equalTo(1)));
-
-        User newUser = newUserList.get(0);
-        assertThat(newUser.getInstallationId(), is(equalTo(TEST_INSTALLATION_ID)));
-        assertThat(newUser.getPin(), is(equalTo(TEST_PIN)));
-        assertThat(newUser.getUsername(), is(equalTo(TEST_USERNAME)));
-        assertThat(newUser.isActive(), is(equalTo(false)));
-        assertThat(newUser.isNewUser(), is(equalTo(true)));
-        assertThat(newUser.getSerialId(), is(equalTo(TEST_SERIAL_ID)));
-        assertThat(newUser.getUsernameOld(), is(equalTo(null)));
-        assertThat(newUser.getPinOld(), is(equalTo(null)));
-    }
-
-    @Test
-    public void testUpdateUser() throws Exception {
-
-        // Pre-Check
-        assertThat(userRepository.findByActive(false).size(), is(equalTo(0)));
-        assertThat(userRepository.findByActive(true).size(), is(equalTo(0)));
-
         // Prepare
-        doRegisterNewTestUser();
-        User user = userRepository.findByInstallationId(TEST_INSTALLATION_ID).get(0);
-        user.setActive(true);
-        userRepository.save(user);
-        assertThat(userRepository.findByActive(false).size(), is(equalTo(0)));
-        assertThat(userRepository.findByActive(true).size(), is(equalTo(1)));
+        int inActiveBefore = userRepository.findByActive(false).size();
+        int activeBefore = userRepository.findByActive(true).size();
 
         // Run
-        this.mvc.perform(get(REGISTER_USER_URL)
-                        .param("username", TEST_USERNAME2)
-                        .param("pin", TEST_PIN2)
-                        .param("installationId", TEST_INSTALLATION_ID)
-                        .param("appsecret", "secretApp")
-        )
-                .andExpect(status().isOk())
-                .andExpect(content().string(containsString("saved")))
-                .andExpect(content().string(containsString("changed")))
-                .andExpect(content().string(containsString(" active")));
-
-        // Check
-        assertThat(userRepository.findByActive(true).size(), is(equalTo(1))); // user will not be deactivated by updating data.
-
-        List<User> newUserList = userRepository.findByInstallationId(TEST_INSTALLATION_ID);
-        assertThat(newUserList.size(), is(equalTo(1)));
-
-        User newUser = newUserList.get(0);
-        assertThat(newUser.getInstallationId(), is(equalTo(TEST_INSTALLATION_ID)));
-        assertThat(newUser.getPin(), is(equalTo(TEST_PIN2)));
-        assertThat(newUser.getUsername(), is(equalTo(TEST_USERNAME2)));
-        assertThat(newUser.isActive(), is(equalTo(true)));
-        assertThat(newUser.isNewUser(), is(equalTo(false)));
-        assertThat(newUser.getPinOld(), is(equalTo(TEST_PIN)));
-        assertThat(newUser.getUsernameOld(), is(equalTo(TEST_USERNAME)));
-        assertThat(newUser.getSerialId(), is(equalTo(TEST_SERIAL_ID)));
-
-        // Run - 2: Reset Old values.
-        User user2 = userRepository.findByInstallationId(TEST_INSTALLATION_ID).get(0);
-        user2.setActive(true);
-        userRepository.save(user2);
-        assertThat(userRepository.findByActive(false).size(), is(equalTo(0)));
-        assertThat(userRepository.findByActive(true).size(), is(equalTo(1)));
-
-        // Check - 2
-        User user3 = userRepository.findByInstallationId(TEST_INSTALLATION_ID).get(0); // re-read because newUser won't be updated.
-        user3.setActive(true);
-        userRepository.save(user3);
-        assertThat(user3.getPinOld(), is(equalTo(null)));
-        assertThat(user3.getUsernameOld(), is(equalTo(null)));
-    }
-
-    private void doRegisterNewTestUser() throws Exception {
-
         this.mvc.perform(get(REGISTER_USER_URL)
                         .param("username", TEST_USERNAME)
                         .param("pin", TEST_PIN)
@@ -160,6 +82,94 @@ public class FrontendAPIRestControllerTest extends SecurityContextTest {
                 .andExpect(content().string(containsString("saved")))
                 .andExpect(content().string(containsString("new")))
                 .andExpect(content().string(containsString("inactive")));
+
+        // Check
+        assertThat(userRepository.findByActive(false).size(), is(equalTo(inActiveBefore + 1)));
+        assertThat(userRepository.findByActive(true).size(), is(equalTo(activeBefore)));
+
+        List<User> newUserList = userRepository.findByInstallationId(TEST_INSTALLATION_ID);
+        assertThat(newUserList.size(), is(equalTo(1)));
+
+        User newUser = newUserList.get(0);
+        assertThat(newUser.getInstallationId(), is(equalTo(TEST_INSTALLATION_ID)));
+        assertThat(newUser.getPin(), is(equalTo(TEST_PIN)));
+        assertThat(newUser.getUsername(), is(equalTo(TEST_USERNAME)));
+        assertThat(newUser.isActive(), is(equalTo(false)));
+        assertThat(newUser.isNewUser(), is(equalTo(true)));
+        assertThat(newUser.getSerialId(), is(equalTo(TEST_SERIAL_ID2)));
+        assertThat(newUser.getUsernameOld(), is(equalTo(null)));
+        assertThat(newUser.getPinOld(), is(equalTo(null)));
+    }
+
+    @Test
+    public void testUpdateUser() throws Exception {
+
+
+        // Prepare
+        int inActiveBefore = userRepository.findByActive(false).size();
+        int activeBefore = userRepository.findByActive(true).size();
+
+        this.mvc.perform(get(REGISTER_USER_URL)
+                        .param("username", TEST_USERNAME)
+                        .param("pin", TEST_PIN)
+                        .param("installationId", TEST_INSTALLATION_ID2)
+                        .param("appsecret", "secretApp")
+        )
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("saved")))
+                .andExpect(content().string(containsString("new")))
+                .andExpect(content().string(containsString("inactive")));
+
+        User user = userRepository.findByInstallationId(TEST_INSTALLATION_ID2).get(0);
+        user.setActive(true);
+        userRepository.save(user);
+        assertThat(userRepository.findByActive(false).size(), is(equalTo(inActiveBefore)));
+        assertThat(userRepository.findByActive(true).size(), is(equalTo(activeBefore + 1)));
+
+        // Run
+        this.mvc.perform(get(REGISTER_USER_URL)
+                        .param("username", TEST_USERNAME2)
+                        .param("pin", TEST_PIN2)
+                        .param("installationId", TEST_INSTALLATION_ID2)
+                        .param("appsecret", "secretApp")
+        )
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("saved")))
+                .andExpect(content().string(containsString("changed")))
+                .andExpect(content().string(containsString(" active")));
+
+        // Check
+        assertThat(userRepository.findByActive(true).size(), is(equalTo(activeBefore + 1))); // user will not be deactivated by updating data.
+
+        List<User> newUserList = userRepository.findByInstallationId(TEST_INSTALLATION_ID2);
+        assertThat(newUserList.size(), is(equalTo(1)));
+
+        User newUser = newUserList.get(0);
+        assertThat(newUser.getInstallationId(), is(equalTo(TEST_INSTALLATION_ID2)));
+        assertThat(newUser.getPin(), is(equalTo(TEST_PIN2)));
+        assertThat(newUser.getUsername(), is(equalTo(TEST_USERNAME2)));
+        assertThat(newUser.isActive(), is(equalTo(true)));
+        assertThat(newUser.isNewUser(), is(equalTo(false)));
+        assertThat(newUser.getPinOld(), is(equalTo(TEST_PIN)));
+        assertThat(newUser.getUsernameOld(), is(equalTo(TEST_USERNAME)));
+        assertThat(newUser.getSerialId(), is(equalTo(TEST_SERIAL_ID)));
+
+        // Run - 2: Reset Old values.
+        User user2 = userRepository.findByInstallationId(TEST_INSTALLATION_ID2).get(0);
+        user2.setActive(true);
+        userRepository.save(user2);
+        assertThat(userRepository.findByActive(false).size(), is(equalTo(0)));
+        assertThat(userRepository.findByActive(true).size(), is(equalTo(1)));
+
+        // Check - 2
+        User user3 = userRepository.findByInstallationId(TEST_INSTALLATION_ID2).get(0); // re-read because newUser won't be updated.
+        user3.setActive(true);
+        userRepository.save(user3);
+        assertThat(user3.getPinOld(), is(equalTo(null)));
+        assertThat(user3.getUsernameOld(), is(equalTo(null)));
+
+        assertThat(userRepository.findByActive(false).size(), is(equalTo(inActiveBefore)));
+        assertThat(userRepository.findByActive(true).size(), is(equalTo(activeBefore + 1)));
     }
 
     @Test

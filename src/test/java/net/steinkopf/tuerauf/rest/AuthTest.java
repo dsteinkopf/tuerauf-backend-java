@@ -4,6 +4,8 @@ import net.steinkopf.tuerauf.TueraufApplication;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.TestRestTemplate;
@@ -28,6 +30,9 @@ import static org.junit.Assert.assertTrue;
 @SpringApplicationConfiguration(classes = TueraufApplication.class)
 @WebIntegrationTest(randomPort = true) // makes Tomcat run and listen on port
 public class AuthTest {
+
+    private static final Logger logger = LoggerFactory.getLogger(AuthTest.class);
+
 
     @Value("${local.server.port}")
     private int port = 8080;
@@ -64,26 +69,27 @@ public class AuthTest {
     @Test
     public void authTest() throws Exception {
 
-        String registerUserUrl = FrontendAPIRestController.FRONTEND_URL + "/registerUser?username=test&pin=1111&installationId=999999";
+        String registerUserUrl = FrontendAPIRestController.FRONTEND_URL + "/registerUser?username=test&pin=1111&installationId=99999999999";
         String registerUserUrlWithAppSecret = registerUserUrl + "&appsecret=secretApp";
 
-        if (true) {
-            doAuthTest(null,    null,    registerUserUrl, HttpStatus.UNAUTHORIZED, null);
-            doAuthTest("user", "user",   registerUserUrl, HttpStatus.UNAUTHORIZED, null);
-            doAuthTest("admin", "admin", registerUserUrl, HttpStatus.UNAUTHORIZED, null);
+        String successfulResult = "saved: new inactive";
 
-            doAuthTest(null,    null,    registerUserUrlWithAppSecret, HttpStatus.OK, "OK");
-            doAuthTest("user", "user",   registerUserUrlWithAppSecret, HttpStatus.OK, "OK");
-            doAuthTest("admin", "admin", registerUserUrlWithAppSecret, HttpStatus.OK, "OK");
+        doAuthTest(null, null, registerUserUrl, HttpStatus.UNAUTHORIZED, null);
+        doAuthTest("user", "user", registerUserUrl, HttpStatus.UNAUTHORIZED, null);
+        doAuthTest("admin", "admin", registerUserUrl, HttpStatus.UNAUTHORIZED, null);
 
-            doAuthTest(null, null, "/users/", HttpStatus.UNAUTHORIZED, null);
-            doAuthTest("user", "user", "/users/", HttpStatus.FORBIDDEN, null);
-            doAuthTest("admin", "admin", "/users/", HttpStatus.OK, "users");
+        doAuthTest(null,    null,    registerUserUrlWithAppSecret, HttpStatus.OK, successfulResult);
+        doAuthTest("user", "user",   registerUserUrlWithAppSecret, HttpStatus.OK, successfulResult);
+        doAuthTest("admin", "admin", registerUserUrlWithAppSecret, HttpStatus.OK, successfulResult);
 
-            doAuthTest(null, null, "/", HttpStatus.UNAUTHORIZED, null);
-            doAuthTest("user", "user", "/", HttpStatus.OK, "users");
-            doAuthTest("admin", "admin", "/", HttpStatus.OK, "users");
-        }
+        doAuthTest(null, null, "/users/", HttpStatus.UNAUTHORIZED, null);
+        doAuthTest("user", "user", "/users/", HttpStatus.FORBIDDEN, null);
+        doAuthTest("admin", "admin", "/users/", HttpStatus.OK, "users");
+
+        doAuthTest(null, null, "/", HttpStatus.UNAUTHORIZED, null);
+        doAuthTest("user", "user", "/", HttpStatus.OK, "users");
+        doAuthTest("admin", "admin", "/", HttpStatus.OK, "users");
+
         // geht nicht, weil Test als jar läuft - nicht war... doAuthTest(null,    null,    "/admin/", HttpStatus.UNAUTHORIZED, null);
         // geht nicht, weil Test als jar läuft - nicht war... doAuthTest("user",  "user",  "/admin/", HttpStatus.FORBIDDEN, null);
         // geht nicht, weil Test als jar läuft - nicht war... doAuthTest("admin", "admin", "/admin/", HttpStatus.OK, "LightAdmin");

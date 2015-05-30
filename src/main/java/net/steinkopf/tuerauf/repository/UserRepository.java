@@ -19,12 +19,11 @@ package net.steinkopf.tuerauf.repository;
 import net.steinkopf.tuerauf.data.User;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
-import org.springframework.security.access.annotation.Secured;
 
 import java.util.List;
 
 @RepositoryRestResource(collectionResourceRel = "users", path = "users")
-@Secured({"ROLE_ADMIN"})
+// @Secured({"ROLE_ADMIN"})
 public interface UserRepository extends PagingAndSortingRepository<User, Long> {
 
     List<User> findByActive(boolean active);
