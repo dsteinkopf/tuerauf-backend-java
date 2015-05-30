@@ -35,14 +35,6 @@ public class FrontendAPIRestController {
 
 		final User user = userService.registerOrUpdateUser(username, pin, installationId);
 
-        if (user.getUsernameOld() != null) {
-            // TODO logAndMail("user $user->usernameOld changed name to $user->username (installationId=$user->installationId)");
-        }
-        if (user.getPinOld() != null) {
-            // TODO logAndMail("user $user->username changed pin (installationId=$user->installationId)");
-        }
-        // TODO logAndMail("user $user->username saved (installationId=$user->installationId)");
-
         return "saved:"
                 + (user.isNewUser() ? " new" : " changed")
                 + (user.isActive() ? " active": " inactive");

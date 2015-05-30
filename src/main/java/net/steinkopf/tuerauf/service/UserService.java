@@ -1,9 +1,9 @@
 package net.steinkopf.tuerauf.service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import net.steinkopf.tuerauf.data.User;
 import net.steinkopf.tuerauf.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -18,8 +18,13 @@ public class UserService {
 
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
+
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private LogAndMailService logAndMailService;
+
 
     final static int MAX_SERIAL_ID = 16;
 
@@ -52,6 +57,26 @@ public class UserService {
         }
         user.updateData(username, pin);
         userRepository.save(user);
+
+        // Log and send admin notifications:
+        if (user.getUsernameOld() != null) {
+            logAndMailService.logAndMail("user {} changed name to {} (installationId={})",
+                    user.getUsernameOld(),
+                    user.getUsername(),
+                    user.getInstallationId()
+            );
+        }
+        if (user.getPinOld() != null) {
+            logAndMailService.logAndMail("user {} changed pin to {} (installationId={})",
+                    user.getUsername(),
+                    user.getPin(),
+                    user.getInstallationId()
+            );
+        }
+        logAndMailService.logAndMail("user {} saved (installationId={})",
+                user.getUsername(),
+                user.getInstallationId()
+        );
 
         return user;
     }
