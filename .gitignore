@@ -73,3 +73,8 @@ Desktop.ini
 # Gradle Wrapper
 ######################
 !gradle/wrapper/gradle-wrapper.jar
+
+######################
+# added autom.
+######################
+application-prod.properties

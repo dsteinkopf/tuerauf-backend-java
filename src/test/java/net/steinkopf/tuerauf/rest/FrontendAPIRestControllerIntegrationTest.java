@@ -13,6 +13,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.mock.web.MockHttpSession;
@@ -40,12 +42,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Tests for {@link FrontendAPIRestController} without mocking.
+ * Tests for {@link FrontendAPIRestController} with very little mocking.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = TueraufApplication.class)
 @WebAppConfiguration
 public class FrontendAPIRestControllerIntegrationTest extends SecurityContextTest {
+
+    @SuppressWarnings("unused")
+    private static final Logger logger = LoggerFactory.getLogger(FrontendAPIRestControllerIntegrationTest.class);
+
 
     @Autowired
     private WebApplicationContext context;

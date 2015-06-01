@@ -1,7 +1,9 @@
 package net.steinkopf.tuerauf.service;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.helpers.MessageFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
@@ -25,6 +27,9 @@ public class LogAndMailService {
     @Value("${tuerauf.admin-mail-address}")
     private String adminMailAddress;
 
+    @Value("${tuerauf.from-mail-address}")
+    private String fromMailAddress;
+
     @Autowired
     private JavaMailSender javaMailSender;
 
@@ -47,17 +52,19 @@ public class LogAndMailService {
 
     public void logAndMail(String format, Object... arguments) {
 
-        final String message = String.format(format, arguments);
+        final String message = MessageFormatter.arrayFormat(format, arguments).getMessage();
         logger.warn(message);
 
-        CompletableFuture.supplyAsync(() -> {
-            sendMail(adminMailAddress, "mail from tuerauf service", message);
-            return null;
-        }, executor)
-        .exceptionally(ex -> {
-            logger.error("exception caught when sending mail: " + ex.getMessage());
-            return null;
-        });
+        if (StringUtils.isNotEmpty(adminMailAddress)) {
+            CompletableFuture.supplyAsync(() -> {
+                sendMail(adminMailAddress, "mail from tuerauf service", message);
+                return null;
+            }, executor)
+                    .exceptionally(ex -> {
+                        logger.error("exception caught when sending mail: " + ex.getMessage());
+                        return null;
+                    });
+        }
     }
 
     /**
@@ -69,6 +76,9 @@ public class LogAndMailService {
         message.setTo(to);
         message.setSubject(subject);
         message.setText(body);
+        if (StringUtils.isNotEmpty(fromMailAddress)) {
+            message.setFrom(fromMailAddress);
+        }
         javaMailSender.send(message);
     }
 }

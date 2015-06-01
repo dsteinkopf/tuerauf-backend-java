@@ -2,8 +2,12 @@ package net.steinkopf.tuerauf;
 
 import net.steinkopf.tuerauf.rest.AppsecretChecker;
 import net.steinkopf.tuerauf.rest.FrontendAPIRestController;
+import org.apache.commons.lang3.StringUtils;
 import org.lightadmin.api.config.LightAdmin;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
@@ -32,16 +36,20 @@ import javax.servlet.ServletException;
 //@ComponentScan
 public class TueraufApplication extends SpringBootServletInitializer {
 
+    @SuppressWarnings("unused")
+    private static final Logger logger = LoggerFactory.getLogger(TueraufApplication.class);
+
+
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
-
-        // see also class UserAdministration
 
         LightAdmin.configure(servletContext)
                 .basePackage("net.steinkopf.tuerauf")
                 .baseUrl("/admin")
                 .security(false)
                 .backToSiteUrl("http://lightadmin.org");
+        // class UserAdministration is uses for config.
+
         super.onStartup(servletContext);
     }
 
@@ -70,11 +78,22 @@ public class TueraufApplication extends SpringBootServletInitializer {
     protected static class AuthenticationSecurity extends
             GlobalAuthenticationConfigurerAdapter {
 
+        @Value("${tuerauf.admin-password}")
+        private String adminPassword;
+
+        @Value("${tuerauf.user-password:}")
+        private String userPassword;
+
+
         @Override
         public void init(AuthenticationManagerBuilder auth) throws Exception {
             auth.inMemoryAuthentication()
-                    .withUser("admin").password("admin").roles("ADMIN", "USER").and()
-                    .withUser("user").password("user").roles("USER");
+                    .withUser("admin").password(adminPassword).roles("ADMIN", "USER");
+            if (StringUtils.isNotEmpty(userPassword)) {
+                auth.inMemoryAuthentication()
+                        .withUser("user").password(userPassword).roles("USER");
+
+            }
         }
     }
 
@@ -101,6 +120,10 @@ public class TueraufApplication extends SpringBootServletInitializer {
     //@Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
     protected static class XXApplicationSecurity extends WebSecurityConfigurerAdapter {
 
+        @Value("${tuerauf.admin-password}")
+        private String adminPassword;
+
+
         @Autowired
         private SecurityProperties security;
 
@@ -116,8 +139,9 @@ public class TueraufApplication extends SpringBootServletInitializer {
         public void XXconfigure(AuthenticationManagerBuilder auth) throws Exception {
             auth
                     .inMemoryAuthentication()
-                    .withUser("admin").password("admin").roles("ADMIN", "USER").and()
-                    .withUser("user").password("user").roles("USER");
+                    .withUser("admin").password(adminPassword).roles("ADMIN", "USER");
+                    //.and()
+                    //.withUser("user").password("user").roles("USER");
         }
     }
 
