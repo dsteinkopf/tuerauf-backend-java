@@ -73,15 +73,15 @@ public class ArduinoBackendService {
         }
     }
 
-    void setArduinoBaseUrl(final String arduinoBaseUrl) {
+    public void setArduinoBaseUrl(final String arduinoBaseUrl) {
         this.arduinoBaseUrl = arduinoBaseUrl;
     }
 
-    void setLogAndMailService(final LogAndMailService logAndMailService) {
+    public void setLogAndMailService(final LogAndMailService logAndMailService) {
         this.logAndMailService = logAndMailService;
     }
 
-    void setHttpFetcherService(final HttpFetcherService httpFetcherService) {
+    public void setHttpFetcherService(final HttpFetcherService httpFetcherService) {
         this.httpFetcherService = httpFetcherService;
     }
 }

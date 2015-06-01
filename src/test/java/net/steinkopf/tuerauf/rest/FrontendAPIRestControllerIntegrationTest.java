@@ -5,6 +5,9 @@ import net.steinkopf.tuerauf.TestConstants;
 import net.steinkopf.tuerauf.TueraufApplication;
 import net.steinkopf.tuerauf.data.User;
 import net.steinkopf.tuerauf.repository.UserRepository;
+import net.steinkopf.tuerauf.service.HttpFetcherService;
+import net.steinkopf.tuerauf.service.LocationService;
+import net.steinkopf.tuerauf.service.LogAndMailService;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -28,6 +31,10 @@ import java.util.List;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.anyDouble;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -46,7 +53,16 @@ public class FrontendAPIRestControllerIntegrationTest extends SecurityContextTes
     @Autowired
     private UserRepository userRepository;
 
+    /**
+     * System under Test
+     */
+    @Autowired
+    private FrontendAPIRestController frontendAPIRestController;
+
     private MockMvc mvc;
+    private HttpFetcherService mockHttpFetcherService;
+    private LocationService mockLocationService;
+    private LogAndMailService mockLogAndMailService;
 
     private final static String REGISTER_USER_URL = FrontendAPIRestController.FRONTEND_URL + "/registerUser";
     private final static String OPEN_DOOR_URL = FrontendAPIRestController.FRONTEND_URL + "/openDoor";
@@ -58,7 +74,8 @@ public class FrontendAPIRestControllerIntegrationTest extends SecurityContextTes
     private final static String TEST_USERNAME = "New Username";
     private final static String TEST_USERNAME2 = "Updated Username";
     private final static int TEST_SERIAL_ID = 0;
-    private final static int TEST_SERIAL_ID2 = 1;
+
+    private final static String arduinoBaseUrlDummy = "dummy/";
 
 
     @Before
@@ -67,6 +84,15 @@ public class FrontendAPIRestControllerIntegrationTest extends SecurityContextTes
         super.setup();
 
         this.mvc = MockMvcBuilders.webAppContextSetup(this.context).build();
+
+        mockHttpFetcherService = Mockito.mock(HttpFetcherService.class);
+        mockLocationService = Mockito.mock(LocationService.class);
+        mockLogAndMailService = Mockito.mock(LogAndMailService.class);
+
+        frontendAPIRestController.setLocationService(mockLocationService);
+        frontendAPIRestController.getArduinoBackendService().setLogAndMailService(mockLogAndMailService); // only to make it quiet here
+        frontendAPIRestController.getArduinoBackendService().setHttpFetcherService(mockHttpFetcherService);
+        frontendAPIRestController.getArduinoBackendService().setArduinoBaseUrl(arduinoBaseUrlDummy);
     }
 
     @Test
@@ -195,25 +221,30 @@ public class FrontendAPIRestControllerIntegrationTest extends SecurityContextTes
                 .andExpect(status().is4xxClientError());
     }
 
-    // @Test
+    @Test
     public void testOpenDoor() throws Exception {
 
         // Prepare
         User user = userRepository.findOne(TestConstants.USER_ID_ACTIVE);
         assertNotNull(user);
 
+        final String pin = "2648";
+
+        when(mockLocationService.isNearToHomeOuter(anyDouble(), anyDouble())).thenReturn(true);
+        when(mockLocationService.isNearToHome(anyDouble(), anyDouble())).thenReturn(true);
+        when(mockHttpFetcherService.fetchFromUrl(eq(arduinoBaseUrlDummy + pin + "/" + user.getSerialId() + "/near"), anyInt()))
+                .thenReturn("OFFEN");
+
         // Run
         this.mvc.perform(get(OPEN_DOOR_URL)
-                        .param("pin", "3128")
+                        .param("pin", pin)
                         .param("installationId", user.getInstallationId())
                         .param("geoy", "1.23")
                         .param("geox", "1.23")
                         .param("appsecret", "secretApp")
         )
                 .andExpect(status().isOk())
-                .andExpect(content().string(containsString("saved")))
-                .andExpect(content().string(containsString("new")))
-                .andExpect(content().string(containsString("inactive")));
+                .andExpect(content().string(is(equalTo("OFFEN"))));
 
         // Check
     }
