@@ -179,6 +179,19 @@ public class User {
                 + ",newUser=" + isNewUser();
     }
 
+    @Override
+    public boolean equals(Object objToCompare) {
+
+        if ( ! (objToCompare instanceof User)) {
+            return false;
+        }
+        if (this.getId() == null) {
+            return false;
+        }
+        final User userToCompare = (User) objToCompare;
+        return this.getId().equals(userToCompare.getId());
+    }
+
     public void updateData(final String usernameNew, final String pinNew) {
         if ( ! usernameNew.equals(this.username)) {
             // real change of value

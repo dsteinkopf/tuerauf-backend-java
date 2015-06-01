@@ -38,7 +38,11 @@ public class UserService {
         userList.forEach(user -> { user.setActive(true); userRepository.save(user); });
     }
 
-    public User registerOrUpdateUser(final String username, final String pin, final String installationId) throws Exception {
+    /**
+     * Creates a user object or - if installationId exists - updates this user.
+     * @return created or updated user object.
+     */
+    public User registerOrUpdateUser(final String username, final String pin, final String installationId)  {
 
         Assert.isTrue(username.length() >= 2, "username must be at least 2 characters");
         Assert.isTrue(pin.length() == 4, "pin must be exactly 4 characters");
@@ -82,6 +86,23 @@ public class UserService {
     }
 
     /**
+     * Checks if this user is active
+     * @return user object, if existing and active, null if not.
+     */
+    public User getUserIfActive(final String installationId) {
+
+        final List<User> userList = userRepository.findByInstallationId(installationId);
+        if (userList.size() == 0) {
+            return null;
+        }
+        final User user = userList.get(0);
+        if ( ! user.isActive()) {
+            return null;
+        }
+        return user;
+    }
+
+    /**
      * Find the lowest free (usable) serial id
      * @return free serial id.
      * @throws Exception if all serial ids are used.
@@ -98,7 +119,8 @@ public class UserService {
                 return serialId;
             }
         }
-        // TODO Montoring-Mail
+        // TODO Global Exception Handler
+        logAndMailService.logAndMail("too many users - MAX_SERIAL_ID reached");
         throw new IndexOutOfBoundsException("too many users - MAX_SERIAL_ID reached");
     }
 

@@ -17,7 +17,7 @@ import java.security.Principal;
 public abstract class SecurityContextTest {
 
     @Autowired
-    private LogAndMailService logAndMailService;
+    protected LogAndMailService logAndMailService;
 
 
     /**

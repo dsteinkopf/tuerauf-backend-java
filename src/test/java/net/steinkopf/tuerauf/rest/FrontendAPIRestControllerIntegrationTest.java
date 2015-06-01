@@ -1,6 +1,7 @@
 package net.steinkopf.tuerauf.rest;
 
 import net.steinkopf.tuerauf.SecurityContextTest;
+import net.steinkopf.tuerauf.TestConstants;
 import net.steinkopf.tuerauf.TueraufApplication;
 import net.steinkopf.tuerauf.data.User;
 import net.steinkopf.tuerauf.repository.UserRepository;
@@ -25,18 +26,19 @@ import java.security.Principal;
 import java.util.List;
 
 import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Tests for {@link FrontendAPIRestController}
+ * Tests for {@link FrontendAPIRestController} without mocking.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = TueraufApplication.class)
 @WebAppConfiguration
-public class FrontendAPIRestControllerTest extends SecurityContextTest {
+public class FrontendAPIRestControllerIntegrationTest extends SecurityContextTest {
 
     @Autowired
     private WebApplicationContext context;
@@ -47,6 +49,7 @@ public class FrontendAPIRestControllerTest extends SecurityContextTest {
     private MockMvc mvc;
 
     private final static String REGISTER_USER_URL = FrontendAPIRestController.FRONTEND_URL + "/registerUser";
+    private final static String OPEN_DOOR_URL = FrontendAPIRestController.FRONTEND_URL + "/openDoor";
 
     private final static String TEST_INSTALLATION_ID = "1234567890";
     private final static String TEST_INSTALLATION_ID2 = "1234567891";
@@ -60,6 +63,8 @@ public class FrontendAPIRestControllerTest extends SecurityContextTest {
 
     @Before
     public void setUp() throws Exception {
+
+        super.setup();
 
         this.mvc = MockMvcBuilders.webAppContextSetup(this.context).build();
     }
@@ -158,8 +163,8 @@ public class FrontendAPIRestControllerTest extends SecurityContextTest {
         User user2 = userRepository.findByInstallationId(TEST_INSTALLATION_ID2).get(0);
         user2.setActive(true);
         userRepository.save(user2);
-        assertThat(userRepository.findByActive(false).size(), is(equalTo(0)));
-        assertThat(userRepository.findByActive(true).size(), is(equalTo(1)));
+        assertThat(userRepository.findByActive(false).size(), is(equalTo(inActiveBefore)));
+        assertThat(userRepository.findByActive(true).size(), is(equalTo(activeBefore+1)));
 
         // Check - 2
         User user3 = userRepository.findByInstallationId(TEST_INSTALLATION_ID2).get(0); // re-read because newUser won't be updated.
@@ -188,5 +193,28 @@ public class FrontendAPIRestControllerTest extends SecurityContextTest {
 
         this.mvc.perform(get(FrontendAPIRestController.FRONTEND_URL + "/registerUser?username=abc&pin=1111&installationId=123456789&appsecret=secretApp").session(mockHttpSession))
                 .andExpect(status().is4xxClientError());
+    }
+
+    // @Test
+    public void testOpenDoor() throws Exception {
+
+        // Prepare
+        User user = userRepository.findOne(TestConstants.USER_ID_ACTIVE);
+        assertNotNull(user);
+
+        // Run
+        this.mvc.perform(get(OPEN_DOOR_URL)
+                        .param("pin", "3128")
+                        .param("installationId", user.getInstallationId())
+                        .param("geoy", "1.23")
+                        .param("geox", "1.23")
+                        .param("appsecret", "secretApp")
+        )
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("saved")))
+                .andExpect(content().string(containsString("new")))
+                .andExpect(content().string(containsString("inactive")));
+
+        // Check
     }
 }

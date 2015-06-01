@@ -42,7 +42,7 @@ public class LogAndMailService {
      * @throws InterruptedException
      */
     public void awaitTermination() throws InterruptedException {
-        executor.awaitTermination(200L, TimeUnit.MILLISECONDS);
+        executor.awaitTermination(5L, TimeUnit.SECONDS);
     }
 
     public void logAndMail(String format, Object... arguments) {
