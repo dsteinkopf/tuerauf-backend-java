@@ -1,6 +1,6 @@
 <component name="ArtifactManager">
   <artifact type="exploded-war" name="tuerauf:war exploded">
-    <output-path>$PROJECT_DIR$/target/tuerauf-0.0.1-SNAPSHOT</output-path>
+    <output-path>$PROJECT_DIR$/target/tuerauf</output-path>
     <root id="root">
       <element id="directory" name="WEB-INF">
         <element id="directory" name="classes">
@@ -119,7 +119,7 @@
         </element>
       </element>
       <element id="directory" name="META-INF">
-        <element id="file-copy" path="$PROJECT_DIR$/target/tuerauf-0.0.1-SNAPSHOT/META-INF/MANIFEST.MF" />
+        <element id="file-copy" path="$PROJECT_DIR$/target/tuerauf/META-INF/MANIFEST.MF" />
       </element>
       <element id="javaee-facet-resources" facet="tuerauf/web/Web" />
     </root>

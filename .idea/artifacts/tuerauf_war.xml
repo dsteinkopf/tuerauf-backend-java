@@ -1,7 +1,7 @@
 <component name="ArtifactManager">
   <artifact type="war" name="tuerauf:war">
     <output-path>$PROJECT_DIR$/target</output-path>
-    <root id="archive" name="tuerauf-0.0.1-SNAPSHOT.war">
+    <root id="archive" name="tuerauf.war">
       <element id="artifact" artifact-name="tuerauf:war exploded" />
     </root>
   </artifact>
