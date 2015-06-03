@@ -5,6 +5,7 @@ import net.steinkopf.tuerauf.TueraufApplication;
 import net.steinkopf.tuerauf.data.User;
 import net.steinkopf.tuerauf.repository.UserRepository;
 import net.steinkopf.tuerauf.util.Utils;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,7 +45,10 @@ public class ArduinoBackendServiceTest {
     ArduinoBackendService arduinoBackendService;
 
     private HttpFetcherService mockHttpFetcherService;
+    private HttpFetcherService origHttpFetcherService;
+
     private LogAndMailService mockLogAndMailService;
+    private LogAndMailService origLogAndMailService;
 
     @Autowired
     UserRepository userRepository;
@@ -53,12 +57,23 @@ public class ArduinoBackendServiceTest {
     @Before
     public void setUp() throws Exception {
 
-        mockHttpFetcherService = Mockito.mock(HttpFetcherService.class, withSettings().invocationListeners(Utils.getLoggingInvocationListener(logger)));
-        mockLogAndMailService = Mockito.mock(LogAndMailService.class, withSettings().invocationListeners(Utils.getLoggingInvocationListener(logger)));
+        mockHttpFetcherService = Mockito.mock(HttpFetcherService.class, withSettings().invocationListeners(Utils.getLoggingMockInvocationListener(logger)));
+        mockLogAndMailService = Mockito.mock(LogAndMailService.class, withSettings().invocationListeners(Utils.getLoggingMockInvocationListener(logger)));
 
+        origHttpFetcherService = arduinoBackendService.getHttpFetcherService();
         arduinoBackendService.setHttpFetcherService(mockHttpFetcherService);
+
+        origLogAndMailService = arduinoBackendService.getLogAndMailService();
         arduinoBackendService.setLogAndMailService(mockLogAndMailService);
+
         arduinoBackendService.setArduinoBaseUrl(arduinoBaseUrlDummy);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+
+        arduinoBackendService.setLogAndMailService(origLogAndMailService);
+        arduinoBackendService.setHttpFetcherService(origHttpFetcherService);
     }
 
     @Test

@@ -106,4 +106,8 @@ public class FrontendAPIRestController {
     void setArduinoBackendService(final ArduinoBackendService arduinoBackendService) {
         this.arduinoBackendService = arduinoBackendService;
     }
+
+    public LocationService getLocationService() {
+        return locationService;
+    }
 }

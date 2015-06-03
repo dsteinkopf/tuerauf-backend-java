@@ -7,6 +7,7 @@ import net.steinkopf.tuerauf.repository.UserRepository;
 import net.steinkopf.tuerauf.service.ArduinoBackendService;
 import net.steinkopf.tuerauf.service.LocationService;
 import net.steinkopf.tuerauf.util.Utils;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,13 +39,16 @@ public class FrontendAPIRestControllerUnitTest {
     private static final Logger logger = LoggerFactory.getLogger(FrontendAPIRestControllerUnitTest.class);
 
     /**
-     * System under Test.
+     * Component under Test.
      */
     @Autowired
     private FrontendAPIRestController frontendAPIRestController;
 
     private ArduinoBackendService mockArduinoBackendService;
+    private ArduinoBackendService origArduinoBackendService;
+
     private LocationService mockLocationService;
+    private LocationService origLocationService;
 
     @Autowired
     UserRepository userRepository;
@@ -53,11 +57,21 @@ public class FrontendAPIRestControllerUnitTest {
     @Before
     public void setUp() throws Exception {
 
-        this.mockArduinoBackendService = Mockito.mock(ArduinoBackendService.class, withSettings().invocationListeners(Utils.getLoggingInvocationListener(logger)));
-        this.mockLocationService = Mockito.mock(LocationService.class, withSettings().invocationListeners(Utils.getLoggingInvocationListener(logger)));
+        mockArduinoBackendService = Mockito.mock(ArduinoBackendService.class, withSettings().invocationListeners(Utils.getLoggingMockInvocationListener(logger)));
+        mockLocationService = Mockito.mock(LocationService.class, withSettings().invocationListeners(Utils.getLoggingMockInvocationListener(logger)));
 
+        origArduinoBackendService = frontendAPIRestController.getArduinoBackendService();
         frontendAPIRestController.setArduinoBackendService(mockArduinoBackendService);
+
+        origLocationService = frontendAPIRestController.getLocationService();
         frontendAPIRestController.setLocationService(mockLocationService);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+
+        frontendAPIRestController.setArduinoBackendService(origArduinoBackendService);
+        frontendAPIRestController.setLocationService(origLocationService);
     }
 
     @Test

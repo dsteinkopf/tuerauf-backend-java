@@ -86,4 +86,12 @@ public class ArduinoBackendService {
     public void setHttpFetcherService(final HttpFetcherService httpFetcherService) {
         this.httpFetcherService = httpFetcherService;
     }
+
+    public LogAndMailService getLogAndMailService() {
+        return logAndMailService;
+    }
+
+    public HttpFetcherService getHttpFetcherService() {
+        return httpFetcherService;
+    }
 }
