@@ -75,6 +75,7 @@
           <element id="library" level="project" name="Maven: org.springframework.security:spring-security-web:3.2.7.RELEASE" />
           <element id="library" level="project" name="Maven: org.springframework:spring-aop:4.1.6.RELEASE" />
           <element id="library" level="project" name="Maven: org.hsqldb:hsqldb:2.3.2" />
+          <element id="library" level="project" name="Maven: mysql:mysql-connector-java:5.1.34" />
           <element id="library" level="project" name="Maven: org.lightadmin:lightadmin:1.1.0.BUILD-SNAPSHOT" />
           <element id="library" level="project" name="Maven: org.javassist:javassist:3.18.1-GA" />
           <element id="library" level="project" name="Maven: org.springframework:spring-webmvc:4.1.6.RELEASE" />

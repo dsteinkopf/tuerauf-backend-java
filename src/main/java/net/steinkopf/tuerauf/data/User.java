@@ -67,13 +67,13 @@ public class User {
     /**
      * May the user use his/her account and open the door?
      */
-    @Column
+    @Column(nullable = false)
     private boolean active;
 
     /**
      * Newly created user?
      */
-    @Column
+    @Column(nullable = false)
     private boolean newUser;
 
 
