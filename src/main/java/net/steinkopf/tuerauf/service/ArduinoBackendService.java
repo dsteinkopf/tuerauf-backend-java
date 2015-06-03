@@ -56,6 +56,8 @@ public class ArduinoBackendService {
      */
     public String openDoor(final User user, final String pin, final boolean isNearToHome) {
 
+        logger.trace("openDoor(user={}, pin={}, isNeaToHome={})", user, pin, isNearToHome);
+
         String arduinoUrl = arduinoBaseUrl + pin + "/" + user.getSerialId();
         if (isNearToHome) {
             arduinoUrl += "/near";

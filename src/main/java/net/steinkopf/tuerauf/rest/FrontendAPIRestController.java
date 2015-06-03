@@ -4,6 +4,8 @@ import net.steinkopf.tuerauf.data.User;
 import net.steinkopf.tuerauf.service.ArduinoBackendService;
 import net.steinkopf.tuerauf.service.LocationService;
 import net.steinkopf.tuerauf.service.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -14,6 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = FrontendAPIRestController.FRONTEND_URL)
 // restricted by AppsecretChecker: @Secured({"ROLE_USER"})
 public class FrontendAPIRestController {
+
+    private static final Logger logger = LoggerFactory.getLogger(FrontendAPIRestController.class);
+
 
     public static final String FRONTEND_URL = "/frontend";
     public static final String FRONTEND_URL_PATTERN = FRONTEND_URL + "/**";
@@ -64,6 +69,8 @@ public class FrontendAPIRestController {
                            @RequestParam("installationId") String installationId,
                            @RequestParam("geoy") String geoyString,
                            @RequestParam("geox") String geoxString) {
+
+        logger.trace("openDoor(pin={}, installationId={}, geoyString={}, geoxString={})", pin, installationId, geoyString, geoxString);
 
         final User user = userService.getUserIfActive(installationId);
         if (user == null) {

@@ -8,6 +8,7 @@ import net.steinkopf.tuerauf.repository.UserRepository;
 import net.steinkopf.tuerauf.service.HttpFetcherService;
 import net.steinkopf.tuerauf.service.LocationService;
 import net.steinkopf.tuerauf.service.LogAndMailService;
+import net.steinkopf.tuerauf.util.Utils;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -33,10 +34,9 @@ import java.util.List;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.anyDouble;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -49,7 +49,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebAppConfiguration
 public class FrontendAPIRestControllerIntegrationTest extends SecurityContextTest {
 
-    @SuppressWarnings("unused")
     private static final Logger logger = LoggerFactory.getLogger(FrontendAPIRestControllerIntegrationTest.class);
 
 
@@ -91,9 +90,9 @@ public class FrontendAPIRestControllerIntegrationTest extends SecurityContextTes
 
         this.mvc = MockMvcBuilders.webAppContextSetup(this.context).build();
 
-        mockHttpFetcherService = Mockito.mock(HttpFetcherService.class);
-        mockLocationService = Mockito.mock(LocationService.class);
-        mockLogAndMailService = Mockito.mock(LogAndMailService.class);
+        mockHttpFetcherService = Mockito.mock(HttpFetcherService.class, withSettings().invocationListeners(Utils.getLoggingInvocationListener(logger)));
+        mockLocationService = Mockito.mock(LocationService.class, withSettings().invocationListeners(Utils.getLoggingInvocationListener(logger)));
+        mockLogAndMailService = Mockito.mock(LogAndMailService.class, withSettings().invocationListeners(Utils.getLoggingInvocationListener(logger)));
 
         frontendAPIRestController.setLocationService(mockLocationService);
         frontendAPIRestController.getArduinoBackendService().setLogAndMailService(mockLogAndMailService); // only to make it quiet here
@@ -189,7 +188,7 @@ public class FrontendAPIRestControllerIntegrationTest extends SecurityContextTes
         assertThat(newUser.isNewUser(), is(equalTo(false)));
         assertThat(newUser.getPinOld(), is(equalTo(TEST_PIN)));
         assertThat(newUser.getUsernameOld(), is(equalTo(TEST_USERNAME)));
-        assertThat(newUser.getSerialId(), is(equalTo(TEST_SERIAL_ID)));
+        assertThat(newUser.getSerialId(), is(notNullValue())); // cannot check specific value because this might change
 
         // Run - 2: Reset Old values.
         User user2 = userRepository.findByInstallationId(TEST_INSTALLATION_ID2).get(0);
@@ -215,7 +214,7 @@ public class FrontendAPIRestControllerIntegrationTest extends SecurityContextTes
 
         UsernamePasswordAuthenticationToken principal = new UsernamePasswordAuthenticationToken((Principal) () -> "user", "user");
 
-        SecurityContext mockSecurityContext = Mockito.mock(SecurityContext.class);
+        SecurityContext mockSecurityContext = Mockito.mock(SecurityContext.class, withSettings().invocationListeners(Utils.getLoggingInvocationListener(logger)));
         Mockito.when(mockSecurityContext.getAuthentication()).thenReturn(principal);
 
         MockHttpSession mockHttpSession = new MockHttpSession();

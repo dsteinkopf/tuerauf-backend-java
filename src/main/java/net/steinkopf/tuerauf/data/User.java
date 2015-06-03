@@ -174,15 +174,17 @@ public class User {
     @Override
     public String toString() {
         return getUsername()
-                + ":serialId=" + getSerialId()
+                + ":{"
+                + "serialId=" + getSerialId()
                 + ",active=" + isActive()
-                + ",newUser=" + isNewUser();
+                + ",newUser=" + isNewUser()
+                + "}";
     }
 
     @Override
     public boolean equals(Object objToCompare) {
 
-        if ( ! (objToCompare instanceof User)) {
+        if (!(objToCompare instanceof User)) {
             return false;
         }
         if (this.getId() == null) {
@@ -193,14 +195,14 @@ public class User {
     }
 
     public void updateData(final String usernameNew, final String pinNew) {
-        if ( ! usernameNew.equals(this.username)) {
+        if (!usernameNew.equals(this.username)) {
             // real change of value
             if (this.usernameOld == null) {
                 this.usernameOld = this.username;
             }
             this.username = usernameNew;
         }
-        if ( ! pinNew.equals(this.pin)) {
+        if (!pinNew.equals(this.pin)) {
             // real change of value
             if (this.pinOld == null) {
                 this.pinOld = this.pin;

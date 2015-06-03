@@ -6,6 +6,7 @@ import net.steinkopf.tuerauf.data.User;
 import net.steinkopf.tuerauf.repository.UserRepository;
 import net.steinkopf.tuerauf.service.ArduinoBackendService;
 import net.steinkopf.tuerauf.service.LocationService;
+import net.steinkopf.tuerauf.util.Utils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,8 +53,8 @@ public class FrontendAPIRestControllerUnitTest {
     @Before
     public void setUp() throws Exception {
 
-        this.mockArduinoBackendService = Mockito.mock(ArduinoBackendService.class);
-        this.mockLocationService = Mockito.mock(LocationService.class);
+        this.mockArduinoBackendService = Mockito.mock(ArduinoBackendService.class, withSettings().invocationListeners(Utils.getLoggingInvocationListener(logger)));
+        this.mockLocationService = Mockito.mock(LocationService.class, withSettings().invocationListeners(Utils.getLoggingInvocationListener(logger)));
 
         frontendAPIRestController.setArduinoBackendService(mockArduinoBackendService);
         frontendAPIRestController.setLocationService(mockLocationService);

@@ -39,7 +39,6 @@ public class LogAndMailService {
     LogAndMailService() {
 
         executor = Executors.newCachedThreadPool();
-        // where? executor.shutdown();
     }
 
     /**
@@ -47,6 +46,7 @@ public class LogAndMailService {
      * @throws InterruptedException
      */
     public void awaitTermination() throws InterruptedException {
+        executor.shutdown();
         executor.awaitTermination(5L, TimeUnit.SECONDS);
     }
 
