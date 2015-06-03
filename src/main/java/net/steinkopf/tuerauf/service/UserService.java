@@ -58,6 +58,7 @@ public class UserService {
         else {
             // update existing User
             user = existingUser.get(0);
+            user.setNewUser(false);
         }
         user.updateData(username, pin);
         userRepository.save(user);

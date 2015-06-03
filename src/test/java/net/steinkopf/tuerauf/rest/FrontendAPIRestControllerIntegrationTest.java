@@ -176,11 +176,8 @@ public class FrontendAPIRestControllerIntegrationTest extends SecurityContextTes
                 .andExpect(content().string(containsString("new")))
                 .andExpect(content().string(containsString("inactive")));
 
-        User user = userRepository.findByInstallationId(TEST_INSTALLATION_ID2).get(0);
-        user.setActive(true);
-        userRepository.save(user);
-        assertThat(userRepository.findByActive(false).size(), is(equalTo(inActiveBefore)));
-        assertThat(userRepository.findByActive(true).size(), is(equalTo(activeBefore + 1)));
+        assertThat(userRepository.findByActive(false).size(), is(equalTo(inActiveBefore + 1)));
+        assertThat(userRepository.findByActive(true).size(), is(equalTo(activeBefore)));
 
         // Run
         this.mvc.perform(get(REGISTER_USER_URL)
@@ -192,10 +189,10 @@ public class FrontendAPIRestControllerIntegrationTest extends SecurityContextTes
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("saved")))
                 .andExpect(content().string(containsString("changed")))
-                .andExpect(content().string(containsString(" active")));
+                .andExpect(content().string(containsString(" inactive")));
 
         // Check
-        assertThat(userRepository.findByActive(true).size(), is(equalTo(activeBefore + 1))); // user will not be deactivated by updating data.
+        assertThat(userRepository.findByActive(true).size(), is(equalTo(activeBefore)));
 
         List<User> newUserList = userRepository.findByInstallationId(TEST_INSTALLATION_ID2);
         assertThat(newUserList.size(), is(equalTo(1)));
@@ -204,7 +201,7 @@ public class FrontendAPIRestControllerIntegrationTest extends SecurityContextTes
         assertThat(newUser.getInstallationId(), is(equalTo(TEST_INSTALLATION_ID2)));
         assertThat(newUser.getPin(), is(equalTo(TEST_PIN2)));
         assertThat(newUser.getUsername(), is(equalTo(TEST_USERNAME2)));
-        assertThat(newUser.isActive(), is(equalTo(true)));
+        assertThat(newUser.isActive(), is(equalTo(false)));
         assertThat(newUser.isNewUser(), is(equalTo(false)));
         assertThat(newUser.getPinOld(), is(equalTo(TEST_PIN)));
         assertThat(newUser.getUsernameOld(), is(equalTo(TEST_USERNAME)));
@@ -219,10 +216,10 @@ public class FrontendAPIRestControllerIntegrationTest extends SecurityContextTes
 
         // Check - 2
         User user3 = userRepository.findByInstallationId(TEST_INSTALLATION_ID2).get(0); // re-read because newUser won't be updated.
-        user3.setActive(true);
-        userRepository.save(user3);
         assertThat(user3.getPinOld(), is(equalTo(null)));
         assertThat(user3.getUsernameOld(), is(equalTo(null)));
+        assertThat(user3.isActive(), is(equalTo(true)));
+        assertThat(user3.isNewUser(), is(equalTo(false)));
 
         assertThat(userRepository.findByActive(false).size(), is(equalTo(inActiveBefore)));
         assertThat(userRepository.findByActive(true).size(), is(equalTo(activeBefore + 1)));

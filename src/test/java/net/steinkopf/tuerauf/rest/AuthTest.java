@@ -1,13 +1,11 @@
 package net.steinkopf.tuerauf.rest;
 
 import net.steinkopf.tuerauf.TueraufApplication;
-import net.steinkopf.tuerauf.service.LogAndMailService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.TestRestTemplate;
@@ -75,14 +73,15 @@ public class AuthTest {
         String registerUserUrlWithAppSecret = registerUserUrl + "&appsecret=secretApp";
 
         String successfulResult = "saved: new inactive";
+        String successfulUpdateResult = "saved: changed inactive";
 
         doAuthTest(null, null, registerUserUrl, HttpStatus.UNAUTHORIZED, null);
         doAuthTest("user", "user", registerUserUrl, HttpStatus.UNAUTHORIZED, null);
         doAuthTest("admin", "admin", registerUserUrl, HttpStatus.UNAUTHORIZED, null);
 
         doAuthTest(null,    null,    registerUserUrlWithAppSecret, HttpStatus.OK, successfulResult);
-        doAuthTest("user", "user",   registerUserUrlWithAppSecret, HttpStatus.OK, successfulResult);
-        doAuthTest("admin", "admin", registerUserUrlWithAppSecret, HttpStatus.OK, successfulResult);
+        doAuthTest("user", "user",   registerUserUrlWithAppSecret, HttpStatus.OK, successfulUpdateResult);
+        doAuthTest("admin", "admin", registerUserUrlWithAppSecret, HttpStatus.OK, successfulUpdateResult);
 
         doAuthTest(null, null, "/users/", HttpStatus.UNAUTHORIZED, null);
         doAuthTest("user", "user", "/users/", HttpStatus.FORBIDDEN, null);
