@@ -114,6 +114,7 @@
             </plugin>
 
             <plugin>
+				<!-- see https://github.com/spotify/docker-maven-plugin -->
                 <groupId>com.spotify</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
                 <version>0.2.8</version>

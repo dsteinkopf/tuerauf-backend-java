@@ -50,6 +50,12 @@ public class LogAndMailService {
         executor.awaitTermination(5L, TimeUnit.SECONDS);
     }
 
+    /**
+     * Logs a warning message and sends an email to the admin.
+     *
+     * @param format    The message pattern which will be parsed and formatted. In slf4j-style: e.g. "user {} is unknown".
+     * @param arguments An array of arguments to be substituted in place of formatting anchors.
+     */
     public void logAndMail(String format, Object... arguments) {
 
         final String message = MessageFormatter.arrayFormat(format, arguments).getMessage();
