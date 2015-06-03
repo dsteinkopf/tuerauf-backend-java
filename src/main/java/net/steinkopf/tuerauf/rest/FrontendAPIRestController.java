@@ -110,4 +110,8 @@ public class FrontendAPIRestController {
     public LocationService getLocationService() {
         return locationService;
     }
+
+    public void setUserService(final UserService userService) {
+        this.userService = userService;
+    }
 }

@@ -6,6 +6,7 @@ import net.steinkopf.tuerauf.data.User;
 import net.steinkopf.tuerauf.repository.UserRepository;
 import net.steinkopf.tuerauf.service.ArduinoBackendService;
 import net.steinkopf.tuerauf.service.LocationService;
+import net.steinkopf.tuerauf.service.UserService;
 import net.steinkopf.tuerauf.util.Utils;
 import org.junit.After;
 import org.junit.Before;
@@ -41,17 +42,18 @@ public class FrontendAPIRestControllerUnitTest {
     /**
      * Component under Test.
      */
-    @Autowired
-    private FrontendAPIRestController frontendAPIRestController;
+    // @Autowired
+    private FrontendAPIRestController testedFrontendAPIRestController;
 
     private ArduinoBackendService mockArduinoBackendService;
-    private ArduinoBackendService origArduinoBackendService;
 
     private LocationService mockLocationService;
-    private LocationService origLocationService;
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    private UserService userService;
 
 
     @Before
@@ -60,18 +62,14 @@ public class FrontendAPIRestControllerUnitTest {
         mockArduinoBackendService = Mockito.mock(ArduinoBackendService.class, withSettings().invocationListeners(Utils.getLoggingMockInvocationListener(logger)));
         mockLocationService = Mockito.mock(LocationService.class, withSettings().invocationListeners(Utils.getLoggingMockInvocationListener(logger)));
 
-        origArduinoBackendService = frontendAPIRestController.getArduinoBackendService();
-        frontendAPIRestController.setArduinoBackendService(mockArduinoBackendService);
-
-        origLocationService = frontendAPIRestController.getLocationService();
-        frontendAPIRestController.setLocationService(mockLocationService);
+        testedFrontendAPIRestController = new FrontendAPIRestController();
+        testedFrontendAPIRestController.setUserService(userService);
+        testedFrontendAPIRestController.setArduinoBackendService(mockArduinoBackendService);
+        testedFrontendAPIRestController.setLocationService(mockLocationService);
     }
 
     @After
     public void tearDown() throws Exception {
-
-        frontendAPIRestController.setArduinoBackendService(origArduinoBackendService);
-        frontendAPIRestController.setLocationService(origLocationService);
     }
 
     @Test
@@ -83,7 +81,7 @@ public class FrontendAPIRestControllerUnitTest {
         final String pin = "3437";
 
         // Run
-        final String result = frontendAPIRestController.openDoor(pin, "DoesNotExist", geoy, geox);
+        final String result = testedFrontendAPIRestController.openDoor(pin, "DoesNotExist", geoy, geox);
 
         // Check
         assertThat(result, is(equalTo("user unknown")));
@@ -103,7 +101,7 @@ public class FrontendAPIRestControllerUnitTest {
         assertNotNull(user);
 
         // Run
-        final String result = frontendAPIRestController.openDoor(pin, user.getInstallationId(), geoy, geox);
+        final String result = testedFrontendAPIRestController.openDoor(pin, user.getInstallationId(), geoy, geox);
 
         // Check
         assertThat(result, is(equalTo("user unknown")));
@@ -127,7 +125,7 @@ public class FrontendAPIRestControllerUnitTest {
         when(mockLocationService.isNearToHome(anyDouble(), anyDouble())).thenReturn(false);
 
         // Run
-        final String result = frontendAPIRestController.openDoor(pin, user.getInstallationId(), geoy, geox);
+        final String result = testedFrontendAPIRestController.openDoor(pin, user.getInstallationId(), geoy, geox);
 
         // Check
         assertThat(result, is(equalTo("not here")));
@@ -154,7 +152,7 @@ public class FrontendAPIRestControllerUnitTest {
         when(mockArduinoBackendService.openDoor(user, pin, false)).thenReturn(fakeResponse);
 
         // Run
-        final String result = frontendAPIRestController.openDoor(pin, user.getInstallationId(), geoy, geox);
+        final String result = testedFrontendAPIRestController.openDoor(pin, user.getInstallationId(), geoy, geox);
 
         // Check
         assertThat(result, is(equalTo(fakeResponse)));
@@ -182,7 +180,7 @@ public class FrontendAPIRestControllerUnitTest {
         when(mockArduinoBackendService.openDoor(user, pin, true)).thenReturn(fakeResponse);
 
         // Run
-        final String result = frontendAPIRestController.openDoor(pin, user.getInstallationId(), geoy, geox);
+        final String result = testedFrontendAPIRestController.openDoor(pin, user.getInstallationId(), geoy, geox);
 
         // Check
         assertThat(result, is(equalTo(fakeResponse)));
