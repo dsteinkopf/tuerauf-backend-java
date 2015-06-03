@@ -8,7 +8,9 @@ import org.slf4j.Logger;
  */
 public class Utils {
 
-    public static InvocationListener getLoggingInvocationListener(Logger logger) {
-        return methodInvocationReport -> logger.trace(methodInvocationReport.getInvocation().toString().replace("\n", " "));
+    public static InvocationListener getLoggingMockInvocationListener(Logger logger) {
+        return methodInvocationReport -> logger.trace("mock {} returns {};",
+                methodInvocationReport.getInvocation().toString().replace("\n", " "),
+                methodInvocationReport.getReturnedValue());
     }
 }
