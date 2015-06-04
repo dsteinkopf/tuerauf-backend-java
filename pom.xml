@@ -11,6 +11,14 @@
 	<name>tuerauf</name>
 	<description>Tür auf</description>
 
+    <repositories>
+        <repository>
+            <id>snapshots</id>
+            <name>sonatype snapshots</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </repository>
+    </repositories>
+
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
