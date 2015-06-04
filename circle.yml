@@ -1,0 +1,9 @@
+
+## Customize the test machine
+machine:
+
+  timezone:
+    Europe/Berlin
+
+  java:
+    version: oraclejdk8
