@@ -12,6 +12,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.context.embedded.ServletContextInitializer;
 import org.springframework.boot.context.web.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,21 +35,25 @@ import javax.servlet.ServletException;
 //@Configuration
 //@EnableAutoConfiguration
 //@ComponentScan
+@Order(org.springframework.core.Ordered.HIGHEST_PRECEDENCE)
 public class TueraufApplication extends SpringBootServletInitializer {
 
     @SuppressWarnings("unused")
     private static final Logger logger = LoggerFactory.getLogger(TueraufApplication.class);
 
+    @Bean
+    public ServletContextInitializer servletContextInitializer() {
 
-    @Override
-    public void onStartup(ServletContext servletContext) throws ServletException {
-
-        LightAdmin.configure(servletContext)
+        return (servletContext) -> LightAdmin.configure(servletContext)
                 .basePackage("net.steinkopf.tuerauf")
                 .baseUrl("/admin")
                 .security(false)
                 .backToSiteUrl("http://lightadmin.org");
-        // class UserAdministration is uses for config.
+        // see class UserAdministration -> contains some config.
+    }
+
+    @Override
+    public void onStartup(ServletContext servletContext) throws ServletException {
 
         super.onStartup(servletContext);
     }

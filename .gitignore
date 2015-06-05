@@ -21,7 +21,7 @@
 ######################
 # Package Files
 ######################
-*.jar
+# no I want to add jar files in repo: *.jar
 *.war
 *.ear
 *.db

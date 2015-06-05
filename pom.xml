@@ -13,9 +13,9 @@
 
     <repositories>
         <repository>
-            <id>snapshots</id>
-            <name>sonatype snapshots</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <id>data-local</id>
+            <name>data</name>
+            <url>file://${project.basedir}/repo</url>
         </repository>
     </repositories>
 
