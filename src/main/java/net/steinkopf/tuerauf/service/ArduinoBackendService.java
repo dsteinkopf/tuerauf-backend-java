@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import java.io.IOException;
 
@@ -57,6 +58,8 @@ public class ArduinoBackendService {
     public String openDoor(final User user, final String pin, final boolean isNearToHome) {
 
         logger.trace("openDoor(user={}, pin={}, isNeaToHome={})", user, pin, isNearToHome);
+        Assert.notNull(user, "user must not be null");
+        Assert.notNull(pin, "pin must not be null");
 
         String arduinoUrl = arduinoBaseUrl + pin + "/" + user.getSerialId();
         if (isNearToHome) {
