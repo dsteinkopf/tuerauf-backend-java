@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.TestRestTemplate;
@@ -17,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import javax.servlet.ServletContext;
 import java.nio.charset.Charset;
 import java.util.Base64;
 
@@ -37,6 +39,10 @@ public class AuthTest {
     @Value("${local.server.port}")
     private int port = 8080;
 
+    @Autowired
+    private ServletContext servletContext;
+
+
     @Before
     public void setup() {
         if (port == 0) {
@@ -56,7 +62,7 @@ public class AuthTest {
         }
 
         ResponseEntity < String > entity = new TestRestTemplate().exchange(
-                "http://localhost:" + this.port + urlPart, // without context "/tuerauf".
+                "http://localhost:" + this.port + servletContext.getContextPath() + urlPart,
                 HttpMethod.GET,
                 new HttpEntity<Void>(headers),
                 String.class);
@@ -91,8 +97,8 @@ public class AuthTest {
         doAuthTest("user", "user", "/", HttpStatus.OK, "users");
         doAuthTest("admin", "admin", "/", HttpStatus.OK, "users");
 
-        // geht nicht, weil Test als jar läuft - nicht war... doAuthTest(null,    null,    "/admin/", HttpStatus.UNAUTHORIZED, null);
-        // geht nicht, weil Test als jar läuft - nicht war... doAuthTest("user",  "user",  "/admin/", HttpStatus.FORBIDDEN, null);
-        // geht nicht, weil Test als jar läuft - nicht war... doAuthTest("admin", "admin", "/admin/", HttpStatus.OK, "LightAdmin");
+        doAuthTest(null,    null,    "/admin/", HttpStatus.UNAUTHORIZED, null);
+        doAuthTest("user",  "user",  "/admin/", HttpStatus.FORBIDDEN, null);
+        doAuthTest("admin", "admin", "/admin/", HttpStatus.OK, "LightAdmin");
     }
 }

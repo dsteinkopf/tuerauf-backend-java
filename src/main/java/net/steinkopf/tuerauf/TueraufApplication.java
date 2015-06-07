@@ -4,6 +4,7 @@ import net.steinkopf.tuerauf.rest.AppsecretChecker;
 import net.steinkopf.tuerauf.rest.FrontendAPIRestController;
 import org.apache.commons.lang3.StringUtils;
 import org.lightadmin.api.config.LightAdmin;
+import org.lightadmin.core.config.LightAdminWebApplicationInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,32 +31,38 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 
+import static org.springframework.core.Ordered.HIGHEST_PRECEDENCE;
+
+
 @SpringBootApplication
 @EnableGlobalMethodSecurity(securedEnabled = true)
 //@Configuration
 //@EnableAutoConfiguration
 //@ComponentScan
-@Order(org.springframework.core.Ordered.HIGHEST_PRECEDENCE)
+@Order(HIGHEST_PRECEDENCE)
 public class TueraufApplication extends SpringBootServletInitializer {
 
     @SuppressWarnings("unused")
     private static final Logger logger = LoggerFactory.getLogger(TueraufApplication.class);
 
+
+    /* Used for running in "embedded" mode */
     @Bean
     public ServletContextInitializer servletContextInitializer() {
+        return new ServletContextInitializer() {
+            @Override
+            public void onStartup(ServletContext servletContext) throws ServletException {
 
-        return (servletContext) -> LightAdmin.configure(servletContext)
-                .basePackage("net.steinkopf.tuerauf")
-                .baseUrl("/admin")
-                .security(false)
-                .backToSiteUrl("http://lightadmin.org");
-        // see class UserAdministration -> contains some config.
-    }
+                LightAdmin.configure(servletContext)
+                        .basePackage("net.steinkopf.tuerauf")
+                        .baseUrl("/admin")
+                        .security(false)
+                        .backToSiteUrl("https://github.com/dsteinkopf/tuerauf") // still a dummy
+                ;
 
-    @Override
-    public void onStartup(ServletContext servletContext) throws ServletException {
-
-        super.onStartup(servletContext);
+                new LightAdminWebApplicationInitializer().onStartup(servletContext);
+            }
+        };
     }
 
     @Override
