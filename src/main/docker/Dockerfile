@@ -1,17 +1,17 @@
-FROM tomcat:7.0-jre8
+FROM java:8-jre
 
 MAINTAINER Dirk Steinkopf "https://github.com/dsteinkopf"
 
-COPY tuerauf.war $CATALINA_HOME/webapps/
-RUN bash -c "touch $CATALINA_HOME/webapps/tuerauf.war"
+COPY tuerauf.jar tuerauf.jar
+RUN bash -c 'touch /tuerauf.jar'
 
-COPY setenv.sh $CATALINA_HOME/bin/
+# see https://spring.io/guides/gs/spring-boot-docker/
+# that is where a Spring Boot application creates working directories for Tomcat by default:
+# VOLUME /tmp
 
-VOLUME $CATALINA_HOME/conf
+EXPOSE 8080
 
-#see tomcat: EXPOSE 8080
-#see tomcat: WORKDIR $CATALINA_HOME
-CMD ["catalina.sh", "run"]
+ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/tuerauf.jar"]
 
 # build:
 # mvn                        package docker:build
@@ -22,4 +22,7 @@ CMD ["catalina.sh", "run"]
 # docker run -P --rm -p 8080:8080 --name tuerauf dsteinkopf/tuerauf
 
 # run prod
-# docker run --env=SPRING_PROFILES_ACTIVE=prod --env=SPRING_CONFIG_LOCATION=/usr/local/tomcat/conf/application-prod.properties -v $PWD/src/main/resources/application-prod.properties:/usr/local/tomcat/conf/application-prod.properties -P --rm -p 8080:8080 --name tuerauf dsteinkopf/tuerauf
+# docker run --env=SPRING_PROFILES_ACTIVE=prod --env=SPRING_CONFIG_LOCATION=/application-prod.properties -v $PWD/src/main/resources/application-prod.properties:/application-prod.properties --link mysql:mysql-1 -P --rm -p 8080:8080 --name tuerauf dsteinkopf/tuerauf
+
+# run mysql e.g.
+# docker run --env=MYSQL_PASS=tuerauf --env=ON_CREATE_DB=tuerauf -v /opt/tuerauf/var_lib_mysql:/var/lib/mysql --rm --name mysql tutum/mysql
