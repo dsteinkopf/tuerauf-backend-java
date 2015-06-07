@@ -4,7 +4,7 @@ import net.steinkopf.tuerauf.TestConstants;
 import net.steinkopf.tuerauf.TueraufApplication;
 import net.steinkopf.tuerauf.data.User;
 import net.steinkopf.tuerauf.repository.UserRepository;
-import net.steinkopf.tuerauf.util.Utils;
+import net.steinkopf.tuerauf.util.TestUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -57,8 +57,8 @@ public class ArduinoBackendServiceTest {
     @Before
     public void setUp() throws Exception {
 
-        mockHttpFetcherService = Mockito.mock(HttpFetcherService.class, withSettings().invocationListeners(Utils.getLoggingMockInvocationListener(logger)));
-        mockLogAndMailService = Mockito.mock(LogAndMailService.class, withSettings().invocationListeners(Utils.getLoggingMockInvocationListener(logger)));
+        mockHttpFetcherService = Mockito.mock(HttpFetcherService.class, withSettings().invocationListeners(TestUtils.getLoggingMockInvocationListener(logger)));
+        mockLogAndMailService = Mockito.mock(LogAndMailService.class, withSettings().invocationListeners(TestUtils.getLoggingMockInvocationListener(logger)));
 
         origHttpFetcherService = arduinoBackendService.getHttpFetcherService();
         arduinoBackendService.setHttpFetcherService(mockHttpFetcherService);

@@ -8,7 +8,7 @@ import net.steinkopf.tuerauf.repository.UserRepository;
 import net.steinkopf.tuerauf.service.HttpFetcherService;
 import net.steinkopf.tuerauf.service.LocationService;
 import net.steinkopf.tuerauf.service.LogAndMailService;
-import net.steinkopf.tuerauf.util.Utils;
+import net.steinkopf.tuerauf.util.TestUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -96,9 +96,9 @@ public class FrontendAPIRestControllerIntegrationTest extends SecurityContextTes
 
         this.mvc = MockMvcBuilders.webAppContextSetup(this.context).build();
 
-        mockHttpFetcherService = Mockito.mock(HttpFetcherService.class, withSettings().invocationListeners(Utils.getLoggingMockInvocationListener(logger)));
-        mockLocationService = Mockito.mock(LocationService.class, withSettings().invocationListeners(Utils.getLoggingMockInvocationListener(logger)));
-        mockLogAndMailService = Mockito.mock(LogAndMailService.class, withSettings().invocationListeners(Utils.getLoggingMockInvocationListener(logger)));
+        mockHttpFetcherService = Mockito.mock(HttpFetcherService.class, withSettings().invocationListeners(TestUtils.getLoggingMockInvocationListener(logger)));
+        mockLocationService = Mockito.mock(LocationService.class, withSettings().invocationListeners(TestUtils.getLoggingMockInvocationListener(logger)));
+        mockLogAndMailService = Mockito.mock(LogAndMailService.class, withSettings().invocationListeners(TestUtils.getLoggingMockInvocationListener(logger)));
 
         origLocationService = frontendAPIRestController.getLocationService();
         frontendAPIRestController.setLocationService(mockLocationService);
@@ -231,7 +231,7 @@ public class FrontendAPIRestControllerIntegrationTest extends SecurityContextTes
 
         UsernamePasswordAuthenticationToken principal = new UsernamePasswordAuthenticationToken((Principal) () -> "user", "user");
 
-        SecurityContext mockSecurityContext = Mockito.mock(SecurityContext.class, withSettings().invocationListeners(Utils.getLoggingMockInvocationListener(logger)));
+        SecurityContext mockSecurityContext = Mockito.mock(SecurityContext.class, withSettings().invocationListeners(TestUtils.getLoggingMockInvocationListener(logger)));
         Mockito.when(mockSecurityContext.getAuthentication()).thenReturn(principal);
 
         MockHttpSession mockHttpSession = new MockHttpSession();

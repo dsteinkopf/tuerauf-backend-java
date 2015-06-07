@@ -1,6 +1,9 @@
 package net.steinkopf.tuerauf.rest;
 
+import net.steinkopf.tuerauf.TestConstants;
 import net.steinkopf.tuerauf.TueraufApplication;
+import net.steinkopf.tuerauf.controller.DashboardController;
+import net.steinkopf.tuerauf.util.TestUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,8 +22,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.servlet.ServletContext;
-import java.nio.charset.Charset;
-import java.util.Base64;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -55,14 +56,13 @@ public class AuthTest {
         HttpHeaders headers = new HttpHeaders();
         // headers.setAccept(Arrays.asList(MediaType.TEXT_HTML));
 
-        if (user != null && password !=  null) {
-            byte[] authString = (user + ":" + password).getBytes(Charset.defaultCharset());
-            byte[] authStringBase64 = Base64.getEncoder().encode(authString);
-            headers.set(HttpHeaders.AUTHORIZATION, "Basic " + new String(authStringBase64));
-        }
+        TestUtils.addBasicAuthHeader(headers, password, user);
+
+        final String url = "http://localhost:" + this.port + servletContext.getContextPath() + urlPart;
+        logger.debug("doAuthTest is calling {}", url);
 
         ResponseEntity < String > entity = new TestRestTemplate().exchange(
-                "http://localhost:" + this.port + servletContext.getContextPath() + urlPart,
+                url,
                 HttpMethod.GET,
                 new HttpEntity<Void>(headers),
                 String.class);
@@ -82,23 +82,27 @@ public class AuthTest {
         String successfulUpdateResult = "saved: changed inactive";
 
         doAuthTest(null, null, registerUserUrl, HttpStatus.UNAUTHORIZED, null);
-        doAuthTest("user", "user", registerUserUrl, HttpStatus.UNAUTHORIZED, null);
-        doAuthTest("admin", "admin", registerUserUrl, HttpStatus.UNAUTHORIZED, null);
+        doAuthTest(TestConstants.USER_USERNAME, TestConstants.USER_USERNAME, registerUserUrl, HttpStatus.UNAUTHORIZED, null);
+        doAuthTest(TestConstants.ADMIN_USERNAME, TestConstants.ADMIN_PASSWORD, registerUserUrl, HttpStatus.UNAUTHORIZED, null);
 
         doAuthTest(null,    null,    registerUserUrlWithAppSecret, HttpStatus.OK, successfulResult);
-        doAuthTest("user", "user",   registerUserUrlWithAppSecret, HttpStatus.OK, successfulUpdateResult);
-        doAuthTest("admin", "admin", registerUserUrlWithAppSecret, HttpStatus.OK, successfulUpdateResult);
+        doAuthTest(TestConstants.USER_USERNAME, TestConstants.USER_USERNAME,   registerUserUrlWithAppSecret, HttpStatus.OK, successfulUpdateResult);
+        doAuthTest(TestConstants.ADMIN_USERNAME, TestConstants.ADMIN_PASSWORD, registerUserUrlWithAppSecret, HttpStatus.OK, successfulUpdateResult);
 
         doAuthTest(null, null, "/users/", HttpStatus.UNAUTHORIZED, null);
-        doAuthTest("user", "user", "/users/", HttpStatus.FORBIDDEN, null);
-        doAuthTest("admin", "admin", "/users/", HttpStatus.OK, "users");
+        doAuthTest(TestConstants.USER_USERNAME, TestConstants.USER_USERNAME, "/users/", HttpStatus.FORBIDDEN, null);
+        doAuthTest(TestConstants.ADMIN_USERNAME, TestConstants.ADMIN_PASSWORD, "/users/", HttpStatus.OK, "users");
 
         doAuthTest(null, null, "/", HttpStatus.UNAUTHORIZED, null);
-        doAuthTest("user", "user", "/", HttpStatus.OK, "users");
-        doAuthTest("admin", "admin", "/", HttpStatus.OK, "users");
+        doAuthTest(TestConstants.USER_USERNAME, TestConstants.USER_USERNAME, "/", HttpStatus.OK, "users");
+        doAuthTest(TestConstants.ADMIN_USERNAME, TestConstants.ADMIN_PASSWORD, "/", HttpStatus.OK, "users");
 
         doAuthTest(null,    null,    "/admin/", HttpStatus.UNAUTHORIZED, null);
         doAuthTest("user",  "user",  "/admin/", HttpStatus.FORBIDDEN, null);
         doAuthTest("admin", "admin", "/admin/", HttpStatus.OK, "LightAdmin");
+
+        doAuthTest(null,    null,    DashboardController.DASHBOARD_URL, HttpStatus.UNAUTHORIZED, null);
+        doAuthTest("user",  "user",  DashboardController.DASHBOARD_URL, HttpStatus.FORBIDDEN, null);
+        doAuthTest("admin", "admin", DashboardController.DASHBOARD_URL, HttpStatus.OK, "Dashboard");
     }
 }
