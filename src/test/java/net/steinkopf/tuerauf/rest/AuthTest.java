@@ -99,7 +99,8 @@ public class AuthTest {
 
         doAuthTest(null,    null,    "/admin/", HttpStatus.UNAUTHORIZED, null);
         doAuthTest("user",  "user",  "/admin/", HttpStatus.FORBIDDEN, null);
-        doAuthTest("admin", "admin", "/admin/", HttpStatus.OK, "LightAdmin");
+        doAuthTest("admin", "admin", "/admin/", HttpStatus.FOUND, null);
+        doAuthTest("admin", "admin", "/admin/dashboard", HttpStatus.OK, "LightAdmin");
 
         doAuthTest(null,    null,    DashboardController.DASHBOARD_URL + "/", HttpStatus.UNAUTHORIZED, null);
         doAuthTest("user",  "user",  DashboardController.DASHBOARD_URL + "/", HttpStatus.FORBIDDEN, null);

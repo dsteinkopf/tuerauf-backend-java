@@ -12,8 +12,8 @@
 
 <div style="color: red; margin-bottom: 2em;">${message}</div>
 
-<form action="activateAllNew" method="post" commandName="activateAllNew">
-    <input type="submit" value="activate all new user now" />
+<form id="activateAllNewForm" action="activateAllNew" method="post" commandName="activateAllNew">
+    <input type="submit" name="submit" value="activate all new user now" />
     <input type="hidden"
            name="${_csrf.parameterName}"
            value="${_csrf.token}"/>
