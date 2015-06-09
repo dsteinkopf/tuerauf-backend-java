@@ -88,21 +88,40 @@ public class DashboardTest /*extends FluentTest*/ {
         driver.get(url);
         logger.debug("testActivateAllUsersButton: content = {}", driver.getPageSource());
 
-        // Run
-        final WebElement buttonContainer = driver.findElement(By.id("activateAllNewForm"));
-        buttonContainer.findElement(By.name("submit")).click();
+        {
+            // Run
+            final WebElement buttonContainer = driver.findElement(By.id("activateAllNewForm"));
+            buttonContainer.findElement(By.name("submit")).click();
 
-        SeleniumHelper.waitForComponentWithText(driver, "successfully activated all new users");
-        logger.debug("testActivateAllUsersButton: content = {}", driver.getPageSource());
+            SeleniumHelper.waitForComponentWithText(driver, "successfully activated all new users");
+            logger.debug("testActivateAllUsersButton: content = {}", driver.getPageSource());
 
-        // Check
-        assertThat(driver.findElement(By.tagName("h1")).getText(), containsString("Dashboard"));
-        assertThat(driver.getCurrentUrl(), not(containsString("activate"))); // should be back on normal dashboard url.
-        User testUserInactive = userRepository.findOne(TestConstants.USER_ID_INACTIVE); // the one that WAS inactive at init.
-        assertThat(testUserInactive.isActive(), is(equalTo(true)));
+            // Check
+            assertThat(driver.findElement(By.tagName("h1")).getText(), containsString("Dashboard"));
+            assertThat(driver.getCurrentUrl(), not(containsString("activate"))); // should be back on normal dashboard url.
+            User testUserInactive = userRepository.findOne(TestConstants.USER_ID_INACTIVE); // the one that WAS inactive at init.
+            assertThat(testUserInactive.isActive(), is(equalTo(true)));
 
-        final WebElement flashMessage = driver.findElement(By.id("flash-message"));
-        assertThat(flashMessage.getText(), containsString("\n" + TestConstants.USER_NAME_INACTIVE));
-        assertThat(flashMessage.getText(), not(containsString("\n" + TestConstants.USER_NAME_ACTIVE)));
+            final WebElement flashMessage = driver.findElement(By.id("flash-message"));
+            assertThat(flashMessage.getText(), containsString("\n" + TestConstants.USER_NAME_INACTIVE));
+            assertThat(flashMessage.getText(), not(containsString("\n" + TestConstants.USER_NAME_ACTIVE)));
+        }
+        {
+            // Run 2: no inactive users:
+            final WebElement buttonContainer = driver.findElement(By.id("activateAllNewForm"));
+            buttonContainer.findElement(By.name("submit")).click();
+
+            SeleniumHelper.waitForComponentWithText(driver, "successfully activated all new users");
+            logger.debug("testActivateAllUsersButton: content = {}", driver.getPageSource());
+
+            // Check 2
+            assertThat(driver.findElement(By.tagName("h1")).getText(), containsString("Dashboard"));
+            assertThat(driver.getCurrentUrl(), not(containsString("activate"))); // should be back on normal dashboard url.
+
+            final WebElement flashMessage = driver.findElement(By.id("flash-message"));
+            assertThat(flashMessage.getText(), not(containsString("\n" + TestConstants.USER_NAME_INACTIVE)));
+            assertThat(flashMessage.getText(), not(containsString("\n" + TestConstants.USER_NAME_ACTIVE)));
+            assertThat(flashMessage.getText(), containsString("no inactive users"));
+        }
     }
 }

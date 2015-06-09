@@ -63,16 +63,14 @@ public class DashboardController {
     public String activateAllNew(RedirectAttributes attr, HttpSession session) {
 
         List<User> activatedUserList = userService.activateAllNew();
-        String usernames = activatedUserList.stream().map(User::getUsername).collect(Collectors.joining("<br>\n"));
-        attr.addFlashAttribute(MESSAGE, "successfully activated all new users:<br>\n" + usernames);
+        if (activatedUserList.size() >= 1) {
+            final String usernames = activatedUserList.stream().map(User::getUsername).collect(Collectors.joining("<br>\n"));
+            attr.addFlashAttribute(MESSAGE, "successfully activated all new users:<br>\n" + usernames);
+        }
+        else {
+            attr.addFlashAttribute(MESSAGE, "no inactive users");
+        }
 
         return "redirect:" + DASHBOARD_URL + "/";
     }
-
-
-    @RequestMapping("/foo")
-    public String foo(Map<String, Object> model) {
-        throw new RuntimeException("Foo");
-    }
-
 }
