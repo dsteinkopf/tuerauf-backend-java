@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.TestRestTemplate;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
@@ -42,14 +41,11 @@ public class DashboardControllerTest {
     @Test
     public void testDashboard() throws Exception {
 
-        final String urlPart = DashboardController.DASHBOARD_URL;
-
-        HttpHeaders headers = new HttpHeaders();
+        final String urlPart = DashboardController.DASHBOARD_URL + "/";
 
         ResponseEntity<String> entity = new TestRestTemplate(TestConstants.ADMIN_USERNAME, TestConstants.ADMIN_PASSWORD)
                 .getForEntity("http://localhost:" + this.port + servletContext.getContextPath() + urlPart, String.class);
         assertEquals(HttpStatus.OK, entity.getStatusCode());
         assertTrue("Wrong body:\n" + entity.getBody(), entity.getBody().contains("Dashboard"));
-        assertTrue("Wrong body:\n" + entity.getBody(), entity.getBody().contains("Message"));
     }
 }

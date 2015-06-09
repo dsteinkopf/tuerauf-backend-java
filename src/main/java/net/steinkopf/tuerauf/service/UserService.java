@@ -34,6 +34,7 @@ public class UserService {
      */
     public void activateAllNew() {
 
+        logger.trace("activateAllNew");
         List<User> userList = userRepository.findByActiveFalseAndNewUserTrue();
         userList.forEach(user -> { user.setActive(true); userRepository.save(user); });
     }

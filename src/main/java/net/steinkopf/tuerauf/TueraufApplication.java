@@ -10,8 +10,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
+import org.springframework.boot.autoconfigure.velocity.VelocityAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.embedded.ServletContextInitializer;
 import org.springframework.boot.context.web.SpringBootServletInitializer;
@@ -37,7 +39,7 @@ import static org.springframework.core.Ordered.HIGHEST_PRECEDENCE;
 @SpringBootApplication
 @EnableGlobalMethodSecurity(securedEnabled = true)
 //@Configuration
-//@EnableAutoConfiguration
+@EnableAutoConfiguration(exclude = { VelocityAutoConfiguration.class }) // suppress warnings about missing velocity templates.
 //@ComponentScan
 @Order(HIGHEST_PRECEDENCE)
 public class TueraufApplication extends SpringBootServletInitializer {
