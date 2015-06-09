@@ -6,7 +6,6 @@ import net.steinkopf.tuerauf.data.User;
 import net.steinkopf.tuerauf.repository.UserRepository;
 import net.steinkopf.tuerauf.service.ArduinoBackendService;
 import net.steinkopf.tuerauf.service.LocationService;
-import net.steinkopf.tuerauf.service.UserService;
 import net.steinkopf.tuerauf.util.TestUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -17,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
@@ -34,6 +34,7 @@ import static org.mockito.Mockito.*;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = TueraufApplication.class)
 @WebAppConfiguration
+@DirtiesContext
 public class FrontendAPIRestControllerUnitTest {
 
     @SuppressWarnings("unused")
@@ -42,7 +43,7 @@ public class FrontendAPIRestControllerUnitTest {
     /**
      * Component under Test.
      */
-    // @Autowired
+    @Autowired
     private FrontendAPIRestController testedFrontendAPIRestController;
 
     private ArduinoBackendService mockArduinoBackendService;
@@ -52,8 +53,10 @@ public class FrontendAPIRestControllerUnitTest {
     @Autowired
     UserRepository userRepository;
 
+/* not necessary because of @DirtiesContext:
     @Autowired
     private UserService userService;
+*/
 
 
     @Before
@@ -62,8 +65,10 @@ public class FrontendAPIRestControllerUnitTest {
         mockArduinoBackendService = Mockito.mock(ArduinoBackendService.class, withSettings().invocationListeners(TestUtils.getLoggingMockInvocationListener(logger)));
         mockLocationService = Mockito.mock(LocationService.class, withSettings().invocationListeners(TestUtils.getLoggingMockInvocationListener(logger)));
 
+/* not necessary because of @DirtiesContext:
         testedFrontendAPIRestController = new FrontendAPIRestController();
         testedFrontendAPIRestController.setUserService(userService);
+*/
         testedFrontendAPIRestController.setArduinoBackendService(mockArduinoBackendService);
         testedFrontendAPIRestController.setLocationService(mockLocationService);
     }

@@ -23,6 +23,7 @@ import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
@@ -48,6 +49,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = TueraufApplication.class)
 @WebAppConfiguration
+@DirtiesContext
 public class FrontendAPIRestControllerIntegrationTest extends SecurityContextTest {
 
     private static final Logger logger = LoggerFactory.getLogger(FrontendAPIRestControllerIntegrationTest.class);
@@ -68,13 +70,13 @@ public class FrontendAPIRestControllerIntegrationTest extends SecurityContextTes
     private MockMvc mvc;
 
     private HttpFetcherService mockHttpFetcherService;
-    private HttpFetcherService origHttpFetcherService;
+    // not necessary because of @DirtiesContext: private HttpFetcherService origHttpFetcherService;
 
     private LocationService mockLocationService;
-    private LocationService origLocationService;
+    // not necessary because of @DirtiesContext: private LocationService origLocationService;
 
     private LogAndMailService mockLogAndMailService;
-    private LogAndMailService origLogAndMailService;
+    // not necessary because of @DirtiesContext: private LogAndMailService origLogAndMailService;
 
     private final static String REGISTER_USER_URL = FrontendAPIRestController.FRONTEND_URL + "/registerUser";
     private final static String OPEN_DOOR_URL = FrontendAPIRestController.FRONTEND_URL + "/openDoor";
@@ -100,13 +102,13 @@ public class FrontendAPIRestControllerIntegrationTest extends SecurityContextTes
         mockLocationService = Mockito.mock(LocationService.class, withSettings().invocationListeners(TestUtils.getLoggingMockInvocationListener(logger)));
         mockLogAndMailService = Mockito.mock(LogAndMailService.class, withSettings().invocationListeners(TestUtils.getLoggingMockInvocationListener(logger)));
 
-        origLocationService = frontendAPIRestController.getLocationService();
+        // not necessary because of @DirtiesContext: origLocationService = frontendAPIRestController.getLocationService();
         frontendAPIRestController.setLocationService(mockLocationService);
 
-        origLogAndMailService = frontendAPIRestController.getArduinoBackendService().getLogAndMailService();
+        // not necessary because of @DirtiesContext: origLogAndMailService = frontendAPIRestController.getArduinoBackendService().getLogAndMailService();
         frontendAPIRestController.getArduinoBackendService().setLogAndMailService(mockLogAndMailService); // only to make it quiet here
 
-        origHttpFetcherService = frontendAPIRestController.getArduinoBackendService().getHttpFetcherService();
+        // not necessary because of @DirtiesContext: origHttpFetcherService = frontendAPIRestController.getArduinoBackendService().getHttpFetcherService();
         frontendAPIRestController.getArduinoBackendService().setHttpFetcherService(mockHttpFetcherService);
 
         frontendAPIRestController.getArduinoBackendService().setArduinoBaseUrl(arduinoBaseUrlDummy);
@@ -115,9 +117,11 @@ public class FrontendAPIRestControllerIntegrationTest extends SecurityContextTes
     @After
     public void tearDown() throws Exception {
 
+/* not necessary because of @DirtiesContext:
         frontendAPIRestController.setLocationService(origLocationService);
         frontendAPIRestController.getArduinoBackendService().setLogAndMailService(origLogAndMailService);
         frontendAPIRestController.getArduinoBackendService().setHttpFetcherService(origHttpFetcherService);
+*/
     }
 
     @Test
