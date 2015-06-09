@@ -100,5 +100,9 @@ public class DashboardTest /*extends FluentTest*/ {
         assertThat(driver.getCurrentUrl(), not(containsString("activate"))); // should be back on normal dashboard url.
         User testUserInactive = userRepository.findOne(TestConstants.USER_ID_INACTIVE); // the one that WAS inactive at init.
         assertThat(testUserInactive.isActive(), is(equalTo(true)));
+
+        final WebElement flashMessage = driver.findElement(By.id("flash-message"));
+        assertThat(flashMessage.getText(), containsString("\n" + TestConstants.USER_NAME_INACTIVE));
+        assertThat(flashMessage.getText(), not(containsString("\n" + TestConstants.USER_NAME_ACTIVE)));
     }
 }

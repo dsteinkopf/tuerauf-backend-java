@@ -31,12 +31,14 @@ public class UserService {
 
     /**
      * Activates all users which are not active and new.
+     * @return List of users that have been activated.
      */
-    public void activateAllNew() {
+    public List<User> activateAllNew() {
 
         logger.trace("activateAllNew");
         List<User> userList = userRepository.findByActiveFalseAndNewUserTrue();
         userList.forEach(user -> { user.setActive(true); userRepository.save(user); });
+        return userList;
     }
 
     /**

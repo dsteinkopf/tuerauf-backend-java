@@ -10,7 +10,7 @@
 
 <h1>T&uuml;rauf - Dashboard</h1>
 
-<div style="color: red; margin-bottom: 2em;">${message}</div>
+<div id="flash-message" style="color: red; margin-bottom: 2em;">${message}</div>
 
 <form id="activateAllNewForm" action="activateAllNew" method="post" commandName="activateAllNew">
     <input type="submit" name="submit" value="activate all new user now" />

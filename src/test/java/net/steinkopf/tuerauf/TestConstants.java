@@ -11,4 +11,6 @@ public class TestConstants {
     public static final String ADMIN_PASSWORD = "admin";
     public static final String USER_USERNAME = "user";
     public static final String USER_PASSWORD = "user";
+    public static final String USER_NAME_INACTIVE = "inactive User";
+    public static final String USER_NAME_ACTIVE = "active User";
 }

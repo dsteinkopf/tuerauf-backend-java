@@ -1,6 +1,7 @@
 package net.steinkopf.tuerauf.controller;
 
 
+import net.steinkopf.tuerauf.data.User;
 import net.steinkopf.tuerauf.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +14,9 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpSession;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 
 /**
@@ -59,8 +62,9 @@ public class DashboardController {
     @RequestMapping(value = "/activateAllNew", method = RequestMethod.POST)
     public String activateAllNew(RedirectAttributes attr, HttpSession session) {
 
-        userService.activateAllNew();
-        attr.addFlashAttribute(MESSAGE, "successfully activated all new users.");
+        List<User> activatedUserList = userService.activateAllNew();
+        String usernames = activatedUserList.stream().map(User::getUsername).collect(Collectors.joining("<br>\n"));
+        attr.addFlashAttribute(MESSAGE, "successfully activated all new users:<br>\n" + usernames);
 
         return "redirect:" + DASHBOARD_URL + "/";
     }
