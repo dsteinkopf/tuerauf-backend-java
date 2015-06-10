@@ -49,15 +49,16 @@
 
     <form id="activateAllNewForm" action="activateAllNew" method="post" commandName="activateAllNew">
         <input type="submit" name="submit" value="activate all new users"/>
-        <input type="hidden"
-               name="${_csrf.parameterName}"
-               value="${_csrf.token}"/>
+        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
     </form>
 
-    <br/>
 
+    <br/>
     Send pins of active users to Arduino:<br/>
 
-
+    <form id="sendPinsToArduino" action="sendPinsToArduino" method="post" commandName="sendPinsToArduino">
+        <input type="submit" name="submit" value="send pins to arduino"/>
+        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+    </form>
 
 </template:page>

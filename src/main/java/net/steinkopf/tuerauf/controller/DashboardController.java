@@ -4,6 +4,7 @@ package net.steinkopf.tuerauf.controller;
 import com.google.common.collect.Lists;
 import net.steinkopf.tuerauf.data.User;
 import net.steinkopf.tuerauf.repository.UserRepository;
+import net.steinkopf.tuerauf.service.ArduinoBackendService;
 import net.steinkopf.tuerauf.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,9 +45,8 @@ public class DashboardController {
     @Autowired
     UserRepository userRepository;
 
-
-    //@Value("${application.message:Hello World default value}")
-    //private String message = "Hello World assigned value";
+    @Autowired
+    ArduinoBackendService arduinoBackendService;
 
 
     /**
@@ -59,13 +59,11 @@ public class DashboardController {
         model.put("users", userList);
         logger.debug("userList.size()={}", userList.size());
 
-        // userService.getPinList();
-
         return DASHBOARD_VIEW;
     }
 
     /**
-     * activate All New users now.
+     * activate all new users now.
      */
     @RequestMapping(value = "/activateAllNew", method = RequestMethod.POST)
     public String activateAllNew(RedirectAttributes attr, HttpSession session) {
@@ -78,6 +76,20 @@ public class DashboardController {
         else {
             attr.addFlashAttribute(MESSAGE, "no inactive users");
         }
+
+        return "redirect:" + DASHBOARD_URL + "/";
+    }
+
+    /**
+     * send pins to Arduino now.
+     */
+    @RequestMapping(value = "/sendPinsToArduino", method = RequestMethod.POST)
+    public String sendPinsToArduino(RedirectAttributes attr, HttpSession session) {
+
+        final String[] pinList = userService.getPinList();
+        final int pinsSent = arduinoBackendService.sendPinsToArduino(pinList);
+
+        attr.addFlashAttribute(MESSAGE, String.format("sent %s pins to arduino", pinsSent));
 
         return "redirect:" + DASHBOARD_URL + "/";
     }

@@ -1,6 +1,7 @@
 package net.steinkopf.tuerauf.service;
 
 import net.steinkopf.tuerauf.SecurityContextTest;
+import net.steinkopf.tuerauf.TestConstants;
 import net.steinkopf.tuerauf.TueraufApplication;
 import net.steinkopf.tuerauf.data.User;
 import net.steinkopf.tuerauf.repository.UserRepository;
@@ -77,6 +78,25 @@ public class UserServiceTest extends SecurityContextTest {
         List<User> userList = new ArrayList<>();
 
         final int USER_TO_DELETE = 1;
+        int serialIdToBeReused = createThenDeleteSomeUsers(userList, USER_TO_DELETE);
+
+        // re-create
+        User user = new User("testInstId99");
+        user.setUsername("user 99");
+        int serialId = userService.findFreeSerialId();
+        user.setSerialId(serialId);
+        userRepository.save(user);
+
+        // check
+        assertThat(serialId, is(equalTo(serialIdToBeReused)));
+    }
+
+    /**
+     * create, then delete some users
+     *
+     * @return serialId to be reused
+     */
+    private int createThenDeleteSomeUsers(final List<User> userList, final int userToDelete) {
 
         // first create some Users, then delete one. This serialId should be reused then.
         for (int userNumber = 0; userNumber < 4; userNumber++) {
@@ -91,21 +111,12 @@ public class UserServiceTest extends SecurityContextTest {
         }
 
         // remember serialId and delete
-        int serialIdToBeReused = userList.get(USER_TO_DELETE).getSerialId();
-        userRepository.delete(userList.get(USER_TO_DELETE));
-
-        // re-create
-        User user = new User("testInstId99");
-        user.setUsername("user 99");
-        int serialId = userService.findFreeSerialId();
-        user.setSerialId(serialId);
-        userRepository.save(user);
-
-        // check
-        assertThat(serialId, is(equalTo(serialIdToBeReused)));
+        int serialIdToBeReused = userList.get(userToDelete).getSerialId();
+        userRepository.delete(userList.get(userToDelete));
+        return serialIdToBeReused;
     }
 
-    @Test(expected=IndexOutOfBoundsException.class)
+    @Test(expected = IndexOutOfBoundsException.class)
     @Transactional // makes insertions be rolled back on exception.
     public void testFindFreeSerialIdOverflow() throws Exception {
 
@@ -116,6 +127,34 @@ public class UserServiceTest extends SecurityContextTest {
             int serialId = userService.findFreeSerialId();
             user.setSerialId(serialId);
             userRepository.save(user);
+        }
+    }
+
+    @Test
+    public void testGetPinList() throws Exception {
+
+        // Prepare
+        List<User> userList = new ArrayList<>();
+        final int USER_TO_DELETE = 2;
+        createThenDeleteSomeUsers(userList, USER_TO_DELETE);
+
+        // Run
+        final String[] pinList = userService.getPinList();
+
+        // Check
+        for (int serialId = 0; serialId < UserService.MAX_SERIAL_ID; serialId++) {
+            final String pin = pinList[serialId];
+            switch (serialId) {
+                case TestConstants.SERIAL_ID_ACTIVE:
+                    assertThat(pin, is(equalTo(TestConstants.PIN_ACTIVE)));
+                    break;
+                case TestConstants.SERIAL_ID_INACTIVE:
+                    assertThat(pin, is(equalTo(TestConstants.PIN_INACTIVE)));
+                    break;
+                default:
+                    assertThat(pin, is(equalTo(null)));
+                    break;
+            }
         }
     }
 }

@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -144,14 +143,14 @@ public class UserService {
      * Create an ArrayList of the pins of active users.
      * Note: After sending pins to Arduino, they are deleted in the local DB. So here we return only pins net yet deleted.
      *
-     * @return List of pins. Index of ArrayList = serialId.
+     * @return Array of pins. Index of Array = serialId.
      */
-    public ArrayList<String> getPinList() {
+    public String[] getPinList() {
 
-        final ArrayList<String> pins = new ArrayList<>(MAX_SERIAL_ID);
+        String[] pins = new String[MAX_SERIAL_ID];
         for (final User user : userRepository.findAll()) {
             if (user.getPin() != null) {
-                pins.add(user.getSerialId(), user.getPin());
+                pins[user.getSerialId()] = user.getPin();
             }
         }
         return pins;

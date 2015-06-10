@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.IOException;
@@ -30,6 +31,7 @@ import static org.mockito.Mockito.*;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = TueraufApplication.class)
+@DirtiesContext
 public class ArduinoBackendServiceTest {
 
     @SuppressWarnings("unused")
@@ -41,6 +43,7 @@ public class ArduinoBackendServiceTest {
     /**
      * System under test.
      */
+    @SuppressWarnings("SpringJavaAutowiredMembersInspection")
     @Autowired
     ArduinoBackendService arduinoBackendService;
 
@@ -50,6 +53,7 @@ public class ArduinoBackendServiceTest {
     private LogAndMailService mockLogAndMailService;
     private LogAndMailService origLogAndMailService;
 
+    @SuppressWarnings("SpringJavaAutowiredMembersInspection")
     @Autowired
     UserRepository userRepository;
 
@@ -141,5 +145,25 @@ public class ArduinoBackendServiceTest {
         assertThat(openDoorResult2, is(equalTo("OFFEN")));
         verify(mockLogAndMailService, times(2)).logAndMail(any(String.class), any(String.class), any(String.class), any(String.class));
         verify(mockHttpFetcherService, times(2)).fetchFromUrl(any(String.class), anyInt());
+    }
+
+    @Test
+    public void testSendPinsToArduino() throws Exception {
+
+        // Prepare
+        final String[] pinList = {null, "1", "2", null, null, "5", null, null};
+
+        // Mock dependencies
+        //noinspection SpellCheckingInspection
+        when(mockHttpFetcherService.fetchFromUrl(contains("storepinlist?0&1&2&0&0&5&0&0"), anyInt()))
+                .thenReturn("done");
+
+        // Run - step 1: User entered pin
+        final int pinsSent = arduinoBackendService.sendPinsToArduino(pinList);
+
+        // Check
+        assertThat(pinsSent, is(equalTo(3)));
+        verify(mockLogAndMailService, times(1)).logAndMail(any(String.class), anyInt());
+        verify(mockHttpFetcherService, times(1)).fetchFromUrl(any(String.class), anyInt());
     }
 }

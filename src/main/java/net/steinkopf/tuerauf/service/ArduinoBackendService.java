@@ -43,7 +43,7 @@ public class ArduinoBackendService {
             return httpFetcherService.fetchFromUrl(arduinoUrl, ARDUINO_MAX_RESULT_LEN);
 
         } catch (IOException e) {
-            logger.error(e.getMessage());
+            logAndMailService.logAndMail(e.getMessage());
             return "bad request";
         }
     }
@@ -68,13 +68,54 @@ public class ArduinoBackendService {
 
         try {
             final String arduinoResponse = httpFetcherService.fetchFromUrl(arduinoUrl, 2000);
-            logAndMailService.logAndMail("user {} got arduino response '{}' (installationId=$installationId)",
-                    user.getUsername(), arduinoResponse, user.getInstallationId());
+            logAndMailService.logAndMail("user {} got arduino response '{}' (serialId={})",
+                    user.getUsername(), arduinoResponse, user.getSerialId());
             return arduinoResponse;
 
         } catch (IOException e) {
-            logger.error(e.getMessage());
+            logAndMailService.logAndMail(e.getMessage());
             return "bad request";
+        }
+    }
+
+    /**
+     * sends pins to Arduino.
+     *
+     * @param pinList Array of sparsely filled pins. Index = serialId.
+     * @return number of pins sent. 0 if arduino return error, -1 on communication error.
+     */
+    public int sendPinsToArduino(String[] pinList) {
+
+        final StringBuilder pins4arduino = new StringBuilder();
+        int pinCount = 0;
+        for (int serialId = 0; serialId < pinList.length; serialId ++) {
+            final String pin = pinList[serialId];
+            if (serialId >= 1) {
+                pins4arduino.append("&");
+            }
+            if (pin != null) {
+                pins4arduino.append(pin);
+                pinCount++;
+            }
+            else {
+                pins4arduino.append("0");
+            }
+        }
+
+        @SuppressWarnings("SpellCheckingInspection") final String arduinoUrl = arduinoBaseUrl + "storepinlist?" + pins4arduino;
+
+        try {
+            final String arduinoResponse = httpFetcherService.fetchFromUrl(arduinoUrl, 2000);
+            if ( ! arduinoResponse.equals("done")) {
+                logAndMailService.logAndMail("arduino returned {} instead of 'done'", arduinoResponse);
+                return 0;
+            }
+            logAndMailService.logAndMail("sent {} pins to arduino", pinCount);
+            return pinCount;
+
+        } catch (IOException e) {
+            logAndMailService.logAndMail("Exception while talking to arduino: {}", e.getMessage());
+            return -1;
         }
     }
 
@@ -97,4 +138,5 @@ public class ArduinoBackendService {
     public HttpFetcherService getHttpFetcherService() {
         return httpFetcherService;
     }
+
 }
