@@ -1,7 +1,9 @@
 package net.steinkopf.tuerauf.controller;
 
 
+import com.google.common.collect.Lists;
 import net.steinkopf.tuerauf.data.User;
+import net.steinkopf.tuerauf.repository.UserRepository;
 import net.steinkopf.tuerauf.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +41,9 @@ public class DashboardController {
     @Autowired
     UserService userService;
 
+    @Autowired
+    UserRepository userRepository;
+
 
     //@Value("${application.message:Hello World default value}")
     //private String message = "Hello World assigned value";
@@ -50,8 +55,8 @@ public class DashboardController {
     @RequestMapping("/")
     public String dashboard(Map<String, Object> model, WebRequest webRequest) {
 
-        // model.put(MESSAGE, "First time");
-        //logger.debug("request.getURI() = {}", webRequest.);
+        final List<User> userList = Lists.newArrayList(userRepository.findAll());
+        model.put("users", userList);
 
         return DASHBOARD_VIEW;
     }
