@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -31,6 +32,7 @@ public class UserService {
 
     /**
      * Activates all users which are not active and new.
+     *
      * @return List of users that have been activated.
      */
     public List<User> activateAllNew() {
@@ -46,9 +48,10 @@ public class UserService {
 
     /**
      * Creates a user object or - if installationId exists - updates this user.
+     *
      * @return created or updated user object.
      */
-    public User registerOrUpdateUser(final String username, final String pin, final String installationId)  {
+    public User registerOrUpdateUser(final String username, final String pin, final String installationId) {
 
         Assert.isTrue(username.length() >= 2, "username must be at least 2 characters");
         Assert.isTrue(pin.length() == 4, "pin must be exactly 4 characters");
@@ -60,8 +63,7 @@ public class UserService {
             // create new User
             user = new User(installationId);
             user.setSerialId(findFreeSerialId());
-        }
-        else {
+        } else {
             // update existing User
             user = existingUser.get(0);
             user.setNewUser(false);
@@ -95,6 +97,7 @@ public class UserService {
 
     /**
      * Checks if this user is active
+     *
      * @return user object, if existing and active, null if not.
      */
     public User getUserIfActive(final String installationId) {
@@ -104,7 +107,7 @@ public class UserService {
             return null;
         }
         final User user = userList.get(0);
-        if ( ! user.isActive()) {
+        if (!user.isActive()) {
             return null;
         }
         return user;
@@ -112,24 +115,45 @@ public class UserService {
 
     /**
      * Find the lowest free (usable) serial id
+     *
      * @return free serial id.
-     * @throws Exception if all serial ids are used.
+     * @throws IndexOutOfBoundsException if all serial ids are used.
      */
     public int findFreeSerialId() throws IndexOutOfBoundsException {
 
         boolean serialIdIsUsed[] = new boolean[MAX_SERIAL_ID];
-        userRepository.findAll().forEach(user -> {
-            serialIdIsUsed[user.getSerialId()] = true;
-        });
+
+        // mark used serialIds
+        userRepository.findAll().forEach(user -> serialIdIsUsed[user.getSerialId()] = true);
+
+        // find first free serialId
         for (int serialId = 0; serialId < MAX_SERIAL_ID; serialId++) {
-            if ( ! serialIdIsUsed[serialId]) {
+            if (!serialIdIsUsed[serialId]) {
                 logger.debug("findFreeSerialId returns serialId {}", serialId);
                 return serialId;
             }
         }
+
+        // none found
         // TODO Global Exception Handler
         logAndMailService.logAndMail("too many users - MAX_SERIAL_ID reached");
         throw new IndexOutOfBoundsException("too many users - MAX_SERIAL_ID reached");
     }
 
+    /**
+     * Create an ArrayList of the pins of active users.
+     * Note: After sending pins to Arduino, they are deleted in the local DB. So here we return only pins net yet deleted.
+     *
+     * @return List of pins. Index of ArrayList = serialId.
+     */
+    public ArrayList<String> getPinList() {
+
+        final ArrayList<String> pins = new ArrayList<>(MAX_SERIAL_ID);
+        for (final User user : userRepository.findAll()) {
+            if (user.getPin() != null) {
+                pins.add(user.getSerialId(), user.getPin());
+            }
+        }
+        return pins;
+    }
 }

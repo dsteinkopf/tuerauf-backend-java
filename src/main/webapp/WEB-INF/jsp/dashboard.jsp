@@ -12,7 +12,7 @@
 
 <template:page pageTitle="${pageTitle}">
 
-    <h1>Türauf - Dashboard</h1>
+    <h1>${pageTitle}</h1>
 
     <div id="flash-message">${message}</div>
 
@@ -44,6 +44,8 @@
         </c:forEach>
     </table>
 
+    User count: ${users.size()}<br/>
+    <br/>
 
     <form id="activateAllNewForm" action="activateAllNew" method="post" commandName="activateAllNew">
         <input type="submit" name="submit" value="activate all new users"/>
@@ -51,5 +53,11 @@
                name="${_csrf.parameterName}"
                value="${_csrf.token}"/>
     </form>
+
+    <br/>
+
+    Send pins of active users to Arduino:<br/>
+
+
 
 </template:page>

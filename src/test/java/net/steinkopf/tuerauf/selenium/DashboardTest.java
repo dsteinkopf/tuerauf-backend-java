@@ -77,6 +77,26 @@ public class DashboardTest /*extends FluentTest*/ {
     }
 
     /**
+     * Tests if users are shown in the list
+     */
+    @Test
+    public void testUserlist() {
+
+        // Prepare
+        final String url = getUrl() + DashboardController.DASHBOARD_URL + "/";
+        logger.debug("testUserlist: url={}", url);
+
+        // Run
+        driver.get(url);
+        logger.debug("testUserlist: content = {}", driver.getPageSource());
+
+        // Check
+        final WebElement table = driver.findElement(By.className("users"));
+        assertThat(table.getText(), containsString(TestConstants.USER_NAME_INACTIVE));
+        assertThat(table.getText(), containsString(TestConstants.USER_NAME_ACTIVE));
+    }
+
+    /**
      * Tests if the activate all users button exists and works
      */
     @Test

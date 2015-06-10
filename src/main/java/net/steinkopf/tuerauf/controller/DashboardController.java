@@ -57,6 +57,9 @@ public class DashboardController {
 
         final List<User> userList = Lists.newArrayList(userRepository.findAll());
         model.put("users", userList);
+        logger.debug("userList.size()={}", userList.size());
+
+        // userService.getPinList();
 
         return DASHBOARD_VIEW;
     }
