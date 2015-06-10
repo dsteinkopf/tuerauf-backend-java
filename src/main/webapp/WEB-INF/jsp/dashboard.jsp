@@ -5,15 +5,21 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 
 <html lang="en">
+<head>
+    <meta charset='utf-8' />
+    <title>Türauf</title>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/static/main.css" type="text/css" />
+</head>
 
 <body>
 
-<h1>T&uuml;rauf - Dashboard</h1>
+<h1>Türauf - Dashboard</h1>
 
-<div id="flash-message" style="color: red; margin-bottom: 2em;">${message}</div>
+<div id="flash-message">${message}</div>
+
 
 <form id="activateAllNewForm" action="activateAllNew" method="post" commandName="activateAllNew">
-    <input type="submit" name="submit" value="activate all new user now" />
+    <input type="submit" name="submit" value="activate all new users"/>
     <input type="hidden"
            name="${_csrf.parameterName}"
            value="${_csrf.token}"/>

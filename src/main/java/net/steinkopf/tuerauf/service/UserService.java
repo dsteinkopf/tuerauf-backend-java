@@ -37,7 +37,10 @@ public class UserService {
 
         logger.trace("activateAllNew");
         List<User> userList = userRepository.findByActiveFalseAndNewUserTrue();
-        userList.forEach(user -> { user.setActive(true); userRepository.save(user); });
+        userList.forEach(user -> {
+            user.setActive(true);
+            userRepository.save(user);
+        });
         return userList;
     }
 
@@ -68,22 +71,23 @@ public class UserService {
 
         // Log and send admin notifications:
         if (user.getUsernameOld() != null) {
-            logAndMailService.logAndMail("user {} changed name to {} (installationId={})",
+            logAndMailService.logAndMail("user {} changed name to {} (serialId={})",
                     user.getUsernameOld(),
                     user.getUsername(),
-                    user.getInstallationId()
+                    user.getSerialId()
             );
         }
         if (user.getPinOld() != null) {
-            logAndMailService.logAndMail("user {} changed pin to {} (installationId={})",
+            logAndMailService.logAndMail("user {} changed pin to {} (serialId={})",
                     user.getUsername(),
                     user.getPin(),
-                    user.getInstallationId()
+                    user.getSerialId()
             );
         }
-        logAndMailService.logAndMail("user {} saved (installationId={})",
+        logAndMailService.logAndMail("user {} {} (serialId={})",
                 user.getUsername(),
-                user.getInstallationId()
+                existingUser.isEmpty() ? "created" : "updated",
+                user.getSerialId()
         );
 
         return user;
