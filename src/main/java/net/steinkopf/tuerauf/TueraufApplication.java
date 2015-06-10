@@ -3,8 +3,6 @@ package net.steinkopf.tuerauf;
 import net.steinkopf.tuerauf.rest.AppsecretChecker;
 import net.steinkopf.tuerauf.rest.FrontendAPIRestController;
 import org.apache.commons.lang3.StringUtils;
-import org.lightadmin.api.config.LightAdmin;
-import org.lightadmin.core.config.LightAdminWebApplicationInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +13,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.boot.autoconfigure.velocity.VelocityAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.context.embedded.ServletContextInitializer;
 import org.springframework.boot.context.web.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,16 +27,13 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-
 import static org.springframework.core.Ordered.HIGHEST_PRECEDENCE;
 
 
 @SpringBootApplication
 @EnableGlobalMethodSecurity(securedEnabled = true)
 //@Configuration
-@EnableAutoConfiguration(exclude = { VelocityAutoConfiguration.class }) // suppress warnings about missing velocity templates.
+@EnableAutoConfiguration(exclude = {VelocityAutoConfiguration.class}) // suppress warnings about missing velocity templates.
 //@ComponentScan
 @Order(HIGHEST_PRECEDENCE)
 public class TueraufApplication extends SpringBootServletInitializer {
@@ -47,8 +41,21 @@ public class TueraufApplication extends SpringBootServletInitializer {
     @SuppressWarnings("unused")
     private static final Logger logger = LoggerFactory.getLogger(TueraufApplication.class);
 
+/*
+    // for deploying as a web module to servlet container
+    public void onStartup(ServletContext servletContext) throws ServletException {
 
-    /* Used for running in "embedded" mode */
+        LightAdmin.configure(servletContext)
+                .basePackage("net.steinkopf.tuerauf")
+                .baseUrl("/admin")
+                .security(false)
+                .backToSiteUrl("https://github.com/dsteinkopf/tuerauf");
+        super.onStartup(servletContext);
+    }
+*/
+
+/*
+    // Used for running in "embedded" mode
     @Bean
     public ServletContextInitializer servletContextInitializer() {
         return new ServletContextInitializer() {
@@ -66,6 +73,7 @@ public class TueraufApplication extends SpringBootServletInitializer {
             }
         };
     }
+*/
 
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
@@ -119,7 +127,7 @@ public class TueraufApplication extends SpringBootServletInitializer {
 
             http
                     .authorizeRequests()
-                    // does not work here to set ROLE_ADMIN as default. Results in any request required to be ADMIN: .antMatchers("/**").access("hasRole('ROLE_ADMIN')")
+                            // does not work here to set ROLE_ADMIN as default. Results in any request required to be ADMIN: .antMatchers("/**").access("hasRole('ROLE_ADMIN')")
                     .antMatchers(FrontendAPIRestController.FRONTEND_URL_PATTERN).anonymous() // restricted by AppsecretChecker
                     .antMatchers(FrontendAPIRestController.FRONTEND_URL_PATTERN).permitAll() // restricted by AppsecretChecker
                     .antMatchers("/admin/**").access("hasRole('ROLE_ADMIN')")
@@ -143,7 +151,7 @@ public class TueraufApplication extends SpringBootServletInitializer {
 
         //@Override
         protected void XXconfigure(HttpSecurity http) throws Exception {
-            http    .authorizeRequests()
+            http.authorizeRequests()
                     .antMatchers("/frontend/**").access("hasRole('ROLE_USER')")
                     .antMatchers("/**").access("hasRole('ROLE_ADMIN')")
                     .and().httpBasic();
@@ -154,8 +162,8 @@ public class TueraufApplication extends SpringBootServletInitializer {
             auth
                     .inMemoryAuthentication()
                     .withUser("admin").password(adminPassword).roles("ADMIN", "USER");
-                    //.and()
-                    //.withUser("user").password("user").roles("USER");
+            //.and()
+            //.withUser("user").password("user").roles("USER");
         }
     }
 

@@ -11,15 +11,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.TestRestTemplate;
-import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
 
 import javax.servlet.ServletContext;
 
@@ -29,9 +31,13 @@ import static org.junit.Assert.assertTrue;
 /**
  * Testing correct authentication and authorization behaviour.
  */
+// @WebIntegrationTest(randomPort = true) // makes Tomcat run and listen on port
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = TueraufApplication.class)
-@WebIntegrationTest(randomPort = true) // makes Tomcat run and listen on port
+@WebAppConfiguration
+@IntegrationTest("server.port:0")
+@DirtiesContext
 public class AuthTest {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthTest.class);
@@ -97,10 +103,12 @@ public class AuthTest {
         doAuthTest(TestConstants.USER_USERNAME, TestConstants.USER_USERNAME, "/", HttpStatus.OK, "users");
         doAuthTest(TestConstants.ADMIN_USERNAME, TestConstants.ADMIN_PASSWORD, "/", HttpStatus.OK, "users");
 
+/*
         doAuthTest(null,    null,    "/admin/", HttpStatus.UNAUTHORIZED, null);
         doAuthTest("user",  "user",  "/admin/", HttpStatus.FORBIDDEN, null);
         doAuthTest("admin", "admin", "/admin/", HttpStatus.FOUND, null);
         doAuthTest("admin", "admin", "/admin/dashboard", HttpStatus.OK, "LightAdmin");
+*/
 
         doAuthTest(null,    null,    DashboardController.DASHBOARD_URL + "/", HttpStatus.UNAUTHORIZED, null);
         doAuthTest("user",  "user",  DashboardController.DASHBOARD_URL + "/", HttpStatus.FORBIDDEN, null);
