@@ -152,10 +152,31 @@ public class UserService {
 
         String[] pins = new String[MAX_SERIAL_ID];
         for (final User user : userRepository.findAll()) {
-            if (user.getPin() != null) {
+            if (user.getPin() != null && user.isActive()) {
                 pins[user.getSerialId()] = user.getPin();
             }
         }
         return pins;
+    }
+
+    /**
+     * Locally delete given pins.
+     *
+     * @param pinList Pins to be deleted.
+     * @exception IllegalArgumentException if any user does not exist.
+     */
+    public void deletePins(final String[] pinList) throws IllegalArgumentException {
+
+        for (int serialId = 0; serialId < pinList.length; serialId++) {
+            if (pinList[serialId] != null) {
+                final List<User> userList = userRepository.findBySerialId(serialId);
+                if (userList.size() != 1) {
+                    throw new IllegalArgumentException(String.format("User with serialId %s does not exist", serialId));
+                }
+                final User user = userList.get(0);
+                user.setPin(null);
+                userRepository.save(user);
+            }
+        }
     }
 }

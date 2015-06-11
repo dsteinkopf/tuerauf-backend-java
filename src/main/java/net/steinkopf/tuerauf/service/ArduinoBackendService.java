@@ -1,6 +1,7 @@
 package net.steinkopf.tuerauf.service;
 
 import net.steinkopf.tuerauf.data.User;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +41,12 @@ public class ArduinoBackendService {
 
         try {
             final String arduinoUrl = arduinoBaseUrl + "status";
+
+            if (StringUtils.isBlank(arduinoBaseUrl)) { // fake arduino
+                logger.warn("fake arduino call to {}", arduinoUrl);
+                return "dht22 ok, freeRam=658, checkOK=1";
+            }
+
             return httpFetcherService.fetchFromUrl(arduinoUrl, ARDUINO_MAX_RESULT_LEN);
 
         } catch (IOException e) {
@@ -64,6 +71,11 @@ public class ArduinoBackendService {
         String arduinoUrl = arduinoBaseUrl + pin + "/" + user.getSerialId();
         if (isNearToHome) {
             arduinoUrl += "/near";
+        }
+
+        if (StringUtils.isBlank(arduinoBaseUrl)) { // fake arduino
+            logger.warn("fake arduino call to {}", arduinoUrl);
+            return "OPEN";
         }
 
         try {
@@ -106,6 +118,11 @@ public class ArduinoBackendService {
 
         @SuppressWarnings("SpellCheckingInspection")
         final String arduinoUrl = arduinoBaseUrl + "storepinlist?" + pins4arduino;
+
+        if (StringUtils.isBlank(arduinoBaseUrl)) { // fake arduino
+            logger.warn("fake arduino call to {}", arduinoUrl);
+            return pinCount;
+        }
 
         try {
             final String arduinoResponse = httpFetcherService.fetchFromUrl(arduinoUrl, 2000);

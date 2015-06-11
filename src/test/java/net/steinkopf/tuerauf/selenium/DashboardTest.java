@@ -146,4 +146,41 @@ public class DashboardTest /*extends FluentTest*/ {
             assertThat(flashMessage.getText(), containsString("no inactive users"));
         }
     }
+
+    /**
+     * Tests if the send pins to arduino button exists and works
+     */
+    @Test
+    public void testSendPinsToArduino() {
+
+        // Prepare
+        final String url = getUrl() + DashboardController.DASHBOARD_URL + "/";
+        logger.debug("testSendPinsToArduino: url={}", url);
+        driver.get(url);
+        logger.debug("testSendPinsToArduino: content = {}", driver.getPageSource());
+
+        final WebElement table = driver.findElement(By.className("users"));
+        assertThat(table.getText(), containsString(TestConstants.PIN_ACTIVE));
+
+        {
+            // Run
+            final WebElement buttonContainer = driver.findElement(By.id("sendPinsToArduino"));
+            buttonContainer.findElement(By.name("submit")).click();
+
+            SeleniumHelper.waitForComponentWithText(driver, "sent ");
+            logger.debug("testSendPinsToArduino: content = {}", driver.getPageSource());
+
+            // Check
+            final WebElement flashMessage = driver.findElement(By.id("flash-message"));
+            assertThat(flashMessage.getText(), containsString("pins to arduino"));
+
+            assertThat(driver.findElement(By.tagName("h1")).getText(), containsString("Dashboard"));
+            assertThat(driver.getCurrentUrl(), not(containsString("activate"))); // should be back on normal dashboard url.
+            User testUserActive = userRepository.findOne(TestConstants.USER_ID_ACTIVE);
+            assertThat(testUserActive.getPin(), is(equalTo(null)));
+
+            final WebElement tableAfter = driver.findElement(By.className("users"));
+            assertThat(tableAfter.getText(), not(containsString(TestConstants.PIN_ACTIVE)));
+        }
+    }
 }

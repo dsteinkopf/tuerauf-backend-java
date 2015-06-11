@@ -91,8 +91,13 @@ public class DashboardController {
         final int pinsSent;
         try {
             pinsSent = arduinoBackendService.sendPinsToArduino(pinList);
+
             attr.addFlashAttribute(MESSAGE, String.format("sent %s pins to arduino", pinsSent));
-        } catch (IOException e) {
+
+            // After successfully sending to Arduino: delete all locally stored active PINs
+            userService.deletePins(pinList);
+
+        } catch (IOException | IllegalArgumentException e) {
             attr.addFlashAttribute(MESSAGE, e.toString());
         }
 
