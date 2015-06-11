@@ -9,6 +9,7 @@ import net.steinkopf.tuerauf.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,6 +19,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -50,11 +53,34 @@ public class DashboardController {
     ArduinoBackendService arduinoBackendService;
 
 
+    @Value("${tuerauf.git-revision-hash}")
+    private String gitRevisionHash;
+
+    @Value("${tuerauf.build.timestamp}")
+    private String buildTimestamp;
+
+    @Value("${tuerauf.build.timestamp.format}")
+    private String buildTimestampFormat;
+
+
+    private void addVersionInfo(Map<String, Object> model) {
+
+        Date buildDate = new Date(Long.valueOf(buildTimestamp));
+        SimpleDateFormat sdf = new SimpleDateFormat(buildTimestampFormat); // the format of your date
+        // sdf.setTimeZone(TimeZone.getTimeZone("GMT+1")); // give a timezone reference for formatting (see comment at the bottom
+        String buildDateFormatted = sdf.format(buildDate);
+
+        model.put("implementationBuild", gitRevisionHash);
+        model.put("implementationBuildTime", buildDateFormatted);
+    }
+
     /**
      * Display the dashboard (without any action).
      */
     @RequestMapping("/")
     public String dashboard(Map<String, Object> model, WebRequest webRequest) {
+
+        addVersionInfo(model);
 
         final List<User> userList = Lists.newArrayList(userRepository.findAll());
         model.put("users", userList);
