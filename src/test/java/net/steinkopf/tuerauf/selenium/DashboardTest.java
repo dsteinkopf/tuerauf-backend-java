@@ -47,9 +47,11 @@ public class DashboardTest /*extends FluentTest*/ {
     @Value("${local.server.port}")
     private int serverPort;
 
+    @SuppressWarnings("SpringJavaAutowiredMembersInspection")
     @Autowired
     private UserRepository userRepository;
 
+    @SuppressWarnings("SpringJavaAutowiredMembersInspection")
     @Autowired
     private ServletContext servletContext;
 

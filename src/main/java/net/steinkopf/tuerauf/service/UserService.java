@@ -73,6 +73,7 @@ public class UserService {
         // Log and send admin notifications:
         if (user.getUsernameOld() != null) {
             logAndMailService.logAndMail("user {} changed name to {} (serialId={})",
+                    null,
                     user.getUsernameOld(),
                     user.getUsername(),
                     user.getSerialId()
@@ -80,12 +81,14 @@ public class UserService {
         }
         if (user.getPinOld() != null) {
             logAndMailService.logAndMail("user {} changed pin to {} (serialId={})",
+                    null,
                     user.getUsername(),
                     user.getPin(),
                     user.getSerialId()
             );
         }
         logAndMailService.logAndMail("user {} {} (serialId={})",
+                null,
                 user.getUsername(),
                 existingUser.isEmpty() ? "created" : "updated",
                 user.getSerialId()
@@ -135,7 +138,7 @@ public class UserService {
 
         // none found
         // TODO Global Exception Handler
-        logAndMailService.logAndMail("too many users - MAX_SERIAL_ID reached");
+        logAndMailService.logAndMail("too many users - MAX_SERIAL_ID reached", null);
         throw new IndexOutOfBoundsException("too many users - MAX_SERIAL_ID reached");
     }
 

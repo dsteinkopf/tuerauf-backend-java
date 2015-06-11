@@ -78,7 +78,7 @@ public class UserServiceTest extends SecurityContextTest {
         List<User> userList = new ArrayList<>();
 
         final int USER_TO_DELETE = 1;
-        int serialIdToBeReused = createThenDeleteSomeUsers(userList, USER_TO_DELETE);
+        int serialIdToBeReused = createThenDeleteSomeUsers("serId ", userList, USER_TO_DELETE);
 
         // re-create
         User user = new User("testInstId99");
@@ -96,12 +96,12 @@ public class UserServiceTest extends SecurityContextTest {
      *
      * @return serialId to be reused
      */
-    private int createThenDeleteSomeUsers(final List<User> userList, final int userToDelete) {
+    private int createThenDeleteSomeUsers(final String prefix, final List<User> userList, final int userToDelete) {
 
         // first create some Users, then delete one. This serialId should be reused then.
         for (int userNumber = 0; userNumber < 4; userNumber++) {
-            User user = new User("testInstId" + userNumber);
-            user.setUsername("user " + userNumber);
+            User user = new User(prefix + "InstId" + userNumber);
+            user.setUsername(prefix + "user " + userNumber);
             int serialId = userService.findFreeSerialId();
             user.setSerialId(serialId);
             userRepository.save(user);
@@ -120,12 +120,15 @@ public class UserServiceTest extends SecurityContextTest {
     @Transactional // makes insertions be rolled back on exception.
     public void testFindFreeSerialIdOverflow() throws Exception {
 
+        userRepository.findAll().forEach(user1 -> logger.debug("all users: {}", user1.toString()));
+
         // create more users than available serialIds
         for (int userNumber = 0; userNumber < UserService.MAX_SERIAL_ID + 1; userNumber++) {
-            User user = new User("testInstId" + userNumber);
-            user.setUsername("user " + userNumber);
+            User user = new User("ovfl InstId" + userNumber);
+            user.setUsername("ovfl user " + userNumber);
             int serialId = userService.findFreeSerialId();
             user.setSerialId(serialId);
+            logger.debug("save user with serialId {}", serialId);
             userRepository.save(user);
         }
     }
@@ -136,7 +139,7 @@ public class UserServiceTest extends SecurityContextTest {
         // Prepare
         List<User> userList = new ArrayList<>();
         final int USER_TO_DELETE = 2;
-        createThenDeleteSomeUsers(userList, USER_TO_DELETE);
+        createThenDeleteSomeUsers("pin ", userList, USER_TO_DELETE);
 
         // Run
         final String[] pinList = userService.getPinList();

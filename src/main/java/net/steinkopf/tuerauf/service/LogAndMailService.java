@@ -10,6 +10,8 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -43,6 +45,7 @@ public class LogAndMailService {
 
     /**
      * Blocks until all tasks have completed execution
+     *
      * @throws InterruptedException
      */
     public void awaitTermination() throws InterruptedException {
@@ -54,11 +57,17 @@ public class LogAndMailService {
      * Logs a warning message and sends an email to the admin.
      *
      * @param format    The message pattern which will be parsed and formatted. In slf4j-style: e.g. "user {} is unknown".
+     * @param exception Exception to be logged.
      * @param arguments An array of arguments to be substituted in place of formatting anchors.
      */
-    public void logAndMail(String format, Object... arguments) {
+    public void logAndMail(String format, @Nullable Exception exception, Object... arguments) {
 
-        final String message = MessageFormatter.arrayFormat(format, arguments).getMessage();
+        StringBuilder messageBuilder = new StringBuilder(MessageFormatter.arrayFormat(format, arguments).getMessage());
+        if (exception != null) {
+            messageBuilder.append("\nException:\n").append(exception.toString());
+            messageBuilder.append("\nStacktrace:\n").append(Arrays.toString(exception.getStackTrace()));
+        }
+        final String message = messageBuilder.toString();
         logger.warn(message);
 
         if (StringUtils.isNotEmpty(adminMailAddress)) {
@@ -75,9 +84,8 @@ public class LogAndMailService {
 
     /**
      * This method will send compose and send the message
-     * */
-    public void sendMail(String to, String subject, String body)
-    {
+     */
+    public void sendMail(String to, String subject, String body) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(to);
         message.setSubject(subject);

@@ -95,7 +95,7 @@ public class ArduinoBackendServiceTest {
 
         verify(mockHttpFetcherService, times(1)).fetchFromUrl(eq(arduinoBaseUrlDummy + "status"), anyInt());
         verify(mockHttpFetcherService, times(1)).fetchFromUrl(any(String.class), anyInt());
-        verify(mockLogAndMailService, times(0)).logAndMail(any(String.class));
+        verify(mockLogAndMailService, times(0)).logAndMail(any(String.class), any(Exception.class));
     }
 
     @Test
@@ -110,7 +110,7 @@ public class ArduinoBackendServiceTest {
         // Verify
         assertThat(statusResult, is(equalTo("bad request")));
 
-        verify(mockLogAndMailService, times(0)).logAndMail(any(String.class));
+        verify(mockLogAndMailService, times(1)).logAndMail(any(String.class), any(Exception.class));
     }
 
     @Test
@@ -135,7 +135,8 @@ public class ArduinoBackendServiceTest {
 
         // Check
         assertThat(openDoorResult, is(equalTo(dummyFirstResult)));
-        verify(mockLogAndMailService, times(1)).logAndMail(any(String.class), any(String.class), any(String.class), any(String.class));
+        verify(mockLogAndMailService, times(1)).logAndMail(any(String.class), any(Exception.class),
+                any(String.class), any(String.class), any(String.class));
         verify(mockHttpFetcherService, times(1)).fetchFromUrl(any(String.class), anyInt());
 
         // Run - step 2: User entered dyncode
@@ -143,7 +144,8 @@ public class ArduinoBackendServiceTest {
 
         // Check
         assertThat(openDoorResult2, is(equalTo("OFFEN")));
-        verify(mockLogAndMailService, times(2)).logAndMail(any(String.class), any(String.class), any(String.class), any(String.class));
+        verify(mockLogAndMailService, times(2)).logAndMail(any(String.class), any(Exception.class),
+                any(String.class), any(String.class), any(String.class));
         verify(mockHttpFetcherService, times(2)).fetchFromUrl(any(String.class), anyInt());
     }
 
@@ -163,7 +165,7 @@ public class ArduinoBackendServiceTest {
 
         // Check
         assertThat(pinsSent, is(equalTo(3)));
-        verify(mockLogAndMailService, times(1)).logAndMail(any(String.class), anyInt());
+        verify(mockLogAndMailService, times(1)).logAndMail(any(String.class), any(Exception.class), anyInt());
         verify(mockHttpFetcherService, times(1)).fetchFromUrl(any(String.class), anyInt());
     }
 }

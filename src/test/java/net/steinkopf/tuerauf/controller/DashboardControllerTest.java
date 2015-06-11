@@ -41,6 +41,8 @@ public class DashboardControllerTest {
     @Test
     public void testDashboard() throws Exception {
 
+        // TODO: make this a real unit test: create the controller and test its behaviour. (Integration test is implemented in DashboardTest)
+
         final String urlPart = DashboardController.DASHBOARD_URL + "/";
 
         ResponseEntity<String> entity = new TestRestTemplate(TestConstants.ADMIN_USERNAME, TestConstants.ADMIN_PASSWORD)

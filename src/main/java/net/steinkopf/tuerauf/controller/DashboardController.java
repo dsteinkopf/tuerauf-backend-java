@@ -17,6 +17,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpSession;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -87,9 +88,13 @@ public class DashboardController {
     public String sendPinsToArduino(RedirectAttributes attr, HttpSession session) {
 
         final String[] pinList = userService.getPinList();
-        final int pinsSent = arduinoBackendService.sendPinsToArduino(pinList);
-
-        attr.addFlashAttribute(MESSAGE, String.format("sent %s pins to arduino", pinsSent));
+        final int pinsSent;
+        try {
+            pinsSent = arduinoBackendService.sendPinsToArduino(pinList);
+            attr.addFlashAttribute(MESSAGE, String.format("sent %s pins to arduino", pinsSent));
+        } catch (IOException e) {
+            attr.addFlashAttribute(MESSAGE, e.toString());
+        }
 
         return "redirect:" + DASHBOARD_URL + "/";
     }
