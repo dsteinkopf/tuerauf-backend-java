@@ -42,19 +42,31 @@ public class VersionAdderInterceptor extends HandlerInterceptorAdapter {
 
         // if performance was an issue in this project, this should be only done once and be cached:
 
+        if (modelAndView == null) {
+            // not applicable (e.g. this is a rest call)
+            return;
+        }
         final Map<String, Object> model = modelAndView.getModel();
 
         ServletContext context = request.getSession().getServletContext();
         // this is wrong: InputStream manifestStream = TueraufApplication.class.getClassLoader().getResourceAsStream("META-INF/MANIFEST.MF");
-        InputStream manifestStream = context.getResourceAsStream("META-INF/MANIFEST.MF");
+        InputStream manifestStream;
+        try {
+            manifestStream = context.getResourceAsStream("META-INF/MANIFEST.MF");
+        } catch (IllegalArgumentException e) {
+            manifestStream = null;
+        }
+        // TODO: correct this. commented out because values get put into URL (in POST? in redirect?) !??
         if (manifestStream != null) {
             Manifest manifest = new Manifest(manifestStream);
 
+/*
             model.put("implementationTitle", manifest.getMainAttributes().getValue("Implementation-Title"));
             model.put("implementationVersion", manifest.getMainAttributes().getValue("Implementation-Version"));
             model.put("implementationJdk", manifest.getMainAttributes().getValue("Build-Jdk"));
             model.put("implementationBuild", manifest.getMainAttributes().getValue("Implementation-Build"));
             model.put("implementationBuildTime", manifest.getMainAttributes().getValue("Implementation-Build-Time"));
+*/
         }
         else {
             // fallback implementation when application is not started from war/jar:
@@ -63,8 +75,10 @@ public class VersionAdderInterceptor extends HandlerInterceptorAdapter {
             // sdf.setTimeZone(TimeZone.getTimeZone("GMT+1")); // give a timezone reference for formatting (see comment at the bottom
             String buildDateFormatted = sdf.format(buildDate);
 
+/*
             model.put("implementationBuild", gitRevisionHash);
             model.put("implementationBuildTime", buildDateFormatted);
+*/
         }
     }
 }
