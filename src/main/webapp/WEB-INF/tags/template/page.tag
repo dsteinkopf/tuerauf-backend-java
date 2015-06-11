@@ -20,5 +20,13 @@
 <%-- Inject the page body here --%>
 <jsp:doBody/>
 
+<!-- Footer -->
+<div class="versioninfo">
+    implementationBuild: ${implementationBuild} -
+    implementationBuildTime: ${implementationBuildTime} -
+    implementationVersion: ${implementationVersion} -
+    implementationJdk: ${implementationJdk}
+</div>
+
 </body>
 </html>

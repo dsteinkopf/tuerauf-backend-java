@@ -1,5 +1,6 @@
 package net.steinkopf.tuerauf;
 
+import net.steinkopf.tuerauf.controller.VersionAdderInterceptor;
 import net.steinkopf.tuerauf.rest.AppsecretChecker;
 import net.steinkopf.tuerauf.rest.FrontendAPIRestController;
 import org.apache.commons.lang3.StringUtils;
@@ -173,14 +174,23 @@ public class TueraufApplication extends SpringBootServletInitializer {
         @Autowired
         public AppsecretChecker appsecretChecker;
 
+        @Autowired
+        public VersionAdderInterceptor versionAdderInterceptor;
+
         @Bean
         public AppsecretChecker appsecretChecker() {
             return appsecretChecker;
         }
 
+        @Bean
+        public VersionAdderInterceptor versionAdderInterceptor() {
+            return versionAdderInterceptor;
+        }
+
         @Override
         public void addInterceptors(InterceptorRegistry registry) {
             registry.addInterceptor(appsecretChecker());
+            registry.addInterceptor(versionAdderInterceptor());
         }
     }
 }

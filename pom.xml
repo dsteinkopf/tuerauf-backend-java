@@ -5,11 +5,17 @@
 
 	<groupId>net.steinkopf</groupId>
 	<artifactId>tuerauf</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
 	<packaging>war</packaging>
 
 	<name>tuerauf</name>
 	<description>Tür auf</description>
+    <version>0.0.1-SNAPSHOT</version>
+
+    <!-- see http://mariuszprzydatek.com/2013/09/18/displaying-git-build-number-hash-in-your-rest-api/ -->
+    <!-- and http://www.jayway.com/2012/04/07/continuous-deployment-versioning-and-git/ -->
+    <scm>
+        <connection>scm:git:https://github.com/dsteinkopf/tuerauf-backend-java.git</connection>
+    </scm>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -23,7 +29,9 @@
 		<start-class>net.steinkopf.tuerauf.TueraufApplication</start-class>
 		<java.version>1.8</java.version>
         <docker.image.prefix>dsteinkopf</docker.image.prefix>
-	</properties>
+        <timestamp>${maven.build.timestamp}</timestamp> <!-- workaround for bug in maven: maven.build.timestamp is not propagated to filters -->
+        <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss z</maven.build.timestamp.format>
+    </properties>
 
 	<dependencies>
 
@@ -146,10 +154,37 @@
 			</plugin>
 
             <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>buildnumber-maven-plugin</artifactId>
+                <version>1.1</version>
+                <executions>
+                    <execution>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>create</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <shortRevisionLength>7</shortRevisionLength>
+                </configuration>
+            </plugin>
+
+            <plugin>
                 <artifactId>maven-war-plugin</artifactId>
                 <version>2.6</version>
                 <configuration>
                     <packagingExcludes>**/application-prod.properties</packagingExcludes>
+                    <archive>
+                        <addMavenDescriptor>false</addMavenDescriptor>
+                        <manifest>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                        </manifest>
+                        <manifestEntries>
+                            <Implementation-Build>${buildNumber}</Implementation-Build>
+                            <Implementation-Build-Time>${maven.build.timestamp}</Implementation-Build-Time>
+                        </manifestEntries>
+                    </archive>
                 </configuration>
             </plugin>
 
