@@ -1,8 +1,10 @@
+<%@ page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ page trimDirectiveWhitespaces="true" %>
 <%@ taglib prefix="template" tagdir="/WEB-INF/tags/template" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <%--@elvariable id="users" type="java.util.List<net.steinkopf.tuerauf.data.User>"--%>
 <%--@elvariable id="message" type="java.lang.String"--%>
@@ -24,6 +26,8 @@
             <td>installationId</td>
             <td>active</td>
             <td>newUser</td>
+            <td>created</td>
+            <td>modified</td>
         </tr>
 
         <c:forEach var="user" items="${users}">
@@ -40,6 +44,8 @@
                 <td>${user.installationId}</td>
                 <td><c:if test="${user.active}">x</c:if></td>
                 <td><c:if test="${user.newUser}">x</c:if></td>
+                <td><fmt:formatDate value="${user.creationTime}" pattern="yyyy-MM-dd HH:mm"/></td>
+                <td><fmt:formatDate value="${user.modificationTime}" pattern="yyyy-MM-dd HH:mm"/></td>
             </tr>
         </c:forEach>
     </table>

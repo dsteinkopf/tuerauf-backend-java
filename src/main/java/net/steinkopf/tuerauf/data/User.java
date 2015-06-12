@@ -4,8 +4,11 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.Date;
 import java.util.Objects;
 
 /**
@@ -76,6 +79,12 @@ public class User {
     @Column(nullable = false)
     private boolean newUser;
 
+    @Column(name = "creation_time", nullable = false)
+    private Date creationTime;
+
+    @Column(name = "modification_time", nullable = false)
+    private Date modificationTime;
+
 
     public User() {
     }
@@ -85,6 +94,18 @@ public class User {
         this.installationId = installationId;
         this.active = false;
         this.newUser = true;
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        modificationTime = new Date();
+    }
+
+    @PrePersist
+    public void prePersist() {
+        Date now = new Date();
+        creationTime = now;
+        modificationTime = now;
     }
 
     public int getSerialId() {
@@ -159,6 +180,22 @@ public class User {
 
     public void setPinOld(final String pinOld) {
         this.pinOld = pinOld;
+    }
+
+    public Date getCreationTime() {
+        return creationTime;
+    }
+
+    public void setCreationTime(final Date creationTime) {
+        this.creationTime = creationTime;
+    }
+
+    public Date getModificationTime() {
+        return modificationTime;
+    }
+
+    public void setModificationTime(final Date modificationTime) {
+        this.modificationTime = modificationTime;
     }
 
     private void markAsChanged() {
