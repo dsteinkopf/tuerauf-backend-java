@@ -25,4 +25,5 @@ CMD ["catalina.sh", "run"]
 # docker run --env=SPRING_PROFILES_ACTIVE=prod --env=SPRING_CONFIG_LOCATION=/usr/local/tomcat/conf/application-prod.properties -v $PWD/src/main/resources/application-prod.properties:/usr/local/tomcat/conf/application-prod.properties --link mysql:mysql-1 -P --rm -p 8080:8080 --name tuerauf dsteinkopf/tuerauf
 
 # run mysql e.g.
-# docker run --env=MYSQL_PASS=tuerauf --env=ON_CREATE_DB=tuerauf -v /opt/tuerauf/var_lib_mysql:/var/lib/mysql --rm --name mysql tutum/mysql
+# docker run -d --env=MYSQL_PASS=tuerauf --env=ON_CREATE_DB=tuerauf -v /opt/tuerauf/var_lib_mysql:/var/lib/mysql  -p 3306:3306 --name mysql tutum/mysql
+# mysql -h $(boot2docker ip) --user=admin --pass=tuerauf tuerauf

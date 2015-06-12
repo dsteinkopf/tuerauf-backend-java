@@ -79,10 +79,10 @@ public class User {
     @Column(nullable = false)
     private boolean newUser;
 
-    @Column(name = "creation_time", nullable = false)
+    @Column(name = "creation_time", nullable = false, columnDefinition="TIMESTAMP DEFAULT '2015-01-01 01:01:01'")
     private Date creationTime;
 
-    @Column(name = "modification_time", nullable = false)
+    @Column(name = "modification_time", nullable = false, columnDefinition="TIMESTAMP DEFAULT '2015-01-01 01:01:01'")
     private Date modificationTime;
 
 
