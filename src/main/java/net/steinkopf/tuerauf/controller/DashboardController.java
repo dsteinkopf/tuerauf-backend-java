@@ -14,11 +14,11 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -62,6 +62,12 @@ public class DashboardController {
     @Value("${tuerauf.build.timestamp.format}")
     private String buildTimestampFormat;
 
+    @Value("${tuerauf.appsecret}")
+    private String appsecret;
+
+    @Value("${tuerauf.external-url}")
+    private String externalUrl;
+
 
     private void addVersionInfo(Map<String, Object> model) {
 
@@ -78,7 +84,7 @@ public class DashboardController {
      * Display the dashboard (without any action).
      */
     @RequestMapping("/")
-    public String dashboard(Map<String, Object> model, WebRequest webRequest) {
+    public String dashboard(Map<String, Object> model) {
 
         addVersionInfo(model);
 
@@ -93,7 +99,7 @@ public class DashboardController {
      * activate all new users now.
      */
     @RequestMapping(value = "/activateAllNew", method = RequestMethod.POST)
-    public String activateAllNew(RedirectAttributes attr, HttpSession session) {
+    public String activateAllNew(RedirectAttributes attr) {
 
         List<User> activatedUserList = userService.activateAllNew();
         if (activatedUserList.size() >= 1) {
@@ -111,7 +117,7 @@ public class DashboardController {
      * send pins to Arduino now.
      */
     @RequestMapping(value = "/sendPinsToArduino", method = RequestMethod.POST)
-    public String sendPinsToArduino(RedirectAttributes attr, HttpSession session) {
+    public String sendPinsToArduino(RedirectAttributes attr) {
 
         final String[] pinList = userService.getPinList();
         final int pinsSent;
@@ -126,6 +132,22 @@ public class DashboardController {
         } catch (IOException | IllegalArgumentException e) {
             attr.addFlashAttribute(MESSAGE, e.toString());
         }
+
+        return "redirect:" + DASHBOARD_URL + "/";
+    }
+
+    /**
+     * show config links.
+     */
+    // see http://docs.spring.io/spring/docs/current/spring-framework-reference/html/mvc.html#mvc-ann-arguments
+    @RequestMapping(value = "/showConfigLink", method = RequestMethod.POST)
+    public String showConfigLink(RedirectAttributes attr) throws UnsupportedEncodingException {
+
+        // e.g. tuerauf:///?https%3A%2F%2Fbackend.myhome%3A39931%2Ftuerauf%2F/MyAppsecret
+        final String myUrl = externalUrl + (externalUrl.endsWith("/") ? "" : "/");
+        final String configLink = String.format("tuerauf:///?%s/%s", URLEncoder.encode(myUrl, "UTF-8"), appsecret);
+
+        attr.addFlashAttribute(MESSAGE, String.format("Secret config Link:<br>%s", configLink));
 
         return "redirect:" + DASHBOARD_URL + "/";
     }

@@ -135,6 +135,11 @@ public class TueraufApplication extends SpringBootServletInitializer {
                     .antMatchers("/users/**").access("hasRole('ROLE_ADMIN')")
                     .anyRequest().fullyAuthenticated()
                     .and().httpBasic();
+
+            // see http://stackoverflow.com/questions/29149931/spring-boot-csrf-filter
+            // completely disable CSRF. Do we need it in our case?
+            http
+                    .csrf().disable();
         }
     }
 

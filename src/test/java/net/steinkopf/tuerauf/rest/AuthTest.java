@@ -46,6 +46,7 @@ public class AuthTest {
     @Value("${local.server.port}")
     private int port = 8080;
 
+    @SuppressWarnings("SpringJavaAutowiredMembersInspection")
     @Autowired
     private ServletContext servletContext;
 
@@ -67,9 +68,11 @@ public class AuthTest {
         final String url = "http://localhost:" + this.port + servletContext.getContextPath() + urlPart;
         logger.debug("doAuthTest is calling {}", url);
 
+        HttpMethod method = urlPart.startsWith(FrontendAPIRestController.FRONTEND_URL) ? HttpMethod.POST : HttpMethod.GET;
+
         ResponseEntity < String > entity = new TestRestTemplate().exchange(
                 url,
-                HttpMethod.GET,
+                method,
                 new HttpEntity<Void>(headers),
                 String.class);
         assertEquals(expectedStatus, entity.getStatusCode());
