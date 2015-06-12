@@ -165,7 +165,6 @@ public class FrontendAPIRestControllerUnitTest {
         verify(mockArduinoBackendService, times(1)).openDoor(any(User.class), anyString(), anyBoolean());
     }
 
-
     @Test
     public void openDoorTestIsNear() throws Exception {
 
@@ -191,5 +190,41 @@ public class FrontendAPIRestControllerUnitTest {
         assertThat(result, is(equalTo(fakeResponse)));
 
         verify(mockArduinoBackendService, times(1)).openDoor(any(User.class), anyString(), anyBoolean());
+    }
+
+    @Test
+    public void openCheckLocation() throws Exception {
+
+        // Prepare
+        final String geoy = "1.23";
+        final String geox = "1.23";
+
+        User user = userRepository.findOne(TestConstants.USER_ID_ACTIVE);
+        assertNotNull(user);
+
+        // 1. isNear == true
+        {
+            // Prepare mocking
+            when(mockLocationService.isNearToHomeOuter(anyDouble(), anyDouble())).thenReturn(false);
+            when(mockLocationService.isNearToHome(anyDouble(), anyDouble())).thenReturn(true);
+
+            // Run
+            final String result = testedFrontendAPIRestController.checkLocation(user.getInstallationId(), geoy, geox);
+
+            // Check
+            assertThat(result, is(equalTo("near")));
+        }
+        // 2. isNear == false
+        {
+            // Prepare mocking
+            when(mockLocationService.isNearToHomeOuter(anyDouble(), anyDouble())).thenReturn(false);
+            when(mockLocationService.isNearToHome(anyDouble(), anyDouble())).thenReturn(false);
+
+            // Run
+            final String result = testedFrontendAPIRestController.checkLocation(user.getInstallationId(), geoy, geox);
+
+            // Check
+            assertThat(result, is(equalTo("far")));
+        }
     }
 }

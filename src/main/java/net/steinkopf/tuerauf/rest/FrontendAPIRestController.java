@@ -36,6 +36,8 @@ public class FrontendAPIRestController {
 
     /**
      * Creates a user object or - if installationId exists - updates this user.
+     * Should not be used in prod environments (in order to avoid logging of the get values).
+     *
      * @return a string indicating success: "saved: new/changed active/inactive"
      */
     @RequestMapping(value = "registerUser", method = RequestMethod.GET)
@@ -62,7 +64,8 @@ public class FrontendAPIRestController {
 
     /**
      * Opens the door if user is allowed.
-     * @return a string indicating success: e.g. "OFFEN"
+     *
+     * @return a string indicating success: e.g. "OFFEN".  "user unknown" if user is unknown or inactive.
      */
     @RequestMapping(value = "openDoor", method = RequestMethod.GET)
     public String openDoor(@RequestParam("pin") String pin,
@@ -81,18 +84,48 @@ public class FrontendAPIRestController {
             return arduinoBackendService.getStatus();
         }
 
-        final double geoy = Float.parseFloat(geoyString);
-        final double geox = Float.parseFloat(geoxString);
+        final double geoy = Double.parseDouble(geoyString);
+        final double geox = Double.parseDouble(geoxString);
         final boolean isNearToHome = locationService.isNearToHome(geoy, geox);
         final boolean isNearToHomeOuter = locationService.isNearToHomeOuter(geoy, geox);
 
-        if ( ! isNearToHomeOuter) {
+        if (!isNearToHomeOuter) {
             return "not here";
         }
 
         // all checks done - do arduino call now:
 
-        return arduinoBackendService.openDoor(user, pin, isNearToHome);
+        final String arduinoResponse = arduinoBackendService.openDoor(user, pin, isNearToHome);
+        logger.trace("openDoor: arduino returned '{}'", arduinoResponse);
+
+        return arduinoResponse;
+    }
+
+    /**
+     * Checks if user is "near".
+     *
+     * @return "near" or "far". "user unknown" if user is unknown or inactive.
+     */
+    @RequestMapping(value = "checkLocation", method = RequestMethod.GET)
+    public String checkLocation(@RequestParam("installationId") String installationId,
+                                @RequestParam("geoy") String geoyString,
+                                @RequestParam("geox") String geoxString) {
+
+        logger.trace("checkLocation(installationId={}, geoyString={}, geoxString={})", installationId, geoyString, geoxString);
+
+        final User user = userService.getUserIfActive(installationId);
+        if (user == null) {
+            return "user unknown";
+        }
+
+        final double geoy = Double.parseDouble(geoyString);
+        final double geox = Double.parseDouble(geoxString);
+        final boolean isNearToHome = locationService.isNearToHome(geoy, geox);
+
+        final String response = isNearToHome ? "near" : "far";
+        logger.trace("checkLocation: returns '{}'", response);
+
+        return response;
     }
 
     void setLocationService(final LocationService locationService) {
