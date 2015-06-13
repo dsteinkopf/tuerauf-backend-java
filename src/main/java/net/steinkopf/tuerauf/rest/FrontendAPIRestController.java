@@ -46,6 +46,8 @@ public class FrontendAPIRestController {
                                @RequestParam("installationId") String installationId)
             throws Exception {
 
+        logger.debug("registerUser(installationId={}, username={})", installationId, username);
+
         final User user = userService.registerOrUpdateUser(username, pin, installationId);
 
         return "saved:"
@@ -64,6 +66,7 @@ public class FrontendAPIRestController {
 
     /**
      * Opens the door if user is allowed.
+     * Should not be used in prod environments (in order to avoid logging of the get values).
      *
      * @return a string indicating success: e.g. "OFFEN".  "user unknown" if user is unknown or inactive.
      */
@@ -73,7 +76,7 @@ public class FrontendAPIRestController {
                            @RequestParam("geoy") String geoyString,
                            @RequestParam("geox") String geoxString) {
 
-        logger.trace("openDoor(pin={}, installationId={}, geoyString={}, geoxString={})", pin, installationId, geoyString, geoxString);
+        logger.debug("openDoor(installationId={}, geoyString={}, geoxString={})", installationId, geoyString, geoxString);
 
         final User user = userService.getUserIfActive(installationId);
         if (user == null) {
@@ -101,8 +104,19 @@ public class FrontendAPIRestController {
         return arduinoResponse;
     }
 
+    @RequestMapping(value = "openDoor", method = RequestMethod.POST)
+    public String openDoorPost(@RequestParam("pin") String pin,
+                               @RequestParam("installationId") String installationId,
+                               @RequestParam("geoy") String geoyString,
+                               @RequestParam("geox") String geoxString) {
+
+        return openDoor(pin, installationId, geoyString, geoxString);
+
+    }
+
     /**
      * Checks if user is "near".
+     * Should not be used in prod environments (in order to avoid logging of the get values).
      *
      * @return "near" or "far". "user unknown" if user is unknown or inactive.
      */
@@ -126,6 +140,14 @@ public class FrontendAPIRestController {
         logger.trace("checkLocation: returns '{}'", response);
 
         return response;
+    }
+
+    @RequestMapping(value = "checkLocation", method = RequestMethod.POST)
+    public String checkLocationPost(@RequestParam("installationId") String installationId,
+                                    @RequestParam("geoy") String geoyString,
+                                    @RequestParam("geox") String geoxString) {
+
+        return checkLocation(installationId, geoyString, geoxString);
     }
 
     void setLocationService(final LocationService locationService) {
