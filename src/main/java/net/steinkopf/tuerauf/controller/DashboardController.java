@@ -6,6 +6,7 @@ import net.steinkopf.tuerauf.data.User;
 import net.steinkopf.tuerauf.repository.UserRepository;
 import net.steinkopf.tuerauf.service.ArduinoBackendService;
 import net.steinkopf.tuerauf.service.UserService;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,13 +72,14 @@ public class DashboardController {
 
     private void addVersionInfo(Map<String, Object> model) {
 
-        Date buildDate = new Date(Long.valueOf(buildTimestamp));
-        SimpleDateFormat sdf = new SimpleDateFormat(buildTimestampFormat); // the format of your date
-        // sdf.setTimeZone(TimeZone.getTimeZone("GMT+1")); // give a timezone reference for formatting (see comment at the bottom
-        String buildDateFormatted = sdf.format(buildDate);
-
+        if (StringUtils.isNotBlank(buildTimestamp)) {
+            Date buildDate = new Date(Long.valueOf(buildTimestamp));
+            SimpleDateFormat sdf = new SimpleDateFormat(buildTimestampFormat); // the format of your date
+            // sdf.setTimeZone(TimeZone.getTimeZone("GMT+1")); // give a timezone reference for formatting (see comment at the bottom
+            String buildDateFormatted = sdf.format(buildDate);
+            model.put("implementationBuildTime", buildDateFormatted);
+        }
         model.put("implementationBuild", gitRevisionHash);
-        model.put("implementationBuildTime", buildDateFormatted);
     }
 
     /**
