@@ -12,8 +12,15 @@ test:
     - mvn -Dmaven.test.skip=true package docker:build
 
 deployment:
-  dockerhub:
+  dockerhub-prod:
     branch: master
     commands:
       - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
-      - docker push dsteinkopf/tuerauf
+      - docker tag -f dsteinkopf/tuerauf dsteinkopf/tuerauf:prod
+      - docker push dsteinkopf/tuerauf:prod
+  dockerhub-test:
+    branch: testing
+    commands:
+      - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+      - docker tag -f dsteinkopf/tuerauf dsteinkopf/tuerauf:test
+      - docker push dsteinkopf/tuerauf:test
