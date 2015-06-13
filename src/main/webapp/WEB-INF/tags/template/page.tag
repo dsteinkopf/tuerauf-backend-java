@@ -23,9 +23,11 @@
 <!-- Footer -->
 <div class="versioninfo">
     implementationBuild: ${implementationBuild} -
-    implementationBuildTime: ${implementationBuildTime} -
-    implementationVersion: ${implementationVersion} -
-    implementationJdk: ${implementationJdk}
+    implementationBuildTime: ${implementationBuildTime}
+<%-- -
+implementationVersion: ${implementationVersion} -
+implementationJdk: ${implementationJdk}
+--%>
 </div>
 
 </body>
