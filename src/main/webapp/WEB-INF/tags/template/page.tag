@@ -8,10 +8,10 @@
 <head>
     <meta charset='utf-8'/>
     <title>${pageTitle}</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/static/main.css" type="text/css"/>
+    <link rel="stylesheet" href="../static/main.css" type="text/css"/>
 
     <%-- this is not recommended for online/production (see http://lesscss.org/) --%>
-    <link rel="stylesheet/less" type="text/css" href="${pageContext.request.contextPath}/less/main.less"/>
+    <link rel="stylesheet/less" type="text/css" href="../less/main.less"/>
     <script src="//cdnjs.cloudflare.com/ajax/libs/less.js/2.5.0/less.min.js"></script>
 </head>
 
