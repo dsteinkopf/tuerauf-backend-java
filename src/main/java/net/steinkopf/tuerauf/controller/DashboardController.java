@@ -69,6 +69,9 @@ public class DashboardController {
     @Value("${tuerauf.external-url}")
     private String externalUrl;
 
+    @Value("${tuerauf.prod-version}")
+    private boolean prodVersion;
+
 
     private void addVersionInfo(Map<String, Object> model) {
 
@@ -147,7 +150,8 @@ public class DashboardController {
 
         // e.g. tuerauf:///?https%3A%2F%2Fbackend.myhome%3A39931%2Ftuerauf%2F/MyAppsecret
         final String myUrl = externalUrl + (externalUrl.endsWith("/") ? "" : "/");
-        final String configLink = String.format("tuerauf:///?%s/%s", URLEncoder.encode(myUrl, "UTF-8"), appsecret);
+        final String prefex = prodVersion ? "tuerauf" : "tuerauftest";
+        final String configLink = String.format("%s:///?%s/%s", prefex, URLEncoder.encode(myUrl, "UTF-8"), appsecret);
 
         attr.addFlashAttribute(MESSAGE, String.format("Secret config Link:<br>%s", configLink));
 
