@@ -195,7 +195,7 @@ public class TueraufApplication extends SpringBootServletInitializer {
         @Override
         public void addInterceptors(InterceptorRegistry registry) {
             registry.addInterceptor(appsecretChecker());
-            registry.addInterceptor(versionAdderInterceptor());
+            /*registry.addInterceptor(versionAdderInterceptor());*/
         }
     }
 }
