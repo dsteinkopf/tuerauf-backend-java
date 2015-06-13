@@ -1,0 +1,37 @@
+mysql-prod:
+  image: tutum/mysql
+  ports:
+    - "3306:3306"
+  roles:
+    - global
+  environment:
+    - MYSQL_PASS=tuerauf
+    - ON_CREATE_DB=tuerauf
+  volumes:
+    - /opt/tuerauf/var_lib_mysql:/var/lib/mysql
+  tags:
+    - prod
+  autorestart: always
+  deployment_strategy: emptiest_node
+  sequential_deployment: true
+  autoredeploy: false
+
+tuerauf-prod:
+  image: dsteinkopf/tuerauf:prod
+  ports:
+    - "8080:8080"
+  roles:
+    - global
+  links:
+    - "mysql-prod:mysql-1"
+  environment:
+    - SPRING_PROFILES_ACTIVE=prod
+    - SPRING_CONFIG_LOCATION=/usr/local/tomcat/conf/application-prod.properties
+  volumes:
+    - /opt/tuerauf/application-prod.properties:/usr/local/tomcat/conf/application-prod.properties
+  tags:
+    - prod
+  autorestart: always
+  deployment_strategy: emptiest_node
+  sequential_deployment: true
+  autoredeploy: false
