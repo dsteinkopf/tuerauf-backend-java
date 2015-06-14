@@ -80,10 +80,9 @@ public class UserService {
             );
         }
         if (user.getPinOld() != null) {
-            logAndMailService.logAndMail("user {} changed pin to {} (serialId={})",
+            logAndMailService.logAndMail("user {} changed pin (serialId={})",
                     null,
                     user.getUsername(),
-                    user.getPin(),
                     user.getSerialId()
             );
         }

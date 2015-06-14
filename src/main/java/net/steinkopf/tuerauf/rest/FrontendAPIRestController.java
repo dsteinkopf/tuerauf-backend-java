@@ -76,12 +76,14 @@ public class FrontendAPIRestController {
                            @RequestParam("geoy") String geoyString,
                            @RequestParam("geox") String geoxString) {
 
-        logger.debug("openDoor(installationId={}, geoyString={}, geoxString={})", installationId, geoyString, geoxString);
-
         final User user = userService.getUserIfActive(installationId);
         if (user == null) {
+            logger.debug("openDoor(installationId={}, geoyString={}, geoxString={})", installationId, geoyString, geoxString);
+
             return "user unknown";
         }
+
+        logger.debug("openDoor(username={}, geoyString={}, geoxString={})", user.getUsername(), geoyString, geoxString);
 
         if (installationId.equals("monitoring")) {
             return arduinoBackendService.getStatus();
@@ -125,12 +127,14 @@ public class FrontendAPIRestController {
                                 @RequestParam("geoy") String geoyString,
                                 @RequestParam("geox") String geoxString) {
 
-        logger.trace("checkLocation(installationId={}, geoyString={}, geoxString={})", installationId, geoyString, geoxString);
-
         final User user = userService.getUserIfActive(installationId);
         if (user == null) {
+            logger.debug("checkLocation(installationId={}, geoyString={}, geoxString={})", installationId, geoyString, geoxString);
+
             return "user unknown";
         }
+
+        logger.debug("checkLocation(username={}, geoyString={}, geoxString={})", user.getUsername(), geoyString, geoxString);
 
         final double geoy = Double.parseDouble(geoyString);
         final double geox = Double.parseDouble(geoxString);

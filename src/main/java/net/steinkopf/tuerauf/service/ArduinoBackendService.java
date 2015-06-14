@@ -64,7 +64,7 @@ public class ArduinoBackendService {
      */
     public String openDoor(final User user, final String pin, final boolean isNearToHome) {
 
-        logger.trace("openDoor(user={}, pin={}, isNeaToHome={})", user, pin, isNearToHome);
+        logger.debug("openDoor(username={}, isNeaToHome={})", user.getUsername(), isNearToHome);
         Assert.notNull(user, "user must not be null");
         Assert.notNull(pin, "pin must not be null");
 
