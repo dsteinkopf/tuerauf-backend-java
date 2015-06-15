@@ -74,4 +74,10 @@
         <input type="hidden" name="nocsrf${_csrf.parameterName}" value="${_csrf.token}"/>
     </form>
 
+
+    <h2>Access Log:</h2>
+
+    <spring:url value="/accessLog/" var="accessLogUrl"/>
+    <a href="${accessLogUrl}">goto access logs</a>
+
 </template:page>
