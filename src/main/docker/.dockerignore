@@ -1,2 +1,2 @@
-# still empty
-# relevant files only are copied to target/docker
+# only relevant files are copied to target/docker
+trigger.txt

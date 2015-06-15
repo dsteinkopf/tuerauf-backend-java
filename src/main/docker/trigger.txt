@@ -1,0 +1,3 @@
+# dummy changes to trigger a new build
+#
+# 2015-06-15: update because of change in tomcat:7.0-jre8
