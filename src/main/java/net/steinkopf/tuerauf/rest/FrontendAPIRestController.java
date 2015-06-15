@@ -1,6 +1,8 @@
 package net.steinkopf.tuerauf.rest;
 
+import net.steinkopf.tuerauf.data.AccessLog;
 import net.steinkopf.tuerauf.data.User;
+import net.steinkopf.tuerauf.service.AccessLogService;
 import net.steinkopf.tuerauf.service.ArduinoBackendService;
 import net.steinkopf.tuerauf.service.LocationService;
 import net.steinkopf.tuerauf.service.UserService;
@@ -31,12 +33,18 @@ public class FrontendAPIRestController {
     private ArduinoBackendService arduinoBackendService;
 
     @Autowired
-    LocationService locationService;
+    private LocationService locationService;
+
+    @Autowired
+    private AccessLogService accessLogService;
 
 
     /**
      * Creates a user object or - if installationId exists - updates this user.
      * Should not be used in prod environments (in order to avoid logging of the get values).
+     *
+     * e.g.
+     * http://localhost:8080/tuerauf/frontend/registerUser?installationId=0600763045345&username=test1&appsecret=secretApp&pin=1234
      *
      * @return a string indicating success: "saved: new/changed active/inactive"
      */
@@ -68,6 +76,9 @@ public class FrontendAPIRestController {
      * Opens the door if user is allowed.
      * Should not be used in prod environments (in order to avoid logging of the get values).
      *
+     * e.g.
+     * http://localhost:8080/tuerauf/frontend/openDoor?appsecret=secretApp&installationId=testInstallation1&geoy=23.45&geox=12.34&pin=1111
+     *
      * @return a string indicating success: e.g. "OFFEN".  "user unknown" if user is unknown or inactive.
      */
     @RequestMapping(value = "openDoor", method = RequestMethod.GET)
@@ -91,19 +102,32 @@ public class FrontendAPIRestController {
 
         final double geoy = Double.parseDouble(geoyString);
         final double geox = Double.parseDouble(geoxString);
-        final boolean isNearToHome = locationService.isNearToHome(geoy, geox);
-        final boolean isNearToHomeOuter = locationService.isNearToHomeOuter(geoy, geox);
 
-        if (!isNearToHomeOuter) {
-            return "not here";
+        String result = null;
+        try {
+            final boolean isNearToHome = locationService.isNearToHome(geoy, geox);
+            final boolean isNearToHomeOuter = locationService.isNearToHomeOuter(geoy, geox);
+
+            if (!isNearToHomeOuter) {
+                result = "not here";
+                return result;
+            }
+
+            // all checks done - do arduino call now:
+
+            final String arduinoResponse = arduinoBackendService.openDoor(user, pin, isNearToHome);
+            logger.trace("openDoor: arduino returned '{}'", arduinoResponse);
+
+            result = arduinoResponse;
+            return result;
         }
-
-        // all checks done - do arduino call now:
-
-        final String arduinoResponse = arduinoBackendService.openDoor(user, pin, isNearToHome);
-        logger.trace("openDoor: arduino returned '{}'", arduinoResponse);
-
-        return arduinoResponse;
+        catch (Exception e) {
+            result = e.toString();
+            throw e;
+        }
+        finally {
+            accessLogService.log(user, AccessLog.AccessType.openDoor, geoy, geox, result);
+        }
     }
 
     @RequestMapping(value = "openDoor", method = RequestMethod.POST)
@@ -119,6 +143,9 @@ public class FrontendAPIRestController {
     /**
      * Checks if user is "near".
      * Should not be used in prod environments (in order to avoid logging of the get values).
+     *
+     * e.g.
+     * http://localhost:8080/tuerauf/frontend/checkLocation?appsecret=secretApp&installationId=testInstallation1&geoy=23.45&geox=12.34
      *
      * @return "near" or "far". "user unknown" if user is unknown or inactive.
      */
@@ -138,12 +165,23 @@ public class FrontendAPIRestController {
 
         final double geoy = Double.parseDouble(geoyString);
         final double geox = Double.parseDouble(geoxString);
-        final boolean isNearToHome = locationService.isNearToHome(geoy, geox);
 
-        final String response = isNearToHome ? "near" : "far";
-        logger.trace("checkLocation: returns '{}'", response);
+        String result = null;
+        try {
+            final boolean isNearToHome = locationService.isNearToHome(geoy, geox);
 
-        return response;
+            result = isNearToHome ? "near" : "far";
+            logger.trace("checkLocation: returns '{}'", result);
+
+            return result;
+        }
+        catch (Exception e) {
+            result = e.toString();
+            throw e;
+        }
+        finally {
+            accessLogService.log(user, AccessLog.AccessType.checkLocation, geoy, geox, result);
+        }
     }
 
     @RequestMapping(value = "checkLocation", method = RequestMethod.POST)
@@ -164,13 +202,5 @@ public class FrontendAPIRestController {
 
     void setArduinoBackendService(final ArduinoBackendService arduinoBackendService) {
         this.arduinoBackendService = arduinoBackendService;
-    }
-
-    public LocationService getLocationService() {
-        return locationService;
-    }
-
-    public void setUserService(final UserService userService) {
-        this.userService = userService;
     }
 }
