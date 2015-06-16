@@ -6,7 +6,10 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Index;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import java.util.Date;
 
 
@@ -15,6 +18,7 @@ import java.util.Date;
  */
 @SuppressWarnings("unused")
 @Entity
+@Table(indexes = { @Index(columnList = "accessType") })
 public class AccessLog {
 
 
@@ -32,6 +36,7 @@ public class AccessLog {
      * The accessing user.
      */
     @ManyToOne(optional = false)
+    @JoinColumn(referencedColumnName = "serialId")
     private User user;
 
     @Column(nullable = false)
