@@ -47,7 +47,7 @@ public class ArduinoBackendService {
                 return "fake ok, freeRam=658, checkOK=1";
             }
 
-            return httpFetcherService.fetchFromUrl(arduinoUrl, ARDUINO_MAX_RESULT_LEN);
+            return httpFetcherService.fetchFromUrl(arduinoUrl, ARDUINO_MAX_RESULT_LEN).trim();
 
         } catch (IOException e) {
             logAndMailService.logAndMail("Error while fetching status from Arduino", e);
@@ -84,7 +84,7 @@ public class ArduinoBackendService {
         }
 
         try {
-            final String arduinoResponse = httpFetcherService.fetchFromUrl(arduinoUrl, 2000);
+            final String arduinoResponse = httpFetcherService.fetchFromUrl(arduinoUrl, 2000).trim();
             logAndMailService.logAndMail("user {} got arduino response '{}' (serialId={})",
                     null,
                     user.getUsername(), arduinoResponse, user.getSerialId());
@@ -129,7 +129,7 @@ public class ArduinoBackendService {
         }
 
         try {
-            final String arduinoResponse = httpFetcherService.fetchFromUrl(arduinoUrl, 2000);
+            final String arduinoResponse = httpFetcherService.fetchFromUrl(arduinoUrl, 2000).trim();
             if (!arduinoResponse.equals("done")) {
                 throw new IOException(String.format("arduino returned instead of 'done': '%s'", arduinoResponse));
             }
