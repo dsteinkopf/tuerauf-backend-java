@@ -33,7 +33,7 @@
 
         <c:forEach items="${page.content}" var="accessLog" varStatus="status">
             <tr class="${status.count % 2 == 0 ? 'even' : 'odd'}">
-                <td><fmt:formatDate value="${accessLog.accessTimestamp}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
+                <td><fmt:formatDate value="${accessLog.accessTimestamp}" pattern="yyyy-MM-dd HH:mm:ss z"/></td>
                 <td>${accessLog.accessType}</td>
                 <td>${accessLog.user.username}</td>
                 <td>${accessLog.geoy}</td>
