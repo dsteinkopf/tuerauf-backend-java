@@ -87,6 +87,11 @@ public class FrontendAPIRestController {
                            @RequestParam("geoy") String geoyString,
                            @RequestParam("geox") String geoxString) {
 
+        if (installationId.equals("monitoring")) {
+            // e.g. http://localhost:8080/tuerauf/frontend/openDoor?appsecret=secretApp&installationId=monitoring&geoy=12.34567&geox=23.45678&pin=1111
+            return arduinoBackendService.getStatus();
+        }
+
         final User user = userService.getUserIfActive(installationId);
         if (user == null) {
             logger.debug("openDoor(installationId={}, geoyString={}, geoxString={})", installationId, geoyString, geoxString);
@@ -95,10 +100,6 @@ public class FrontendAPIRestController {
         }
 
         logger.debug("openDoor(username={}, geoyString={}, geoxString={})", user.getUsername(), geoyString, geoxString);
-
-        if (installationId.equals("monitoring")) {
-            return arduinoBackendService.getStatus();
-        }
 
         final double geoy = Double.parseDouble(geoyString);
         final double geox = Double.parseDouble(geoxString);

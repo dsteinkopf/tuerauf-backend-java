@@ -44,7 +44,7 @@ public class ArduinoBackendService {
 
             if (StringUtils.isBlank(arduinoBaseUrl)) { // fake arduino
                 logger.warn("fake arduino call to {}", arduinoUrl);
-                return "dht22 ok, freeRam=658, checkOK=1";
+                return "fake ok, freeRam=658, checkOK=1";
             }
 
             return httpFetcherService.fetchFromUrl(arduinoUrl, ARDUINO_MAX_RESULT_LEN);

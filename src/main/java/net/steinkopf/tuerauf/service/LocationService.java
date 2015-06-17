@@ -32,7 +32,6 @@ public class LocationService {
      */
     public boolean isNearToHome(final double geoy, final double geox) {
         final double dist = getDistance(geoy, geox, homeGeoy, homeGeox);
-        logger.debug("isNearToHome: geoy={} geox={} dist={}m");
         return dist <= maxDist;
     }
 
@@ -41,7 +40,6 @@ public class LocationService {
      */
     public boolean isNearToHomeOuter(final double geoy, final double geox) {
         final double dist = getDistance(geoy, geox, homeGeoy, homeGeox);
-        logger.debug("isNearToHomeOuter: geoy={} geox={} dist={}m");
         return dist <= maxDistOuter;
     }
 

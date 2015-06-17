@@ -9,6 +9,7 @@ mysql-prod:
     - ON_CREATE_DB=tuerauf
   volumes:
     - /opt/tuerauf/var_lib_mysql:/var/lib/mysql
+    - /etc/localtime:/etc/localtime
   tags:
     - prod
   autorestart: always
@@ -29,6 +30,7 @@ tuerauf-prod:
     - SPRING_CONFIG_LOCATION=/usr/local/tomcat/conf/application-prod.properties
   volumes:
     - /opt/tuerauf/application-prod.properties:/usr/local/tomcat/conf/application-prod.properties
+    - /etc/localtime:/etc/localtime
   tags:
     - prod
   autorestart: always
