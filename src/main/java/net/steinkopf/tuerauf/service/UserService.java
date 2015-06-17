@@ -147,7 +147,7 @@ public class UserService {
      *
      * @return Array of pins. Index of Array = serialId.
      */
-    public String[] getPinList() {
+    public String[] getActivePinList() {
 
         String[] pins = new String[MAX_SERIAL_ID];
         for (final User user : userRepository.findAll()) {

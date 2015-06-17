@@ -44,8 +44,8 @@
                 <td>${user.installationId}</td>
                 <td><c:if test="${user.active}">x</c:if></td>
                 <td><c:if test="${user.newUser}">x</c:if></td>
-                <td><fmt:formatDate value="${user.creationTime}" pattern="yyyy-MM-dd HH:mm"/></td>
-                <td><fmt:formatDate value="${user.modificationTime}" pattern="yyyy-MM-dd HH:mm"/></td>
+                <td><fmt:formatDate value="${user.creationTime}" pattern="yyyy-MM-dd HH:mm z"/></td>
+                <td><fmt:formatDate value="${user.modificationTime}" pattern="yyyy-MM-dd HH:mm z"/></td>
             </tr>
         </c:forEach>
     </table>

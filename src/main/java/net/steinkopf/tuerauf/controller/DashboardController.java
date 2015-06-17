@@ -119,12 +119,12 @@ public class DashboardController {
     }
 
     /**
-     * send pins to Arduino now.
+     * send pins of active users to Arduino now.
      */
     @RequestMapping(value = "/sendPinsToArduino", method = RequestMethod.POST)
     public String sendPinsToArduino(RedirectAttributes attr) {
 
-        final String[] pinList = userService.getPinList();
+        final String[] pinList = userService.getActivePinList();
         final int pinsSent;
         try {
             pinsSent = arduinoBackendService.sendPinsToArduino(pinList);

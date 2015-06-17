@@ -59,16 +59,21 @@ public class ArduinoBackendService {
      * Calls arduino to open the door
      *
      * @param user         user who wants to open the door.
-     * @param pin          the pin that was entered by the user (NOT the stored user pin).
-     * @param isNearToHome true, if user is (very) near, so simple pin is sufficient.  @return Arduino's response.
+     * @param enteredPin   the enteredPin that was entered by the user (NOT the stored user enteredPin).
+     * @param isNearToHome true, if user is (very) near, so simple enteredPin is sufficient.  @return Arduino's response.
      */
-    public String openDoor(final User user, final String pin, final boolean isNearToHome) {
+    public String openDoor(final User user, final String enteredPin, final boolean isNearToHome) {
 
         logger.debug("openDoor(username={}, isNeaToHome={})", user.getUsername(), isNearToHome);
         Assert.notNull(user, "user must not be null");
-        Assert.notNull(pin, "pin must not be null");
+        Assert.notNull(enteredPin, "enteredPin must not be null");
 
-        String arduinoUrl = arduinoBaseUrl + pin + "/" + user.getSerialId();
+        if (user.getPin() != null) {
+            logger.warn("pin of user {} has not yet been transferred to arduino", user.getUsername());
+            return "pin unknown";
+        }
+
+        String arduinoUrl = arduinoBaseUrl + enteredPin + "/" + user.getSerialId();
         if (isNearToHome) {
             arduinoUrl += "/near";
         }
@@ -102,7 +107,7 @@ public class ArduinoBackendService {
 
         final StringBuilder pins4arduino = new StringBuilder();
         int pinCount = 0;
-        for (int serialId = 0; serialId < pinList.length; serialId ++) {
+        for (int serialId = 0; serialId < pinList.length; serialId++) {
             final String pin = pinList[serialId];
             if (serialId >= 1) {
                 pins4arduino.append("&");
@@ -110,8 +115,7 @@ public class ArduinoBackendService {
             if (pin != null) {
                 pins4arduino.append(pin);
                 pinCount++;
-            }
-            else {
+            } else {
                 pins4arduino.append("0");
             }
         }
@@ -126,7 +130,7 @@ public class ArduinoBackendService {
 
         try {
             final String arduinoResponse = httpFetcherService.fetchFromUrl(arduinoUrl, 2000);
-            if ( ! arduinoResponse.equals("done")) {
+            if (!arduinoResponse.equals("done")) {
                 throw new IOException(String.format("arduino returned instead of 'done': '%s'", arduinoResponse));
             }
             logAndMailService.logAndMail("sent {} pins to arduino", null, pinCount);

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+
 @RestController
 @RequestMapping(value = FrontendAPIRestController.FRONTEND_URL)
 // restricted by AppsecretChecker: @Secured({"ROLE_USER"})
@@ -48,7 +49,7 @@ public class FrontendAPIRestController {
      *
      * @return a string indicating success: "saved: new/changed active/inactive"
      */
-    @RequestMapping(value = "registerUser", method = RequestMethod.GET)
+    @RequestMapping(value = "registerUser", method = { RequestMethod.GET, RequestMethod.POST })
     public String registerUser(@RequestParam("username") String username,
                                @RequestParam("pin") String pin,
                                @RequestParam("installationId") String installationId)
@@ -63,15 +64,6 @@ public class FrontendAPIRestController {
                 + (user.isActive() ? " active" : " inactive");
     }
 
-    @RequestMapping(value = "registerUser", method = RequestMethod.POST)
-    public String registerUserPost(@RequestParam("username") String username,
-                                   @RequestParam("pin") String pin,
-                                   @RequestParam("installationId") String installationId)
-            throws Exception {
-
-        return registerUser(username, pin, installationId);
-    }
-
     /**
      * Opens the door if user is allowed.
      * Should not be used in prod environments (in order to avoid logging of the get values).
@@ -81,8 +73,8 @@ public class FrontendAPIRestController {
      *
      * @return a string indicating success: e.g. "OFFEN".  "user unknown" if user is unknown or inactive.
      */
-    @RequestMapping(value = "openDoor", method = RequestMethod.GET)
-    public String openDoor(@RequestParam("pin") String pin,
+    @RequestMapping(value = "openDoor", method = { RequestMethod.GET, RequestMethod.POST, RequestMethod.HEAD })
+    public String openDoor(@RequestParam("pin") String enteredPin,
                            @RequestParam("installationId") String installationId,
                            @RequestParam("geoy") String geoyString,
                            @RequestParam("geox") String geoxString) {
@@ -116,7 +108,7 @@ public class FrontendAPIRestController {
 
             // all checks done - do arduino call now:
 
-            final String arduinoResponse = arduinoBackendService.openDoor(user, pin, isNearToHome);
+            final String arduinoResponse = arduinoBackendService.openDoor(user, enteredPin, isNearToHome);
             logger.trace("openDoor: arduino returned '{}'", arduinoResponse);
 
             result = arduinoResponse;
@@ -131,16 +123,6 @@ public class FrontendAPIRestController {
         }
     }
 
-    @RequestMapping(value = "openDoor", method = RequestMethod.POST)
-    public String openDoorPost(@RequestParam("pin") String pin,
-                               @RequestParam("installationId") String installationId,
-                               @RequestParam("geoy") String geoyString,
-                               @RequestParam("geox") String geoxString) {
-
-        return openDoor(pin, installationId, geoyString, geoxString);
-
-    }
-
     /**
      * Checks if user is "near".
      * Should not be used in prod environments (in order to avoid logging of the get values).
@@ -150,7 +132,7 @@ public class FrontendAPIRestController {
      *
      * @return "near" or "far". "user unknown" if user is unknown or inactive.
      */
-    @RequestMapping(value = "checkLocation", method = RequestMethod.GET)
+    @RequestMapping(value = "checkLocation", method = { RequestMethod.GET, RequestMethod.POST })
     public String checkLocation(@RequestParam("installationId") String installationId,
                                 @RequestParam("geoy") String geoyString,
                                 @RequestParam("geox") String geoxString) {
@@ -183,14 +165,6 @@ public class FrontendAPIRestController {
         finally {
             accessLogService.log(user, AccessLog.AccessType.checkLocation, geoy, geox, result);
         }
-    }
-
-    @RequestMapping(value = "checkLocation", method = RequestMethod.POST)
-    public String checkLocationPost(@RequestParam("installationId") String installationId,
-                                    @RequestParam("geoy") String geoyString,
-                                    @RequestParam("geox") String geoxString) {
-
-        return checkLocation(installationId, geoyString, geoxString);
     }
 
     void setLocationService(final LocationService locationService) {

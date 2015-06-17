@@ -34,6 +34,7 @@ public class DashboardControllerTest {
     @Value("${local.server.port}")
     private int port;
 
+    @SuppressWarnings("SpringJavaAutowiredMembersInspection")
     @Autowired
     private ServletContext servletContext;
 
