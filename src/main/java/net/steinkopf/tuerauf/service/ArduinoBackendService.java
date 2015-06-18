@@ -47,7 +47,7 @@ public class ArduinoBackendService {
                 return "fake ok, freeRam=658, checkOK=1";
             }
 
-            return httpFetcherService.fetchFromUrl(arduinoUrl, ARDUINO_MAX_RESULT_LEN).trim();
+            return StringUtils.trim(httpFetcherService.fetchFromUrl(arduinoUrl, ARDUINO_MAX_RESULT_LEN));
 
         } catch (IOException e) {
             logAndMailService.logAndMail("Error while fetching status from Arduino", e);
@@ -84,7 +84,7 @@ public class ArduinoBackendService {
         }
 
         try {
-            final String arduinoResponse = httpFetcherService.fetchFromUrl(arduinoUrl, 2000).trim();
+            final String arduinoResponse = StringUtils.trim(httpFetcherService.fetchFromUrl(arduinoUrl, 2000));
             logAndMailService.logAndMail("user {} got arduino response '{}' (serialId={})",
                     null,
                     user.getUsername(), arduinoResponse, user.getSerialId());
@@ -99,11 +99,12 @@ public class ArduinoBackendService {
     /**
      * sends pins to Arduino.
      *
+     * @param enteredPinPassword Password for storing Pins to Arduino - as entered by the user.
      * @param pinList Array of sparsely filled pins. Index = serialId.
      * @return number of pins sent. 0 if arduino return error, -1 .
      * @throws IOException on communication or arduino error (which is already logged and mailed to admin).
      */
-    public int sendPinsToArduino(String[] pinList) throws IOException {
+    public int sendPinsToArduino(final String enteredPinPassword, String[] pinList) throws IOException {
 
         final StringBuilder pins4arduino = new StringBuilder();
         int pinCount = 0;
@@ -121,16 +122,16 @@ public class ArduinoBackendService {
         }
 
         @SuppressWarnings("SpellCheckingInspection")
-        final String arduinoUrl = arduinoBaseUrl + "storepinlist?" + pins4arduino;
+        final String arduinoUrl = arduinoBaseUrl + "storepinlist?" + enteredPinPassword + ":" +pins4arduino;
 
         if (StringUtils.isBlank(arduinoBaseUrl)) { // fake arduino
             logger.warn("fake arduino call to {}", arduinoUrl);
-            return pinCount;
+            return 999;
         }
 
         try {
-            final String arduinoResponse = httpFetcherService.fetchFromUrl(arduinoUrl, 2000).trim();
-            if (!arduinoResponse.equals("done")) {
+            final String arduinoResponse = StringUtils.trim(httpFetcherService.fetchFromUrl(arduinoUrl, 2000));
+            if (!"done".equals(arduinoResponse)) {
                 throw new IOException(String.format("arduino returned instead of 'done': '%s'", arduinoResponse));
             }
             logAndMailService.logAndMail("sent {} pins to arduino", null, pinCount);

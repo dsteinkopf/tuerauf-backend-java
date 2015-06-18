@@ -62,6 +62,7 @@
     <h2>Send pins of active users to Arduino:</h2>
 
     <form id="sendPinsToArduino" action="sendPinsToArduino" method="post" commandName="sendPinsToArduino">
+        pinPassword: <input type="password" id="pinPassword" name="pinPassword"/>
         <input type="submit" name="submit" value="send pins to arduino"/>
         <input type="hidden" name="nocsrf${_csrf.parameterName}" value="${_csrf.token}"/>
     </form>

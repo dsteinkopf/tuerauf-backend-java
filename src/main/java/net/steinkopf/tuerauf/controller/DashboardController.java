@@ -15,6 +15,7 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
@@ -122,12 +123,13 @@ public class DashboardController {
      * send pins of active users to Arduino now.
      */
     @RequestMapping(value = "/sendPinsToArduino", method = RequestMethod.POST)
-    public String sendPinsToArduino(RedirectAttributes attr) {
+    public String sendPinsToArduino(@RequestParam("pinPassword") String enteredPinPassword,
+                                    RedirectAttributes attr) {
 
         final String[] pinList = userService.getActivePinList();
         final int pinsSent;
         try {
-            pinsSent = arduinoBackendService.sendPinsToArduino(pinList);
+            pinsSent = arduinoBackendService.sendPinsToArduino(enteredPinPassword, pinList);
 
             attr.addFlashAttribute(MESSAGE, String.format("sent %s pins to arduino", pinsSent));
 

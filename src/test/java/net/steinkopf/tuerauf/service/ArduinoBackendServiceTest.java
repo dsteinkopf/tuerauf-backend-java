@@ -152,16 +152,18 @@ public class ArduinoBackendServiceTest {
     @Test
     public void testSendPinsToArduino() throws Exception {
 
+        final String dummyPinPassword = "myPinPw";
+
         // Prepare
         final String[] pinList = {null, "1", "2", null, null, "5", null, null};
 
         // Mock dependencies
         //noinspection SpellCheckingInspection
-        when(mockHttpFetcherService.fetchFromUrl(contains("storepinlist?0&1&2&0&0&5&0&0"), anyInt()))
+        when(mockHttpFetcherService.fetchFromUrl(contains("storepinlist?"+dummyPinPassword+":0&1&2&0&0&5&0&0"), anyInt()))
                 .thenReturn("done");
 
         // Run - step 1: User entered pin
-        final int pinsSent = arduinoBackendService.sendPinsToArduino(pinList);
+        final int pinsSent = arduinoBackendService.sendPinsToArduino(dummyPinPassword, pinList);
 
         // Check
         assertThat(pinsSent, is(equalTo(3)));
