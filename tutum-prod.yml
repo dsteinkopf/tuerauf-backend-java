@@ -31,6 +31,7 @@ tuerauf-prod:
     - SPRING_CONFIG_LOCATION=/usr/local/tomcat/conf/application-prod.properties
   volumes:
     - /opt/tuerauf/application-prod.properties:/usr/local/tomcat/conf/application-prod.properties
+    - /opt/tuerauf/usr_local_tomcat_logs:/usr/local/tomcat/logs
     - /etc/localtime:/etc/localtime
     - /etc/timezone:/etc/timezone
   tags:
