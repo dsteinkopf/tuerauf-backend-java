@@ -31,7 +31,7 @@ public class LocationService {
      * Checks if coordinates are within maxDist to home.
      */
     public boolean isNearToHome(final double geoy, final double geox) {
-        final double dist = getDistance(geoy, geox, homeGeoy, homeGeox);
+        final double dist = getDistanceFromHome(geoy, geox);
         return dist <= maxDist;
     }
 
@@ -39,7 +39,7 @@ public class LocationService {
      * Checks if coordinates are within maxDistOuter to home.
      */
     public boolean isNearToHomeOuter(final double geoy, final double geox) {
-        final double dist = getDistance(geoy, geox, homeGeoy, homeGeox);
+        final double dist = getDistanceFromHome(geoy, geox);
         return dist <= maxDistOuter;
     }
 
@@ -59,6 +59,15 @@ public class LocationService {
 
         return km * 1000.0;
     }
+
+    /**
+     * Calculate distance from home.
+     * @return distance in meters.
+     */
+    public double getDistanceFromHome(final double geoy, final double geox) {
+        return getDistance(geoy, geox, homeGeoy, homeGeox);
+    }
+
 
     void setHomeGeoy(final double homeGeoy) {
         this.homeGeoy = homeGeoy;

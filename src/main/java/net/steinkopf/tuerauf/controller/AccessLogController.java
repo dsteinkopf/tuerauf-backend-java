@@ -3,6 +3,7 @@ package net.steinkopf.tuerauf.controller;
 
 import net.steinkopf.tuerauf.data.AccessLog;
 import net.steinkopf.tuerauf.repository.AccessLogRepository;
+import net.steinkopf.tuerauf.service.LocationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +38,9 @@ public class AccessLogController {
     @Autowired
     AccessLogRepository accessLogRepository;
 
+    @Autowired
+    LocationService locationService;
+
 
     /**
      * Display access log.
@@ -49,6 +53,8 @@ public class AccessLogController {
 
         Page<AccessLog> requestedPage = accessLogRepository.findAll(constructPageSpecification(page));
         model.put("page", requestedPage);
+
+        model.put("locationService", locationService);
 
         return ACCESS_LOG_VIEW;
     }

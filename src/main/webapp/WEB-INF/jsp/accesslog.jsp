@@ -8,6 +8,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <%--@elvariable id="page" type="org.springframework.data.domain.Page<net.steinkopf.tuerauf.data.AccessLog>"--%>
+<%--@elvariable id="locationService" type="net.steinkopf.tuerauf.service.LocationService"--%>
 <%--@elvariable id="_csrf" type="org.springframework.security.web.csrf.CsrfToken"--%>
 
 <c:set var="pageTitle" value="Türauf - AccessLog"/>
@@ -29,6 +30,7 @@
             <td>geoy</td>
             <td>geox</td>
             <td>result</td>
+            <td>meters away</td>
         </tr>
 
         <c:forEach items="${page.content}" var="accessLog" varStatus="status">
@@ -39,6 +41,9 @@
                 <td>${accessLog.geoy}</td>
                 <td>${accessLog.geox}</td>
                 <td>${accessLog.result}</td>
+                <td>
+                    <fmt:formatNumber value="${locationService.getDistanceFromHome(accessLog.geoy, accessLog.geox)}" maxFractionDigits="0"/>
+                </td>
             </tr>
         </c:forEach>
     </table>
