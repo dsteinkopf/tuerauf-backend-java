@@ -1,5 +1,6 @@
 package net.steinkopf.tuerauf.service;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -20,7 +21,8 @@ public class HttpFetcherService {
 
     public String fetchFromUrl(final String url, final int maxLen) throws IOException {
 
-        logger.debug("fetchFromUrl({})", url);
+        //noinspection SpellCheckingInspection
+        logger.debug("fetchFromUrl({})", StringUtils.replacePattern(url, "storepinlist.*:", "storepinlist?PWHIDDEN:"));
         return readStream(new URL(url).openStream(), maxLen);
     }
 
