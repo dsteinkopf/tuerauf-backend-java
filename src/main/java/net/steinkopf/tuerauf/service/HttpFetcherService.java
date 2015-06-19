@@ -19,10 +19,12 @@ public class HttpFetcherService {
     private static final Logger logger = LoggerFactory.getLogger(HttpFetcherService.class);
 
 
+    @SuppressWarnings("SpellCheckingInspection")
     public String fetchFromUrl(final String url, final int maxLen) throws IOException {
 
-        //noinspection SpellCheckingInspection
-        logger.debug("fetchFromUrl({})", StringUtils.replacePattern(url, "storepinlist.*:", "storepinlist?PWHIDDEN:"));
+        String loggableUrl = StringUtils.replacePattern(url, "storepinlist.*:", "storepinlist?PWHIDDEN:");
+        loggableUrl = StringUtils.replacePattern(loggableUrl, "/[0-9][0-9][0-9][0-9]/", "/0000/");
+        logger.debug("fetchFromUrl({})", loggableUrl);
         return readStream(new URL(url).openStream(), maxLen);
     }
 
