@@ -66,4 +66,17 @@ public class LocationServiceTest {
         assertThat(dist, is(greaterThan(10.0)));
         assertThat(dist, is(lessThan(50.0)));
     }
+
+    @Test
+    public void testGetAngleFromCoordinate() throws Exception {
+
+        assertThat(Math.round(locationService.getAngleFromCoordinate(0,0, 0,1)), is(equalTo(90L)));
+        assertThat(Math.round(locationService.getAngleFromCoordinate(0,0, 1,0)), is(equalTo(0L)));
+        assertThat(Math.round(locationService.getAngleFromCoordinate(0,0, 0,-1)), is(equalTo(270L)));
+        assertThat(Math.round(locationService.getAngleFromCoordinate(0,0, 1,1)), is(equalTo(45L)));
+
+        assertThat(Math.round(locationService.getAngleFromCoordinate(12,48, 12,49)), is(equalTo(90L)));
+        assertThat(Math.round(locationService.getAngleFromCoordinate(12,48, 13,48)), is(equalTo(0L)));
+        assertThat(Math.round(locationService.getAngleFromCoordinate(12,48, 12,47)), is(equalTo(270L)));
+    }
 }
