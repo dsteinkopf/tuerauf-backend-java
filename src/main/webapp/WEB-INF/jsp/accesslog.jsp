@@ -13,7 +13,35 @@
 
 <c:set var="pageTitle" value="Türauf - AccessLog"/>
 
-<template:page pageTitle="${pageTitle}">
+<template:page pageTitle="${pageTitle}"
+               onLoad="loadMap();">
+
+
+    <script type="text/javascript"
+            src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>
+
+    <script type="text/javascript">
+        myglob.points = [];
+
+        function loadMap() {
+
+            var mapCenter = new google.maps.LatLng(${page.content.get(0).geoy}, ${page.content.get(0).geox});
+            var myOptions = {
+                zoom: 16,
+                center: mapCenter,
+                mapTypeId: google.maps.MapTypeId.HYBRID
+            };
+            myglob.map = new google.maps.Map(document.getElementById("map_container"), myOptions);
+
+            for(var i = 0; i < myglob.points.length; i++) {
+                new google.maps.Marker({
+                    position: myglob.points[i],
+                    map: myglob.map,
+                    title:"log"
+                });
+            }
+        }
+    </script>
 
     <h1>${pageTitle}</h1>
 
@@ -45,6 +73,11 @@
                     <fmt:formatNumber value="${locationService.getDistanceFromHome(accessLog.geoy, accessLog.geox)}" maxFractionDigits="0"/>
                 </td>
             </tr>
+
+            <script type="text/javascript">
+                var latLng = new google.maps.LatLng(${accessLog.geoy}, ${accessLog.geox});
+                myglob.points.push(latLng)
+            </script>
         </c:forEach>
     </table>
 
@@ -62,5 +95,8 @@
         <spring:url value="/dashboard/" var="dashboardUrl"/>
         <a href="${dashboardUrl}">goto dashboard</a>
     </div>
+
+
+    <div id="map_container" style="width:950px; height:500px"></div>
 
 </template:page>

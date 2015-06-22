@@ -1,5 +1,7 @@
 <%@ tag body-content="scriptless" trimDirectiveWhitespaces="true" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ attribute name="pageTitle" required="false" rtexprvalue="true" %>
+<%@ attribute name="onLoad" required="false" rtexprvalue="true" %>
 
 <!DOCTYPE html>
 
@@ -13,9 +15,13 @@
     <%-- this is not recommended for online/production (see http://lesscss.org/) --%>
     <link rel="stylesheet/less" type="text/css" href="../less/main.less"/>
     <script src="//cdnjs.cloudflare.com/ajax/libs/less.js/2.5.0/less.min.js"></script>
+
+    <script type="text/javascript">
+        var myglob = {};
+    </script>
 </head>
 
-<body>
+<body<c:if test="${not empty onLoad}"> onload="${onLoad}"</c:if>>
 
 <%-- Inject the page body here --%>
 <jsp:doBody/>
