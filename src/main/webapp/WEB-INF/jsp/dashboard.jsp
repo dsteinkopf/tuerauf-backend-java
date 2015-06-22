@@ -31,11 +31,13 @@
         </tr>
 
         <c:forEach var="user" items="${users}">
+            <c:set var="inactiveUserClass" value=""/>
             <c:if test="${not user.active}">
-                <c:set var="inactiveUserClass" value="inactive"/>
+                <c:set var="inactiveUserClass" value=" inactive"/>
             </c:if>
+            <c:set var="newUserClass" value=""/>
             <c:if test="${user.newUser}">
-                <c:set var="newUserClass" value="new"/>
+                <c:set var="newUserClass" value=" new"/>
             </c:if>
             <tr class="user ${inactiveUserClass} ${newUserClass}">
                 <td>${user.serialId}</td>
