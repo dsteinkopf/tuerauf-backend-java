@@ -58,6 +58,7 @@
             <td>geoy</td>
             <td>geox</td>
             <td>result</td>
+            <td>direction</td>
             <td>meters away</td>
         </tr>
 
@@ -69,6 +70,9 @@
                 <td>${accessLog.geoy}</td>
                 <td>${accessLog.geox}</td>
                 <td>${accessLog.result}</td>
+                <td>
+                    <fmt:formatNumber value="${locationService.getDirectionFromHome(accessLog.geoy, accessLog.geox)}" maxFractionDigits="0"/>
+                </td>
                 <td>
                     <fmt:formatNumber value="${locationService.getDistanceFromHome(accessLog.geoy, accessLog.geox)}" maxFractionDigits="0"/>
                 </td>
