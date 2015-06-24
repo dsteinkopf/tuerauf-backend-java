@@ -9,10 +9,13 @@ import net.steinkopf.tuerauf.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.persistence.EntityManager;
 
 
 @RestController
@@ -38,6 +41,9 @@ public class FrontendAPIRestController {
 
     @Autowired
     private AccessLogService accessLogService;
+
+    @Autowired
+    EntityManager entityManager;
 
 
     /**
@@ -81,6 +87,9 @@ public class FrontendAPIRestController {
 
         if (installationId.equals("monitoring")) {
             // e.g. http://localhost:8080/tuerauf/frontend/openDoor?appsecret=secretApp&installationId=monitoring&geoy=12.34567&geox=23.45678&pin=1111
+            //noinspection SqlDialectInspection,SqlNoDataSourceInspection
+            entityManager.createNativeQuery("select 1 from user").getSingleResult(); // check DB connection
+            Assert.isTrue(userService.getUserCount() >= 1, "no existing users");
             return arduinoBackendService.getStatus();
         }
 

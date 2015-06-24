@@ -178,4 +178,11 @@ public class UserService {
             }
         }
     }
+
+    /**
+     * @return The number of currently existing users.
+     */
+    public long getUserCount() {
+        return userRepository.count();
+    }
 }
