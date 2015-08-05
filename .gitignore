@@ -78,3 +78,4 @@ Desktop.ini
 # added autom.
 ######################
 application-prod.properties
+.idea/libraries/Maven_*.xml
