@@ -1,4 +1,4 @@
-mysql-prod:
+mysql-test:
   image: tutum/mysql
   ports:
     - "3306:3306"
@@ -9,28 +9,32 @@ mysql-prod:
     - ON_CREATE_DB=tuerauf
   volumes:
     - /opt/tuerauf/var_lib_mysql:/var/lib/mysql
+    - /etc/localtime:/etc/localtime
+    - /etc/timezone:/etc/timezone
   tags:
-    - prod
+    - test
   autorestart: always
   deployment_strategy: emptiest_node
   sequential_deployment: true
   autoredeploy: false
 
-tuerauf-prod:
-  image: dsteinkopf/tuerauf:prod
+tuerauf-test:
+  image: dsteinkopf/tuerauf:test
   ports:
     - "8080:8080"
   roles:
     - global
   links:
-    - "mysql-prod:mysql-1"
+    - "mysql-test:mysql-1"
   environment:
     - SPRING_PROFILES_ACTIVE=prod
     - SPRING_CONFIG_LOCATION=/usr/local/tomcat/conf/application-prod.properties
   volumes:
     - /opt/tuerauf/application-prod.properties:/usr/local/tomcat/conf/application-prod.properties
+    - /etc/localtime:/etc/localtime
+    - /etc/timezone:/etc/timezone
   tags:
-    - prod
+    - test
   autorestart: always
   deployment_strategy: emptiest_node
   sequential_deployment: true

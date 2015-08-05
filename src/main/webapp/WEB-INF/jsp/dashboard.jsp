@@ -31,11 +31,13 @@
         </tr>
 
         <c:forEach var="user" items="${users}">
+            <c:set var="inactiveUserClass" value=""/>
             <c:if test="${not user.active}">
-                <c:set var="inactiveUserClass" value="inactive"/>
+                <c:set var="inactiveUserClass" value=" inactive"/>
             </c:if>
+            <c:set var="newUserClass" value=""/>
             <c:if test="${user.newUser}">
-                <c:set var="newUserClass" value="new"/>
+                <c:set var="newUserClass" value=" new"/>
             </c:if>
             <tr class="user ${inactiveUserClass} ${newUserClass}">
                 <td>${user.serialId}</td>
@@ -44,8 +46,8 @@
                 <td>${user.installationId}</td>
                 <td><c:if test="${user.active}">x</c:if></td>
                 <td><c:if test="${user.newUser}">x</c:if></td>
-                <td><fmt:formatDate value="${user.creationTime}" pattern="yyyy-MM-dd HH:mm"/></td>
-                <td><fmt:formatDate value="${user.modificationTime}" pattern="yyyy-MM-dd HH:mm"/></td>
+                <td><fmt:formatDate value="${user.creationTime}" pattern="yyyy-MM-dd HH:mm z"/></td>
+                <td><fmt:formatDate value="${user.modificationTime}" pattern="yyyy-MM-dd HH:mm z"/></td>
             </tr>
         </c:forEach>
     </table>
@@ -62,6 +64,7 @@
     <h2>Send pins of active users to Arduino:</h2>
 
     <form id="sendPinsToArduino" action="sendPinsToArduino" method="post" commandName="sendPinsToArduino">
+        pinPassword: <input type="password" id="pinPassword" name="pinPassword"/>
         <input type="submit" name="submit" value="send pins to arduino"/>
         <input type="hidden" name="nocsrf${_csrf.parameterName}" value="${_csrf.token}"/>
     </form>
@@ -73,5 +76,11 @@
         <input type="submit" name="submit" value="show config link"/>
         <input type="hidden" name="nocsrf${_csrf.parameterName}" value="${_csrf.token}"/>
     </form>
+
+
+    <h2>Access Log:</h2>
+
+    <spring:url value="/accessLog/" var="accessLogUrl"/>
+    <a href="${accessLogUrl}">goto access logs</a>
 
 </template:page>

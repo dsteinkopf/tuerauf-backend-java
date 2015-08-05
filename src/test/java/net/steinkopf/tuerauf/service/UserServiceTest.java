@@ -142,17 +142,17 @@ public class UserServiceTest extends SecurityContextTest {
         createThenDeleteSomeUsers("pin ", userList, USER_TO_DELETE);
 
         // Run
-        final String[] pinList = userService.getPinList();
+        final String[] pinList = userService.getActivePinList();
 
         // Check
         for (int serialId = 0; serialId < UserService.MAX_SERIAL_ID; serialId++) {
             final String pin = pinList[serialId];
             switch (serialId) {
-                case TestConstants.SERIAL_ID_ACTIVE:
-                    assertThat(pin, is(equalTo(TestConstants.PIN_ACTIVE)));
+                case TestConstants.SERIAL_ID_ALMOST_ACTIVE:
+                    assertThat(pin, is(equalTo(TestConstants.PIN_ALMOST_ACTIVE)));
                     break;
                 case TestConstants.SERIAL_ID_INACTIVE:
-                    assertThat(pin, is(equalTo(TestConstants.PIN_INACTIVE)));
+                    assertThat(pin, is(equalTo(null))); // inactive user's pin not sent.
                     break;
                 default:
                     assertThat(pin, is(equalTo(null)));

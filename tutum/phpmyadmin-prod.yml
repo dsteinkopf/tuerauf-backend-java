@@ -1,0 +1,14 @@
+phpmyadmin:
+  image: corbinu/docker-phpmyadmin
+  ports:
+    - "8081:80"
+  roles:
+    - global
+  links:
+    - "mysql-prod.tuerauf-mysql-prod:mysql"
+  tags:
+    - prod
+  autorestart: always
+  deployment_strategy: emptiest_node
+  sequential_deployment: true
+  autoredeploy: false

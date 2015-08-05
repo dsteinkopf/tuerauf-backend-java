@@ -7,14 +7,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.InputStream;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Map;
-import java.util.jar.Manifest;
 
 
 /**
@@ -46,6 +40,7 @@ public class VersionAdderInterceptor extends HandlerInterceptorAdapter {
             // not applicable (e.g. this is a rest call)
             return;
         }
+/*
         final Map<String, Object> model = modelAndView.getModel();
 
         ServletContext context = request.getSession().getServletContext();
@@ -60,26 +55,25 @@ public class VersionAdderInterceptor extends HandlerInterceptorAdapter {
         if (manifestStream != null) {
             Manifest manifest = new Manifest(manifestStream);
 
-/*
             model.put("implementationTitle", manifest.getMainAttributes().getValue("Implementation-Title"));
             model.put("implementationVersion", manifest.getMainAttributes().getValue("Implementation-Version"));
             model.put("implementationJdk", manifest.getMainAttributes().getValue("Build-Jdk"));
             model.put("implementationBuild", manifest.getMainAttributes().getValue("Implementation-Build"));
             model.put("implementationBuildTime", manifest.getMainAttributes().getValue("Implementation-Build-Time"));
-*/
         }
         else {
             // fallback implementation when application is not started from war/jar:
-            Date buildDate = new Date(Long.valueOf(buildTimestamp));
-            SimpleDateFormat sdf = new SimpleDateFormat(buildTimestampFormat); // the format of your date
-            // sdf.setTimeZone(TimeZone.getTimeZone("GMT+1")); // give a timezone reference for formatting (see comment at the bottom
-            String buildDateFormatted = sdf.format(buildDate);
+            if (StringUtils.isNotBlank(buildTimestamp)) {
+                Date buildDate = new Date(Long.valueOf(buildTimestamp));
+                SimpleDateFormat sdf = new SimpleDateFormat(buildTimestampFormat); // the format of your date
+                // sdf.setTimeZone(TimeZone.getTimeZone("GMT+1")); // give a timezone reference for formatting (see comment at the bottom
+                String buildDateFormatted = sdf.format(buildDate);
+                model.put("implementationBuildTime", buildDateFormatted);
+            }
 
-/*
             model.put("implementationBuild", gitRevisionHash);
-            model.put("implementationBuildTime", buildDateFormatted);
-*/
         }
+*/
     }
 }
 

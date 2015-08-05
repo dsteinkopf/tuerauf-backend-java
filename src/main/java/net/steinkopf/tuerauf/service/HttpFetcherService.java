@@ -1,5 +1,6 @@
 package net.steinkopf.tuerauf.service;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -18,9 +19,12 @@ public class HttpFetcherService {
     private static final Logger logger = LoggerFactory.getLogger(HttpFetcherService.class);
 
 
+    @SuppressWarnings("SpellCheckingInspection")
     public String fetchFromUrl(final String url, final int maxLen) throws IOException {
 
-        logger.debug("fetchFromUrl({})", url);
+        String loggableUrl = StringUtils.replacePattern(url, "storepinlist.*:", "storepinlist?PWHIDDEN:");
+        loggableUrl = StringUtils.replacePattern(loggableUrl, "/[0-9][0-9][0-9][0-9]/", "/0000/");
+        logger.debug("fetchFromUrl({})", loggableUrl);
         return readStream(new URL(url).openStream(), maxLen);
     }
 

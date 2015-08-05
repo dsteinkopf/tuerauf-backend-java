@@ -6,6 +6,7 @@ import net.steinkopf.tuerauf.data.User;
 import net.steinkopf.tuerauf.repository.UserRepository;
 import net.steinkopf.tuerauf.service.ArduinoBackendService;
 import net.steinkopf.tuerauf.service.UserService;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
@@ -68,16 +70,20 @@ public class DashboardController {
     @Value("${tuerauf.external-url}")
     private String externalUrl;
 
+    @Value("${tuerauf.prod-version}")
+    private boolean prodVersion;
+
 
     private void addVersionInfo(Map<String, Object> model) {
 
-        Date buildDate = new Date(Long.valueOf(buildTimestamp));
-        SimpleDateFormat sdf = new SimpleDateFormat(buildTimestampFormat); // the format of your date
-        // sdf.setTimeZone(TimeZone.getTimeZone("GMT+1")); // give a timezone reference for formatting (see comment at the bottom
-        String buildDateFormatted = sdf.format(buildDate);
-
+        if (StringUtils.isNotBlank(buildTimestamp)) {
+            Date buildDate = new Date(Long.valueOf(buildTimestamp));
+            SimpleDateFormat sdf = new SimpleDateFormat(buildTimestampFormat); // the format of your date
+            // sdf.setTimeZone(TimeZone.getTimeZone("GMT+1")); // give a timezone reference for formatting (see comment at the bottom
+            String buildDateFormatted = sdf.format(buildDate);
+            model.put("implementationBuildTime", buildDateFormatted);
+        }
         model.put("implementationBuild", gitRevisionHash);
-        model.put("implementationBuildTime", buildDateFormatted);
     }
 
     /**
@@ -114,15 +120,16 @@ public class DashboardController {
     }
 
     /**
-     * send pins to Arduino now.
+     * send pins of active users to Arduino now.
      */
     @RequestMapping(value = "/sendPinsToArduino", method = RequestMethod.POST)
-    public String sendPinsToArduino(RedirectAttributes attr) {
+    public String sendPinsToArduino(@RequestParam("pinPassword") String enteredPinPassword,
+                                    RedirectAttributes attr) {
 
-        final String[] pinList = userService.getPinList();
+        final String[] pinList = userService.getActivePinList();
         final int pinsSent;
         try {
-            pinsSent = arduinoBackendService.sendPinsToArduino(pinList);
+            pinsSent = arduinoBackendService.sendPinsToArduino(enteredPinPassword, pinList);
 
             attr.addFlashAttribute(MESSAGE, String.format("sent %s pins to arduino", pinsSent));
 
@@ -145,7 +152,8 @@ public class DashboardController {
 
         // e.g. tuerauf:///?https%3A%2F%2Fbackend.myhome%3A39931%2Ftuerauf%2F/MyAppsecret
         final String myUrl = externalUrl + (externalUrl.endsWith("/") ? "" : "/");
-        final String configLink = String.format("tuerauf:///?%s/%s", URLEncoder.encode(myUrl, "UTF-8"), appsecret);
+        final String prefex = prodVersion ? "tuerauf" : "tuerauftest";
+        final String configLink = String.format("%s:///?%s/%s", prefex, URLEncoder.encode(myUrl, "UTF-8"), appsecret);
 
         attr.addFlashAttribute(MESSAGE, String.format("Secret config Link:<br>%s", configLink));
 

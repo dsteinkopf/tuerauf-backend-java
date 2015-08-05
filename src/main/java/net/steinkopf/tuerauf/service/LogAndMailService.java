@@ -32,6 +32,10 @@ public class LogAndMailService {
     @Value("${tuerauf.from-mail-address}")
     private String fromMailAddress;
 
+    @Value("${tuerauf.prod-version}")
+    private boolean prodVersion;
+
+
     @Autowired
     private JavaMailSender javaMailSender;
 
@@ -66,6 +70,9 @@ public class LogAndMailService {
         if (exception != null) {
             messageBuilder.append("\nException:\n").append(exception.toString());
             messageBuilder.append("\nStacktrace:\n").append(Arrays.toString(exception.getStackTrace()));
+        }
+        if (!prodVersion) {
+            messageBuilder.append(" (test version)");
         }
         final String message = messageBuilder.toString();
         logger.warn(message);
