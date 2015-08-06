@@ -66,6 +66,7 @@ public class AccessLogController {
      * @return the page spec.
      */
     private Pageable constructPageSpecification(int pageIndex) {
+        @SuppressWarnings("UnnecessaryLocalVariable")
         Pageable pageSpecification = new PageRequest(
                 pageIndex,
                 NUMBER_OF_LOGS_PER_PAGE,

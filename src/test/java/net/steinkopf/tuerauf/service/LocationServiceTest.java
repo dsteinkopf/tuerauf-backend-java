@@ -1,25 +1,27 @@
 package net.steinkopf.tuerauf.service;
 
 import net.steinkopf.tuerauf.TueraufApplication;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.TestExecutionListeners;
+import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
+import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.springframework.test.util.MatcherAssertionErrors.assertThat;
 
 
 /**
  * Tests for LocationService
  */
-@RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = TueraufApplication.class)
-public class LocationServiceTest {
+@TestExecutionListeners(inheritListeners = false, listeners = {
+        DependencyInjectionTestExecutionListener.class }) // see http://stackoverflow.com/questions/25537436/integration-testing-a-spring-boot-web-app-with-testng
+public class LocationServiceTest extends AbstractTestNGSpringContextTests {
 
     private static final Logger logger = LoggerFactory.getLogger(LocationServiceTest.class);
 
@@ -30,7 +32,7 @@ public class LocationServiceTest {
     LocationService locationService;
 
 
-    @Before
+    @BeforeClass
     public void setUp() throws Exception {
 
         locationService.setHomeGeoy(8.109535);
@@ -42,6 +44,7 @@ public class LocationServiceTest {
     @Test
     public void testIsNearToHome() throws Exception {
 
+        logger.debug("testIsNearToHome");
         assertThat(locationService.isNearToHome(8.109388, 1.622288), is(equalTo(true)));
         assertThat(locationService.isNearToHome(8.109388, 1.622888), is(equalTo(false)));
     }
@@ -49,6 +52,7 @@ public class LocationServiceTest {
     @Test
     public void testIsNearToHomeOuter() throws Exception {
 
+        logger.debug("testIsNearToHomeOuter");
         assertThat(locationService.isNearToHomeOuter(8.109388, 1.622888), is(equalTo(true)));
         assertThat(locationService.isNearToHomeOuter(8.109388, 1.624288), is(equalTo(false)));
     }

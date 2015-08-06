@@ -10,10 +10,6 @@ import net.steinkopf.tuerauf.service.ArduinoBackendService;
 import net.steinkopf.tuerauf.service.HttpFetcherService;
 import net.steinkopf.tuerauf.util.SeleniumHelper;
 import net.steinkopf.tuerauf.util.TestUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -26,28 +22,34 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.TestExecutionListeners;
+import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
+import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.springframework.test.context.web.WebAppConfiguration;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 import javax.servlet.ServletContext;
 import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.contains;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.util.MatcherAssertionErrors.assertThat;
 
 
 /**
  * Tests Dashboard
  */
-@RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = TueraufApplication.class)
 @WebAppConfiguration
 @IntegrationTest("server.port:0")
-public class DashboardTest /*extends FluentTest*/ {
+@TestExecutionListeners(inheritListeners = false, listeners = {
+        DependencyInjectionTestExecutionListener.class }) // see http://stackoverflow.com/questions/25537436/integration-testing-a-spring-boot-web-app-with-testng
+public class DashboardTest /*extends FluentTest*/ extends AbstractTestNGSpringContextTests {
 
     private static final Logger logger = LoggerFactory.getLogger(DashboardTest.class);
 
@@ -79,7 +81,7 @@ public class DashboardTest /*extends FluentTest*/ {
         super();
     }
 
-    @Before
+    @BeforeClass
     public void setup() {
 
         final BrowserVersion browserVersion = BrowserVersion.FIREFOX_24;
@@ -88,7 +90,7 @@ public class DashboardTest /*extends FluentTest*/ {
         driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
     }
 
-    @After
+    @AfterClass
     public void tearDown() throws Exception {
         driver.quit();
     }
@@ -97,6 +99,7 @@ public class DashboardTest /*extends FluentTest*/ {
      * Tests if users are shown in the list
      */
     @Test
+    @DirtiesContext
     public void testUserlist() {
 
         // Prepare
@@ -116,7 +119,7 @@ public class DashboardTest /*extends FluentTest*/ {
     /**
      * Tests if the activate all users button exists and works
      */
-    @Test
+    @Test(dependsOnMethods = "testSendPinsToArduino") // TODO not a real dependency!  testSendPinsToArduino just must not run when all users are active
     public void testActivateAllUsersButton() {
 
         // Prepare
