@@ -7,31 +7,28 @@ import net.steinkopf.tuerauf.repository.UserRepository;
 import net.steinkopf.tuerauf.service.ArduinoBackendService;
 import net.steinkopf.tuerauf.service.LocationService;
 import net.steinkopf.tuerauf.util.TestUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.util.MatcherAssertionErrors.assertThat;
+import static org.testng.Assert.assertNotNull;
 
 
 /**
  * Tests for {@link FrontendAPIRestController}.
  * Dependency services are mocked and injected.
  */
-@RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = TueraufApplication.class)
 @WebAppConfiguration
 @DirtiesContext
@@ -59,7 +56,7 @@ public class FrontendAPIRestControllerUnitTest {
 */
 
 
-    @Before
+    @BeforeMethod
     public void setUp() throws Exception {
 
         mockArduinoBackendService = Mockito.mock(ArduinoBackendService.class, withSettings().invocationListeners(TestUtils.getLoggingMockInvocationListener(logger)));
@@ -73,7 +70,7 @@ public class FrontendAPIRestControllerUnitTest {
         testedFrontendAPIRestController.setLocationService(mockLocationService);
     }
 
-    @After
+    @AfterClass
     public void tearDown() throws Exception {
     }
 

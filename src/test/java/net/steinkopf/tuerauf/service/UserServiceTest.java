@@ -5,27 +5,24 @@ import net.steinkopf.tuerauf.TestConstants;
 import net.steinkopf.tuerauf.TueraufApplication;
 import net.steinkopf.tuerauf.data.User;
 import net.steinkopf.tuerauf.repository.UserRepository;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.springframework.test.util.MatcherAssertionErrors.assertThat;
 
 /**
  * Integration tests for {@link UserService}.
  */
-@RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = TueraufApplication.class)
 public class UserServiceTest extends SecurityContextTest {
 
@@ -42,7 +39,7 @@ public class UserServiceTest extends SecurityContextTest {
     UserService userService;
 
 
-    @Before
+    @BeforeClass
     public void setup() throws Exception {
 
         super.setup();
@@ -116,7 +113,7 @@ public class UserServiceTest extends SecurityContextTest {
         return serialIdToBeReused;
     }
 
-    @Test(expected = IndexOutOfBoundsException.class)
+    @Test(expectedExceptions = IndexOutOfBoundsException.class)
     @Transactional // makes insertions be rolled back on exception.
     public void testFindFreeSerialIdOverflow() throws Exception {
 

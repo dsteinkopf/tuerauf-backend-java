@@ -9,11 +9,6 @@ import net.steinkopf.tuerauf.service.HttpFetcherService;
 import net.steinkopf.tuerauf.service.LocationService;
 import net.steinkopf.tuerauf.service.LogAndMailService;
 import net.steinkopf.tuerauf.util.TestUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,29 +19,30 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 import java.security.Principal;
 import java.util.List;
 
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
+import static org.springframework.test.util.MatcherAssertionErrors.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.testng.Assert.assertNotNull;
 
 /**
  * Tests for {@link FrontendAPIRestController} with very little mocking.
  */
-@RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = TueraufApplication.class)
 @WebAppConfiguration
 @DirtiesContext
@@ -91,7 +87,7 @@ public class FrontendAPIRestControllerIntegrationTest extends SecurityContextTes
     private final static String arduinoBaseUrlDummy = "dummy/";
 
 
-    @Before
+    @BeforeClass
     public void setUp() throws Exception {
 
         super.setup();
@@ -114,7 +110,7 @@ public class FrontendAPIRestControllerIntegrationTest extends SecurityContextTes
         frontendAPIRestController.getArduinoBackendService().setArduinoBaseUrl(arduinoBaseUrlDummy);
     }
 
-    @After
+    @AfterClass
     public void tearDown() throws Exception {
 
 /* not necessary because of @DirtiesContext:
@@ -229,8 +225,8 @@ public class FrontendAPIRestControllerIntegrationTest extends SecurityContextTes
         assertThat(userRepository.findByActive(true).size(), is(equalTo(activeBefore + 1)));
     }
 
-    // @Test
-    @Ignore("Test fails like this. Why is the user not recognised?")
+    @Test(enabled = false)
+    // @Ignore("Test fails like this. Why is the user not recognised?")
     public void testRegisterUser2() throws Exception {
 
         UsernamePasswordAuthenticationToken principal = new UsernamePasswordAuthenticationToken((Principal) () -> "user", "user");

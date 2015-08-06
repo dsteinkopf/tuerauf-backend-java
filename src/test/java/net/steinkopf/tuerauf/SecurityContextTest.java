@@ -7,6 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.test.context.TestExecutionListeners;
+import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
+import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 
 import java.security.Principal;
 
@@ -14,7 +17,9 @@ import java.security.Principal;
 /**
  * Test needing some security context (= authenticated user/admin).
  */
-public abstract class SecurityContextTest {
+@TestExecutionListeners(inheritListeners = false, listeners = {
+        DependencyInjectionTestExecutionListener.class }) // see http://stackoverflow.com/questions/25537436/integration-testing-a-spring-boot-web-app-with-testng
+public abstract class SecurityContextTest extends AbstractTestNGSpringContextTests {
 
     @Autowired
     protected LogAndMailService logAndMailService;
