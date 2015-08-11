@@ -1,5 +1,6 @@
 package net.steinkopf.tuerauf;
 
+import com.fasterxml.classmate.TypeResolver;
 import net.steinkopf.tuerauf.controller.VersionAdderInterceptor;
 import net.steinkopf.tuerauf.rest.AppsecretChecker;
 import net.steinkopf.tuerauf.rest.FrontendAPIRestController;
@@ -19,16 +20,38 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configurers.GlobalAuthenticationConfigurerAdapter;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.context.request.async.DeferredResult;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import springfox.documentation.builders.PathSelectors;
+import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.builders.ResponseMessageBuilder;
+import springfox.documentation.schema.ModelRef;
+import springfox.documentation.schema.WildcardType;
+import springfox.documentation.service.ApiKey;
+import springfox.documentation.service.AuthorizationScope;
+import springfox.documentation.service.SecurityReference;
+import springfox.documentation.spi.DocumentationType;
+import springfox.documentation.spi.service.contexts.SecurityContext;
+import springfox.documentation.spring.web.plugins.Docket;
+import springfox.documentation.swagger.web.SecurityConfiguration;
+import springfox.documentation.swagger.web.UiConfiguration;
+import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
+import java.time.LocalDate;
+import java.util.List;
+
+import static com.google.common.collect.Lists.newArrayList;
 import static org.springframework.core.Ordered.HIGHEST_PRECEDENCE;
+import static springfox.documentation.schema.AlternateTypeRules.newRule;
 
 
 @SpringBootApplication
@@ -37,6 +60,7 @@ import static org.springframework.core.Ordered.HIGHEST_PRECEDENCE;
 @EnableAutoConfiguration(exclude = {VelocityAutoConfiguration.class}) // suppress warnings about missing velocity templates.
 //@ComponentScan
 @Order(HIGHEST_PRECEDENCE)
+@EnableSwagger2
 public class TueraufApplication extends SpringBootServletInitializer {
 
     @SuppressWarnings("unused")
@@ -197,5 +221,49 @@ public class TueraufApplication extends SpringBootServletInitializer {
             registry.addInterceptor(appsecretChecker());
             /*registry.addInterceptor(versionAdderInterceptor());*/
         }
+    }
+
+    /**
+     * Things for Swagger !
+     */
+    @Bean
+    public Docket api() {
+        return new Docket(DocumentationType.SWAGGER_2).select()
+                .apis(RequestHandlerSelectors.any())
+                .paths(PathSelectors.any()).build().pathMapping("/")
+                .directModelSubstitute(LocalDate.class, String.class)
+                .genericModelSubstitutes(ResponseEntity.class)
+                .alternateTypeRules(newRule(typeResolver.resolve(DeferredResult.class, typeResolver.resolve(ResponseEntity.class, WildcardType.class)), typeResolver.resolve(WildcardType.class)))
+                .useDefaultResponseMessages(false)
+                .globalResponseMessage(RequestMethod.GET, newArrayList(new ResponseMessageBuilder().code(500).message("500 message").responseModel(new ModelRef("Error")).build()))
+                .securitySchemes(newArrayList(apiKey())).securityContexts(newArrayList(securityContext()));
+    }
+
+    @Autowired
+    private TypeResolver typeResolver;
+
+    private ApiKey apiKey() {
+        return new ApiKey("mykey", "api_key", "header");
+    }
+
+    private SecurityContext securityContext() {
+        return SecurityContext.builder().securityReferences(defaultAuth()).forPaths(PathSelectors.regex("/anyPath.*")).build();
+    }
+
+    List<SecurityReference> defaultAuth() {
+        AuthorizationScope authorizationScope = new AuthorizationScope("global", "accessEverything");
+        AuthorizationScope[] authorizationScopes = new AuthorizationScope[1];
+        authorizationScopes[0] = authorizationScope;
+        return newArrayList(new SecurityReference("mykey", authorizationScopes));
+    }
+
+    @Bean
+    SecurityConfiguration security() {
+        return new SecurityConfiguration("test-app-client-id", "test-app-realm", "test-app", "apiKey");
+    }
+
+    @Bean
+    UiConfiguration uiConfig() {
+        return new UiConfiguration("validatorUrl");
     }
 }

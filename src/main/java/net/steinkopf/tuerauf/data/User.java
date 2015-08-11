@@ -147,6 +147,7 @@ public class User implements Serializable {
         return id;
     }
 
+    @SuppressWarnings("unused")
     public void setId(final Long id) {
         this.id = id;
     }
@@ -155,6 +156,7 @@ public class User implements Serializable {
         return installationId;
     }
 
+    @SuppressWarnings("unused")
     public void setInstallationId(final String installationId) {
         this.installationId = installationId;
     }
@@ -187,6 +189,7 @@ public class User implements Serializable {
         return creationTime;
     }
 
+    @SuppressWarnings("unused")
     public void setCreationTime(final Date creationTime) {
         this.creationTime = creationTime;
     }
@@ -195,6 +198,7 @@ public class User implements Serializable {
         return modificationTime;
     }
 
+    @SuppressWarnings("unused")
     public void setModificationTime(final Date modificationTime) {
         this.modificationTime = modificationTime;
     }
