@@ -29,6 +29,9 @@ tuerauf-prod:
   environment:
     - SPRING_PROFILES_ACTIVE=prod
     - SPRING_CONFIG_LOCATION=/usr/local/tomcat/conf/application-prod.properties
+    # for haproxy:
+    - 'HEALTH_CHECK=check inter 20000 rise 2 fall 2'
+    - 'HTTP_CHECK=GET /tuerauf/frontend/openDoor?appsecret=L3qxrtZzKaNGY9iW4Jt8&installationId=haproxy&geoy=12.34567&geox=23.45678&pin=1111'
   volumes:
     - /opt/tuerauf/application-prod.properties:/usr/local/tomcat/conf/application-prod.properties
     - /opt/tuerauf/usr_local_tomcat_logs:/usr/local/tomcat/logs
@@ -40,3 +43,24 @@ tuerauf-prod:
   deployment_strategy: emptiest_node
   sequential_deployment: true
   autoredeploy: false
+
+tuerauf-haproxy:
+  image: 'tutum/haproxy:latest'
+  environment:
+    - MAXCONN=4
+    - MODE=tcp
+    # - RSYSLOG_DESTINATION
+  links:
+    - tuerauf-prod
+  ports:
+    - '81:80'
+    - '1936:1936'
+  restart: always
+  roles:
+    - global
+  sequential_deployment: true
+  tags:
+    - prod
+  volumes:
+    - /etc/timezone:/etc/timezone
+    - /etc/localtime:/etc/localtime
