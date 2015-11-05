@@ -20,8 +20,10 @@ mysql-prod:
 
 tuerauf-prod:
   image: dsteinkopf/tuerauf:prod
-  ports:
-    - "8080:8080"
+  #ports:
+  #  - "8080:8080"
+  expose:
+    - '8080'
   roles:
     - global
   links:
@@ -34,7 +36,7 @@ tuerauf-prod:
     - 'HTTP_CHECK=GET /tuerauf/frontend/openDoor?appsecret=L3qxrtZzKaNGY9iW4Jt8&installationId=haproxy&geoy=12.34567&geox=23.45678&pin=1111'
   volumes:
     - /opt/tuerauf/application-prod.properties:/usr/local/tomcat/conf/application-prod.properties
-    - /opt/tuerauf/usr_local_tomcat_logs:/usr/local/tomcat/logs
+    #- /opt/tuerauf/usr_local_tomcat_logs:/usr/local/tomcat/logs
     - /etc/localtime:/etc/localtime
     - /etc/timezone:/etc/timezone
   tags:
@@ -43,6 +45,7 @@ tuerauf-prod:
   deployment_strategy: emptiest_node
   sequential_deployment: true
   autoredeploy: false
+  target_num_containers: 2
 
 tuerauf-haproxy:
   image: 'tutum/haproxy:latest'
