@@ -85,7 +85,7 @@ public class FrontendAPIRestController {
                            @RequestParam("geoy") String geoyString,
                            @RequestParam("geox") String geoxString) {
 
-        if (installationId.equals("monitoring")) {
+        if (installationId.equals("monitoring") || installationId.equals("haproxy")) {
             // e.g. http://localhost:8080/tuerauf/frontend/openDoor?appsecret=secretApp&installationId=monitoring&geoy=12.34567&geox=23.45678&pin=1111
             //noinspection SqlDialectInspection,SqlNoDataSourceInspection
             entityManager.createNativeQuery("select 1 from user").getSingleResult(); // check DB connection
