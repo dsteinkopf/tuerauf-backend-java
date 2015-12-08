@@ -18,7 +18,7 @@
 
 
     <script type="text/javascript"
-            src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>
+            src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
 
     <c:if test="${page.content.size() >= 1}">
         <script type="text/javascript">
@@ -44,7 +44,7 @@
                         title:"log"
                     });
                     bounds.extend(point);
-                })
+                });
 
                 //  Fit these bounds to the map
                 myglob.map.fitBounds(bounds);

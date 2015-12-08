@@ -14,9 +14,10 @@
 
     <%-- this is not recommended for online/production (see http://lesscss.org/) --%>
     <link rel="stylesheet/less" type="text/css" href="../less/main.less"/>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/less.js/2.5.0/less.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/less.js/2.5.3/less.min.js"></script>
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+    <script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
 
     <script type="text/javascript">
         var myglob = {};
