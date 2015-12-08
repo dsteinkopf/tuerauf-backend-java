@@ -12,7 +12,9 @@ import net.steinkopf.tuerauf.util.SeleniumHelper;
 import net.steinkopf.tuerauf.util.TestUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ErrorCollector;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.openqa.selenium.By;
@@ -71,6 +73,10 @@ public class DashboardTest /*extends FluentTest*/ {
     private ArduinoBackendService arduinoBackendService;
 
 
+    @Rule
+    public final ErrorCollector errorCollector = new ErrorCollector();
+
+
     private String getUrl() {
         return "http://" + TestConstants.ADMIN_USERNAME + ":" + TestConstants.ADMIN_PASSWORD + "@localhost:" + serverPort + servletContext.getContextPath();
     }
@@ -109,8 +115,8 @@ public class DashboardTest /*extends FluentTest*/ {
 
         // Check
         final WebElement table = driver.findElement(By.className("users"));
-        assertThat(table.getText(), containsString(TestConstants.USER_NAME_INACTIVE));
-        assertThat(table.getText(), containsString(TestConstants.USER_NAME_ACTIVE));
+        errorCollector.checkThat(table.getText(), containsString(TestConstants.USER_NAME_INACTIVE));
+        errorCollector.checkThat(table.getText(), containsString(TestConstants.USER_NAME_ACTIVE));
     }
 
     /**
