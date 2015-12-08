@@ -16,7 +16,6 @@ import java.util.Date;
 /**
  * Record user's access.
  */
-@SuppressWarnings("unused")
 @Entity
 @Table(indexes = { @Index(columnList = "accessType") })
 public class AccessLog {
@@ -96,10 +95,12 @@ public class AccessLog {
         return result;
     }
 
+    @SuppressWarnings("unused")
     public Long getId() {
         return id;
     }
 
+    @SuppressWarnings("unused")
     public void setId(final Long id) {
         this.id = id;
     }
@@ -128,6 +129,7 @@ public class AccessLog {
         this.geox = geox;
     }
 
+    @SuppressWarnings("unused")
     public AccessType getAccessType() {
         return accessType;
     }
@@ -136,6 +138,7 @@ public class AccessLog {
         this.accessType = accessType;
     }
 
+    @SuppressWarnings("unused")
     public Date getAccessTimestamp() {
         return accessTimestamp;
     }
@@ -144,6 +147,7 @@ public class AccessLog {
         this.accessTimestamp = accessTimestamp;
     }
 
+    @SuppressWarnings("unused")
     public String getResult() {
         return result;
     }
