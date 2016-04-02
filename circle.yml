@@ -23,7 +23,7 @@ deployment:
       - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
       - docker tag -f dsteinkopf/tuerauf dsteinkopf/tuerauf:prod
       - docker push dsteinkopf/tuerauf:prod || docker push dsteinkopf/tuerauf:prod
-      - curl -X POST $TUTUM_WEBHOOK_URL_PROD
+      #- curl -X POST $TUTUM_WEBHOOK_URL_PROD
   dockerhub-test:
     branch: testing
     commands:
@@ -31,4 +31,4 @@ deployment:
       - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
       - docker tag -f dsteinkopf/tuerauf dsteinkopf/tuerauf:test
       - docker push dsteinkopf/tuerauf:test || docker push dsteinkopf/tuerauf:test
-      - curl -X POST $TUTUM_WEBHOOK_URL_TEST
+      #- curl -X POST $TUTUM_WEBHOOK_URL_TEST
