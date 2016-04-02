@@ -84,6 +84,8 @@ public class DashboardController {
             model.put("implementationBuildTime", buildDateFormatted);
         }
         model.put("implementationBuild", gitRevisionHash);
+
+        model.put("javaVersion", System.getProperty("java.version"));
     }
 
     /**
