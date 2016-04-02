@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="EclipseCodeFormatter">
+    <option name="defaultSettings" value="true" />
+    <option name="disabledFileTypes" value="groovy" />
+    <option name="id" value="1447771715963" />
+    <option name="importOrderConfigFilePath" value="$PROJECT_DIR$/../mgm/download/lisa.importorder" />
+    <option name="importOrderFromFile" value="true" />
+    <option name="name" value="default" />
+    <option name="pathToConfigFileJava" value="$PROJECT_DIR$/../mgm/download/lisa-formatter.xml" />
+    <option name="selectedJavaProfile" value="LiSA" />
+    <option name="useOldEclipseJavaFormatter" value="true" />
+  </component>
   <component name="EntryPointsManager">
     <entry_points version="2.0" />
   </component>
@@ -13,6 +24,9 @@
         <option value="$PROJECT_DIR$/pom.xml" />
       </list>
     </option>
+  </component>
+  <component name="PDMPlugin">
+    <option name="skipTestSources" value="false" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="false">
     <OptionsSetting value="true" id="Add" />
