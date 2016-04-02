@@ -32,11 +32,9 @@
 <!-- Footer -->
 <div class="versioninfo">
     implementationBuild: ${implementationBuild} -
-    implementationBuildTime: ${implementationBuildTime}
-<%-- -
-implementationVersion: ${implementationVersion} -
-implementationJdk: ${implementationJdk}
---%>
+    implementationBuildTime: ${implementationBuildTime} -
+    java.version: ${javaVersion} -
+    Tomcat Version : <%= application.getServerInfo() %>
 </div>
 
 </body>
