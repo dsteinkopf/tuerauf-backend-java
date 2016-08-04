@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -79,7 +80,9 @@ public class LogAndMailService {
 
         if (StringUtils.isNotEmpty(adminMailAddress)) {
             CompletableFuture.supplyAsync(() -> {
-                sendMail(adminMailAddress, "mail from tuerauf service", message);
+                sendMail(adminMailAddress,
+                        String.format("mail from tuerauf service. at %s.", new Date()),
+                        message);
                 return null;
             }, executor)
                     .exceptionally(ex -> {
