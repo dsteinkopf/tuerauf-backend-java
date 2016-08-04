@@ -41,7 +41,7 @@
         <dependency>
             <groupId>org.lightadmin</groupId>
             <artifactId>lightadmin</artifactId>
-            <version>1.2.0.BUILD-SNAPSHOT</version>
+            <version>1.2.0.RC1</version>
         </dependency>
 
         <dependency>
@@ -241,7 +241,7 @@
 		</plugins>
 	</build>
 
-	<repositories>
+	<!--repositories>
 		<repository>
 			<id>lightadmin-nexus-releases</id>
 			<url>http://lightadmin.org/nexus/content/repositories/releases</url>
@@ -258,6 +258,6 @@
 				<updatePolicy>always</updatePolicy>
 			</snapshots>
 		</repository>
-	</repositories>
+	</repositories-->
 
 </project>

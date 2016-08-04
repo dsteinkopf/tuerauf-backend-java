@@ -7,7 +7,7 @@
           <element id="module-output" name="tuerauf" />
         </element>
         <element id="directory" name="lib">
-          <element id="library" level="project" name="Maven: org.lightadmin:lightadmin:1.2.0.BUILD-SNAPSHOT" />
+          <element id="library" level="project" name="Maven: org.lightadmin:lightadmin:1.2.0.RC1" />
           <element id="library" level="project" name="Maven: org.springframework:spring-core:4.1.7.RELEASE" />
           <element id="library" level="project" name="Maven: org.javassist:javassist:3.18.1-GA" />
           <element id="library" level="project" name="Maven: org.springframework:spring-context:4.1.7.RELEASE" />
