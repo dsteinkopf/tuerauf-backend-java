@@ -155,7 +155,7 @@ public class DashboardController {
         try {
             final String arduinoResponse = arduinoBackendService.openDoorImmediately(enteredMasterPin);
 
-            if (arduinoResponse.equals("OPEN")) {
+            if (arduinoResponse.equals("OFFEN")) {
                 attr.addFlashAttribute(MESSAGE, "Door is OPEN now.");
             }
             else {
