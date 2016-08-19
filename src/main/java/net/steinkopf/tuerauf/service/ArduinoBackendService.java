@@ -96,6 +96,41 @@ public class ArduinoBackendService {
         }
     }
 
+
+    /**
+     * Calls arduino to open the door IMMEDIATELY (use with caution).
+     * This should never be called (even indirectly) from mobile.
+     *
+     * @param masterPin    Arduino's master_pin to immediately open the door.
+     */
+    public String openDoorImmediately(final String masterPin) {
+
+        Assert.notNull(masterPin, "user must not be null");
+        logger.debug("openDoorImmediately(masterPin.len={})", masterPin.length());
+
+        String arduinoUrl = arduinoBaseUrl + masterPin;
+
+        if (StringUtils.isBlank(arduinoBaseUrl)) { // fake arduino
+            logger.warn("fake arduino call to {}", arduinoUrl);
+            if (masterPin.equals("fake")) {
+                return "OPEN";
+            } else {
+                return "fake bad request";
+            }
+        }
+
+        try {
+            final String arduinoResponse = StringUtils.trim(httpFetcherService.fetchFromUrl(arduinoUrl, 2000));
+            logAndMailService.logAndMail("openDoorImmediately got arduino response '{}'.",
+                    null, arduinoResponse);
+            return arduinoResponse;
+
+        } catch (IOException e) {
+            logAndMailService.logAndMail("Error while sending openDoorImmediately to Arduino", e);
+            return "bad request";
+        }
+    }
+
     /**
      * sends pins to Arduino.
      *

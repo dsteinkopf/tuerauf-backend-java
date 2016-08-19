@@ -146,6 +146,30 @@ public class DashboardController {
     }
 
     /**
+     * open door immediately.
+     */
+    @RequestMapping(value = "/openDoorImmediately", method = RequestMethod.POST)
+    public String openDoorImmediately(@RequestParam("masterPin") String enteredMasterPin,
+                                      RedirectAttributes attr) {
+
+        try {
+            final String arduinoResponse = arduinoBackendService.openDoorImmediately(enteredMasterPin);
+
+            if (arduinoResponse.equals("OPEN")) {
+                attr.addFlashAttribute(MESSAGE, "Door is OPEN now.");
+            }
+            else {
+                attr.addFlashAttribute(MESSAGE, String.format("Door is NOT open now. Arduino's response = '%s'",
+                        arduinoResponse));
+            }
+        } catch (IllegalArgumentException e) {
+            attr.addFlashAttribute(MESSAGE, e.toString());
+        }
+
+        return "redirect:" + DASHBOARD_URL + "/";
+    }
+
+    /**
      * show config links.
      */
     // see http://docs.spring.io/spring/docs/current/spring-framework-reference/html/mvc.html#mvc-ann-arguments

@@ -150,6 +150,25 @@ public class ArduinoBackendServiceTest {
     }
 
     @Test
+    public void testOpenDoorImmediately() throws Exception {
+
+        final String masterPin = "mmmmmppppp";
+
+        // Mock dependencies
+        when(mockHttpFetcherService.fetchFromUrl(eq(arduinoBaseUrlDummy + masterPin), anyInt()))
+                .thenReturn("OFFEN");
+
+        // Run - step 1: MasterPin
+        final String openDoorResult = arduinoBackendService.openDoorImmediately(masterPin);
+
+        // Check
+        assertThat(openDoorResult, is(equalTo("OFFEN")));
+        verify(mockLogAndMailService, times(1)).logAndMail(any(String.class), any(Exception.class),
+                any(String.class));
+        verify(mockHttpFetcherService, times(1)).fetchFromUrl(any(String.class), anyInt());
+    }
+
+    @Test
     public void testSendPinsToArduino() throws Exception {
 
         final String dummyPinPassword = "myPinPw";

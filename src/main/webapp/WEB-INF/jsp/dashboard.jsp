@@ -70,6 +70,15 @@
     </form>
 
 
+    <h2>Open door immediately (ATTENTION!):</h2>
+
+    <form id="openDoorImmediately" action="openDoorImmediately" method="post" commandName="openDoorImmediately">
+        masterPin: <input type="password" id="masterPin" name="masterPin"/>
+        <input type="submit" name="submit" value="open door immediately"/>
+        <input type="hidden" name="nocsrf${_csrf.parameterName}" value="${_csrf.token}"/>
+    </form>
+
+
     <h2>Show config link:</h2>
 
     <form id="showConfigLink" action="showConfigLink" method="post" commandName="showConfigLink">
