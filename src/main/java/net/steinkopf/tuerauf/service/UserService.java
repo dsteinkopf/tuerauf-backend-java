@@ -9,10 +9,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.IntStream;
 
 /**
  * Manipulation of users.
  */
+@SuppressWarnings("SpringAutowiredFieldsWarningInspection")
 @Service
 public class UserService {
 
@@ -58,11 +61,11 @@ public class UserService {
         Assert.isTrue(pin.length() == 4, "pin must be exactly 4 characters");
         Assert.isTrue(installationId.length() >= 10, "installationId must be at least 10 characters");
 
-        List<User> existingUser = userRepository.findByInstallationId(installationId); // can only be 1 or none.
+        Optional<User> existingUser = userRepository.findByInstallationId(installationId);
         User user;
-        if (existingUser.isEmpty()) {
+        if ( ! existingUser.isPresent()) {
             existingUser = userRepository.findByUsername(username);  // can only be 1 or none.
-            if (existingUser.isEmpty()) {
+            if ( ! existingUser.isPresent()) {
                 // create new User
                 user = new User(installationId);
                 user.setSerialId(findFreeSerialId());
@@ -72,7 +75,7 @@ public class UserService {
             }
         } else {
             // update existing User
-            user = existingUser.get(0);
+            user = existingUser.get();
             user.setNewUser(false);
         }
         user.updateData(username, pin);
@@ -97,7 +100,7 @@ public class UserService {
         logAndMailService.logAndMail("user {} {} (serialId={})",
                 null,
                 user.getUsername(),
-                existingUser.isEmpty() ? "created" : "updated",
+                existingUser.isPresent() ? "updated" : "created",
                 user.getSerialId()
         );
 
@@ -107,19 +110,18 @@ public class UserService {
     /**
      * Checks if this user is active
      *
-     * @return user object, if existing and active, null if not.
+     * @return user object, if existing and active, empty if not.
      */
-    public User getUserIfActive(final String installationId) {
+    public Optional<User> getUserIfActive(final String installationId) {
 
-        final List<User> userList = userRepository.findByInstallationId(installationId);
-        if (userList.size() == 0) {
-            return null;
+        final Optional<User> userOptional = userRepository.findByInstallationId(installationId);
+        if ( ! userOptional.isPresent()) {
+            return Optional.empty();
         }
-        final User user = userList.get(0);
-        if (!user.isActive()) {
-            return null;
+        if ( ! userOptional.get().isActive()) {
+            return Optional.empty();
         }
-        return user;
+        return userOptional;
     }
 
     /**
@@ -128,6 +130,7 @@ public class UserService {
      * @return free serial id.
      * @throws IndexOutOfBoundsException if all serial ids are used.
      */
+    @SuppressWarnings("WeakerAccess")
     public int findFreeSerialId() throws IndexOutOfBoundsException {
 
         boolean serialIdIsUsed[] = new boolean[MAX_SERIAL_ID];
@@ -174,17 +177,16 @@ public class UserService {
      */
     public void deletePins(final String[] pinList) throws IllegalArgumentException {
 
-        for (int serialId = 0; serialId < pinList.length; serialId++) {
-            if (pinList[serialId] != null) {
-                final List<User> userList = userRepository.findBySerialId(serialId);
-                if (userList.size() != 1) {
-                    throw new IllegalArgumentException(String.format("User with serialId %s does not exist", serialId));
-                }
-                final User user = userList.get(0);
-                user.setPin(null);
-                userRepository.save(user);
-            }
-        }
+        IntStream.range(0, pinList.length)
+                .filter(serialId -> pinList[serialId] != null)
+                .forEach(serialId -> {
+                    final User user = userRepository
+                            .findBySerialId(serialId)
+                            .orElseThrow(() -> new IllegalArgumentException(
+                                    String.format("User with serialId %s does not exist", serialId)));
+                    user.setPin(null);
+                    userRepository.save(user);
+                });
     }
 
     /**

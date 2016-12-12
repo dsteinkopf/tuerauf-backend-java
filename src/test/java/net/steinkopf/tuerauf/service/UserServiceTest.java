@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 import static org.hamcrest.Matchers.equalTo;
@@ -35,13 +36,13 @@ public class UserServiceTest extends SecurityContextTest {
 
 
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     /**
      * System under Test.
      */
     @Autowired
-    UserService userService;
+    private UserService userService;
 
 
     @Before
@@ -57,7 +58,7 @@ public class UserServiceTest extends SecurityContextTest {
         // those from import.sql must not be deleted.
         Stream.of(0L, 4L, 5L, 6L)
                 .map(id -> userRepository.findOne(id))
-                .filter(user -> user != null)
+                .filter(Objects::nonNull)
                 .forEach(user -> userRepository.delete(user));
     }
 
@@ -181,7 +182,8 @@ public class UserServiceTest extends SecurityContextTest {
         User user1b = userService.registerOrUpdateUser("User1b", "1112", "InstIdUser1");
         assertThat(user1b.getId(), is(equalTo(user1.getId())));
 
-        User user1read = userRepository.findByInstallationId("InstIdUser1").get(0);
+        //noinspection OptionalGetWithoutIsPresent
+        User user1read = userRepository.findByInstallationId("InstIdUser1").get();
         assertThat(user1read.getId(), is(equalTo(user1.getId())));
         assertThat(user1read.getUsername(), is(equalTo("User1b")));
         assertThat(user1read.getUsernameOld(), is(equalTo("User1")));
@@ -190,7 +192,9 @@ public class UserServiceTest extends SecurityContextTest {
     @Test(expected = UserService.DuplicateUsernameException.class)
     public void testRegisterOrUpdateUserExists() throws Exception {
 
+        //noinspection unused
         User user1 = userService.registerOrUpdateUser("User1", "1111", "InstIdUser1");
+        //noinspection unused
         User user2 = userService.registerOrUpdateUser("User1", "1112", "InstIdUser2");
     }
 }

@@ -16,8 +16,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.persistence.EntityManager;
+import java.util.Optional;
 
 
+@SuppressWarnings("SpringAutowiredFieldsWarningInspection")
 @RestController
 @RequestMapping(value = FrontendAPIRestController.FRONTEND_URL)
 // restricted by AppsecretChecker: @Secured({"ROLE_USER"})
@@ -26,6 +28,7 @@ public class FrontendAPIRestController {
     private static final Logger logger = LoggerFactory.getLogger(FrontendAPIRestController.class);
 
 
+    @SuppressWarnings("WeakerAccess")
     public static final String FRONTEND_URL = "/frontend";
     public static final String FRONTEND_URL_PATTERN = FRONTEND_URL + "/**";
 
@@ -43,7 +46,7 @@ public class FrontendAPIRestController {
     private AccessLogService accessLogService;
 
     @Autowired
-    EntityManager entityManager;
+    private EntityManager entityManager;
 
 
     /**
@@ -99,12 +102,13 @@ public class FrontendAPIRestController {
             return arduinoBackendService.getStatus();
         }
 
-        final User user = userService.getUserIfActive(installationId);
-        if (user == null) {
+        final Optional<User> userOptional = userService.getUserIfActive(installationId);
+        if ( ! userOptional.isPresent()) {
             logger.debug("openDoor(installationId={}, geoyString={}, geoxString={})", installationId, geoyString, geoxString);
 
             return "user unknown";
         }
+        final User user = userOptional.get();
 
         logger.debug("openDoor(username={}, geoyString={}, geoxString={})", user.getUsername(), geoyString, geoxString);
 
@@ -152,12 +156,13 @@ public class FrontendAPIRestController {
                                 @RequestParam("geoy") String geoyString,
                                 @RequestParam("geox") String geoxString) {
 
-        final User user = userService.getUserIfActive(installationId);
-        if (user == null) {
+        final Optional<User> userOptional = userService.getUserIfActive(installationId);
+        if ( ! userOptional.isPresent()) {
             logger.debug("checkLocation(installationId={}, geoyString={}, geoxString={})", installationId, geoyString, geoxString);
 
             return "user unknown";
         }
+        final User user = userOptional.get();
 
         logger.debug("checkLocation(username={}, geoyString={}, geoxString={})", user.getUsername(), geoyString, geoxString);
 

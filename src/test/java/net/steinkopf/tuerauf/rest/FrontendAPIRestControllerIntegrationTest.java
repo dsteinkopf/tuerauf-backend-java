@@ -11,7 +11,6 @@ import net.steinkopf.tuerauf.service.LogAndMailService;
 import net.steinkopf.tuerauf.util.TestUtils;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,13 +31,12 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.security.Principal;
-import java.util.Arrays;
-import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
@@ -78,6 +76,7 @@ public class FrontendAPIRestControllerIntegrationTest extends SecurityContextTes
     private LocationService mockLocationService;
     // not necessary because of @DirtiesContext: private LocationService origLocationService;
 
+    @SuppressWarnings("FieldCanBeLocal")
     private LogAndMailService mockLogAndMailService;
     // not necessary because of @DirtiesContext: private LogAndMailService origLogAndMailService;
 
@@ -124,7 +123,7 @@ public class FrontendAPIRestControllerIntegrationTest extends SecurityContextTes
         // those from import.sql must not be deleted.
         Stream.of(0L, 4L, 5L, 6L)
                 .map(id -> userRepository.findOne(id))
-                .filter(user -> user != null)
+                .filter(Objects::nonNull)
                 .forEach(user -> userRepository.delete(user));
 
 /* not necessary because of @DirtiesContext:
@@ -157,10 +156,11 @@ public class FrontendAPIRestControllerIntegrationTest extends SecurityContextTes
         assertThat(userRepository.findByActive(false).size(), is(equalTo(inActiveBefore + 1)));
         assertThat(userRepository.findByActive(true).size(), is(equalTo(activeBefore)));
 
-        List<User> newUserList = userRepository.findByInstallationId(TEST_INSTALLATION_ID);
-        assertThat(newUserList.size(), is(equalTo(1)));
+        Optional<User> newUserOptional = userRepository.findByInstallationId(TEST_INSTALLATION_ID);
+        assertTrue(newUserOptional.isPresent());
 
-        User newUser = newUserList.get(0);
+        //noinspection OptionalGetWithoutIsPresent
+        final User newUser = newUserOptional.get();
         assertThat(newUser.getInstallationId(), is(equalTo(TEST_INSTALLATION_ID)));
         assertThat(newUser.getPin(), is(equalTo(TEST_PIN)));
         assertThat(newUser.getUsername(), is(equalTo(TEST_USERNAME)));
@@ -208,10 +208,11 @@ public class FrontendAPIRestControllerIntegrationTest extends SecurityContextTes
         // Check
         assertThat(userRepository.findByActive(true).size(), is(equalTo(activeBefore)));
 
-        List<User> newUserList = userRepository.findByInstallationId(TEST_INSTALLATION_ID2);
-        assertThat(newUserList.size(), is(equalTo(1)));
+        Optional<User> newUserOptional = userRepository.findByInstallationId(TEST_INSTALLATION_ID2);
+        assertTrue(newUserOptional.isPresent());
 
-        User newUser = newUserList.get(0);
+        //noinspection OptionalGetWithoutIsPresent
+        User newUser = newUserOptional.get();
         assertThat(newUser.getInstallationId(), is(equalTo(TEST_INSTALLATION_ID2)));
         assertThat(newUser.getPin(), is(equalTo(TEST_PIN2)));
         assertThat(newUser.getUsername(), is(equalTo(TEST_USERNAME2)));
@@ -222,14 +223,16 @@ public class FrontendAPIRestControllerIntegrationTest extends SecurityContextTes
         assertThat(newUser.getSerialId(), is(notNullValue())); // cannot check specific value because this might change
 
         // Run - 2: Reset Old values.
-        User user2 = userRepository.findByInstallationId(TEST_INSTALLATION_ID2).get(0);
+        //noinspection OptionalGetWithoutIsPresent
+        User user2 = userRepository.findByInstallationId(TEST_INSTALLATION_ID2).get();
         user2.setActive(true);
         userRepository.save(user2);
         assertThat(userRepository.findByActive(false).size(), is(equalTo(inActiveBefore)));
         assertThat(userRepository.findByActive(true).size(), is(equalTo(activeBefore+1)));
 
         // Check - 2
-        User user3 = userRepository.findByInstallationId(TEST_INSTALLATION_ID2).get(0); // re-read because newUser won't be updated.
+        //noinspection OptionalGetWithoutIsPresent
+        User user3 = userRepository.findByInstallationId(TEST_INSTALLATION_ID2).get(); // re-read because newUser won't be updated.
         assertThat(user3.getPinOld(), is(equalTo(null)));
         assertThat(user3.getUsernameOld(), is(equalTo(null)));
         assertThat(user3.isActive(), is(equalTo(true)));
@@ -243,8 +246,10 @@ public class FrontendAPIRestControllerIntegrationTest extends SecurityContextTes
     public void testDuplicateUser() throws Exception {
 
 
-        // Prepare
+        // Prepare TODO
+        //noinspection unused
         int inActiveBefore = userRepository.findByActive(false).size();
+        //noinspection unused
         int activeBefore = userRepository.findByActive(true).size();
 
         this.mvc.perform(get(REGISTER_USER_URL)
