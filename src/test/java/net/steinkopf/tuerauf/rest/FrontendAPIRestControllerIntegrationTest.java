@@ -11,6 +11,7 @@ import net.steinkopf.tuerauf.service.LogAndMailService;
 import net.steinkopf.tuerauf.util.TestUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,7 +32,9 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.security.Principal;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertNotNull;
@@ -116,6 +119,13 @@ public class FrontendAPIRestControllerIntegrationTest extends SecurityContextTes
 
     @After
     public void tearDown() throws Exception {
+
+        // delete users created by any test.
+        // those from import.sql must not be deleted.
+        Stream.of(0L, 4L, 5L, 6L)
+                .map(id -> userRepository.findOne(id))
+                .filter(user -> user != null)
+                .forEach(user -> userRepository.delete(user));
 
 /* not necessary because of @DirtiesContext:
         frontendAPIRestController.setLocationService(origLocationService);
@@ -227,6 +237,35 @@ public class FrontendAPIRestControllerIntegrationTest extends SecurityContextTes
 
         assertThat(userRepository.findByActive(false).size(), is(equalTo(inActiveBefore)));
         assertThat(userRepository.findByActive(true).size(), is(equalTo(activeBefore + 1)));
+    }
+
+    @Test
+    public void testDuplicateUser() throws Exception {
+
+
+        // Prepare
+        int inActiveBefore = userRepository.findByActive(false).size();
+        int activeBefore = userRepository.findByActive(true).size();
+
+        this.mvc.perform(get(REGISTER_USER_URL)
+                .param("username", TEST_USERNAME)
+                .param("pin", TEST_PIN)
+                .param("installationId", TEST_INSTALLATION_ID)
+                .param("appsecret", "secretApp")
+        )
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("saved")));
+
+        // Run
+        this.mvc.perform(get(REGISTER_USER_URL)
+                .param("username", TEST_USERNAME) // same username
+                .param("pin", TEST_PIN2)
+                .param("installationId", TEST_INSTALLATION_ID2) // different installation id
+                .param("appsecret", "secretApp")
+        )
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("duplicateUsername")))
+                .andExpect(content().string(containsString(TEST_USERNAME)));
     }
 
     // @Test

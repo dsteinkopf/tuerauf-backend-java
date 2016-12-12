@@ -63,11 +63,17 @@ public class FrontendAPIRestController {
 
         logger.debug("registerUser(installationId={}, username={})", installationId, username);
 
-        final User user = userService.registerOrUpdateUser(username, pin, installationId);
+        try {
+            final User user = userService.registerOrUpdateUser(username, pin, installationId);
 
-        return "saved:"
-                + (user.isNewUser() ? " new" : " changed")
-                + (user.isActive() ? " active" : " inactive");
+            return "saved:"
+                    + (user.isNewUser() ? " new" : " changed")
+                    + (user.isActive() ? " active" : " inactive");
+        }
+        catch (UserService.DuplicateUsernameException ex) {
+            logger.debug("duplicateUsernameException: " + ex.getMessage());
+            return "duplicateUsername: " + username;
+        }
     }
 
     /**

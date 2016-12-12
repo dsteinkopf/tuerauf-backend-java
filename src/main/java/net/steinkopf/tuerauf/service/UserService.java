@@ -49,8 +49,10 @@ public class UserService {
      * Creates a user object or - if installationId exists - updates this user.
      *
      * @return created or updated user object.
+     * @throws DuplicateUsernameException if this username already exists.
      */
-    public User registerOrUpdateUser(final String username, final String pin, final String installationId) {
+    public User registerOrUpdateUser(final String username, final String pin, final String installationId)
+            throws DuplicateUsernameException {
 
         Assert.isTrue(username.length() >= 2, "username must be at least 2 characters");
         Assert.isTrue(pin.length() == 4, "pin must be exactly 4 characters");
@@ -59,9 +61,15 @@ public class UserService {
         List<User> existingUser = userRepository.findByInstallationId(installationId); // can only be 1 or none.
         User user;
         if (existingUser.isEmpty()) {
-            // create new User
-            user = new User(installationId);
-            user.setSerialId(findFreeSerialId());
+            existingUser = userRepository.findByUsername(username);  // can only be 1 or none.
+            if (existingUser.isEmpty()) {
+                // create new User
+                user = new User(installationId);
+                user.setSerialId(findFreeSerialId());
+            }
+            else {
+                throw new DuplicateUsernameException("Username " + username + " already exists.");
+            }
         } else {
             // update existing User
             user = existingUser.get(0);
@@ -184,5 +192,13 @@ public class UserService {
      */
     public long getUserCount() {
         return userRepository.count();
+    }
+
+
+    public class DuplicateUsernameException extends Exception {
+
+        DuplicateUsernameException(final String message) {
+            super(message);
+        }
     }
 }

@@ -2,6 +2,8 @@ package net.steinkopf.tuerauf;
 
 /**
  * Constants only useful in tests.
+ *
+ * Values must match to import.sql
  */
 public class TestConstants {
 

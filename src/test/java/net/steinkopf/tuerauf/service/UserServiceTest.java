@@ -5,6 +5,7 @@ import net.steinkopf.tuerauf.TestConstants;
 import net.steinkopf.tuerauf.TueraufApplication;
 import net.steinkopf.tuerauf.data.User;
 import net.steinkopf.tuerauf.repository.UserRepository;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -46,6 +48,17 @@ public class UserServiceTest extends SecurityContextTest {
     public void setup() throws Exception {
 
         super.setup();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+
+        // delete users created by any test.
+        // those from import.sql must not be deleted.
+        Stream.of(0L, 4L, 5L, 6L)
+                .map(id -> userRepository.findOne(id))
+                .filter(user -> user != null)
+                .forEach(user -> userRepository.delete(user));
     }
 
     @Test
@@ -159,5 +172,25 @@ public class UserServiceTest extends SecurityContextTest {
                     break;
             }
         }
+    }
+
+    @Test
+    public void testRegisterOrUpdateUser() throws Exception {
+
+        User user1 = userService.registerOrUpdateUser("User1", "1111", "InstIdUser1");
+        User user1b = userService.registerOrUpdateUser("User1b", "1112", "InstIdUser1");
+        assertThat(user1b.getId(), is(equalTo(user1.getId())));
+
+        User user1read = userRepository.findByInstallationId("InstIdUser1").get(0);
+        assertThat(user1read.getId(), is(equalTo(user1.getId())));
+        assertThat(user1read.getUsername(), is(equalTo("User1b")));
+        assertThat(user1read.getUsernameOld(), is(equalTo("User1")));
+    }
+
+    @Test(expected = UserService.DuplicateUsernameException.class)
+    public void testRegisterOrUpdateUserExists() throws Exception {
+
+        User user1 = userService.registerOrUpdateUser("User1", "1111", "InstIdUser1");
+        User user2 = userService.registerOrUpdateUser("User1", "1112", "InstIdUser2");
     }
 }
