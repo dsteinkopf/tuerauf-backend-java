@@ -33,7 +33,7 @@ cache:
 stages:
   - build
   - test
-#  - deploy
+  - deploy
   - pages
 
 # This will only validate and compile stuff and run e.g. maven-enforcer-plugin.
