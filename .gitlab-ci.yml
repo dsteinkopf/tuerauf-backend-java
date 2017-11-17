@@ -101,6 +101,7 @@ verify:jdk8:
 #    - master
 
 builddocker:
-  tags: dockerCreator
+  tags:
+    - dockerCreator
   stage: buildcontainer
   script: mvn -Dmaven.test.skip=true package docker:build # TODO configure to get package from previous step
