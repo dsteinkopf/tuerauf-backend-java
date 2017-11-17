@@ -56,12 +56,12 @@ stages:
 # Validate merge requests using JDK8
 validate:jdk8:
   <<: *validate
-  image: maven:jdk-8
+  image: maven:3-jdk-8
 
 # Verify merge requests using JDK8
 verify:jdk8:
   <<: *verify
-  image: maven:jdk-8
+  image: maven:3-jdk-8
 
 
 # For `master` branch run `mvn deploy` automatically.
@@ -79,7 +79,7 @@ deploy:jdk8:
   artifacts:
     paths:
     - target/staging
-  image: maven:jdk-8
+  image: maven:3-jdk-8
 
 
 pages:
