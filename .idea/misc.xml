@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="EclipseCodeFormatter">
-    <option name="defaultSettings" value="true" />
     <option name="disabledFileTypes" value="groovy" />
+    <option name="eclipseVersion" value="ECLIPSE_44" />
     <option name="id" value="1447771715963" />
     <option name="importOrderConfigFilePath" value="$PROJECT_DIR$/../mgm/download/lisa.importorder" />
     <option name="importOrderFromFile" value="true" />
@@ -10,9 +10,6 @@
     <option name="pathToConfigFileJava" value="$PROJECT_DIR$/../mgm/download/lisa-formatter.xml" />
     <option name="selectedJavaProfile" value="LiSA" />
     <option name="useOldEclipseJavaFormatter" value="true" />
-  </component>
-  <component name="EntryPointsManager">
-    <entry_points version="2.0" />
   </component>
   <component name="FrameworkDetectionExcludesConfiguration">
     <file type="web" url="file://$PROJECT_DIR$" />
@@ -25,20 +22,7 @@
       </list>
     </option>
   </component>
-  <component name="PDMPlugin">
-    <option name="skipTestSources" value="false" />
-  </component>
-  <component name="ProjectLevelVcsManager" settingsEditedManually="false">
-    <OptionsSetting value="true" id="Add" />
-    <OptionsSetting value="true" id="Remove" />
-    <OptionsSetting value="true" id="Checkout" />
-    <OptionsSetting value="true" id="Update" />
-    <OptionsSetting value="true" id="Status" />
-    <OptionsSetting value="true" id="Edit" />
-    <ConfirmationsSetting value="0" id="Add" />
-    <ConfirmationsSetting value="0" id="Remove" />
-  </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_6" assert-keyword="true" jdk-15="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_6" project-jdk-name="1.8" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/classes" />
   </component>
 </project>

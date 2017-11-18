@@ -29,7 +29,7 @@ public class UserService {
     private LogAndMailService logAndMailService;
 
 
-    final static int MAX_SERIAL_ID = 16;
+    final static int MAX_SERIAL_ID = 20;
 
 
     /**
