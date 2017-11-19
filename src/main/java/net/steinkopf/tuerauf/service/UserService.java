@@ -139,7 +139,11 @@ public class UserService {
         boolean[] serialIdIsUsed = new boolean[MAX_SERIAL_ID];
 
         // mark used serialIds
-        userRepository.findAll().forEach(user -> serialIdIsUsed[user.getSerialId()] = true);
+        for (User user : userRepository.findAll()) {
+            if (user.hasSerialId()) {
+                serialIdIsUsed[user.getSerialId()] = true;
+            }
+        }
 
         // find first free serialId
         for (int serialId = 0; serialId < MAX_SERIAL_ID; serialId++) {
@@ -164,7 +168,7 @@ public class UserService {
 
         String[] pins = new String[MAX_SERIAL_ID];
         for (final User user : userRepository.findAll()) {
-            if (user.getPin() != null && user.isActive()) {
+            if (user.getPin() != null && user.isActive() && user.hasSerialId()) {
                 pins[user.getSerialId()] = user.getPin();
             }
         }

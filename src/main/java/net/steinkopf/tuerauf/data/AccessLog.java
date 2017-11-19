@@ -33,9 +33,10 @@ public class AccessLog {
 
     /**
      * The accessing user.
+     * (was a ref to user.serialId, but this is a bad idea so the serialId of "dead" users can't be reused.)
      */
     @ManyToOne(optional = false)
-    @JoinColumn(referencedColumnName = "serialId")
+    @JoinColumn(referencedColumnName = "id")
     private User user;
 
     @Column(nullable = false)

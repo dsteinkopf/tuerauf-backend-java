@@ -27,10 +27,10 @@ public class User implements Serializable {
 
     /**
      * Incrementing User-ID. Used for Index in Arduino-Pin-Table.
-     * Will be null: 1. before pin is sent to arduino, 2. for dead users.
+     * Will be -1: 1. before it is set (bug), 2. for dead users.
      */
     @Column(unique = true)
-    private int serialId;
+    private int serialId = -1;
 
     /**
      * "Secret key" for identifying a user.
@@ -116,6 +116,10 @@ public class User implements Serializable {
 
     public void setSerialId(final int serialId) {
         this.serialId = serialId;
+    }
+
+    public boolean hasSerialId() {
+        return serialId >= 0;
     }
 
     public String getUsername() {
