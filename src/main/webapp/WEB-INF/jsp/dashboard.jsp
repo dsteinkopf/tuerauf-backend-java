@@ -20,6 +20,7 @@
 
     <table class="users">
         <tr class="head">
+            <td>id</td>
             <td>serialId</td>
             <td>username</td>
             <td>pin</td>
@@ -40,7 +41,8 @@
                 <c:set var="newUserClass" value=" new"/>
             </c:if>
             <tr class="user ${inactiveUserClass} ${newUserClass}">
-                <td>${user.serialId}</td>
+                <td>${user.id}</td>
+                <td><c:if test="${user.hasSerialId()}">${user.serialId}</c:if></td>
                 <td>${user.username}<c:if test="${not empty user.usernameOld}"> (was: ${user.usernameOld})</c:if></td>
                 <td>${user.pin}<c:if test="${not empty user.pinOld}"> (was: ${user.pinOld})</c:if></td>
                 <td>${user.installationId}</td>

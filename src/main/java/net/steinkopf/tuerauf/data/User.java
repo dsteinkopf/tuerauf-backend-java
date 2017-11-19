@@ -29,7 +29,7 @@ public class User implements Serializable {
      * Incrementing User-ID. Used for Index in Arduino-Pin-Table.
      * Will be -1: 1. before it is set (bug), 2. for dead users.
      */
-    @Column(unique = true)
+    @Column()
     private int serialId = -1;
 
     /**

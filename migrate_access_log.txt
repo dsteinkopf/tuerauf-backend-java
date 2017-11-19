@@ -6,5 +6,6 @@ update access_log
 		on user.serial_id = access_log.user_serialid
 	set access_log.user_id = user.id,
 		access_log.access_timestamp = access_log.access_timestamp;
-alter table access_log drop foreign key access_log_ibfk_1;
+alter table access_log drop foreign key FK_644cgstx2fij9skhnc4qs5oaw;
 alter table access_log drop column user_serialid;
+alter table user drop  KEY UK_7n6ivs97k6bsmki3c25m9xvea; # serial_id
