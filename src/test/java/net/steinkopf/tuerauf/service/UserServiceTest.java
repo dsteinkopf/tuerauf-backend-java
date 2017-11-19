@@ -69,8 +69,7 @@ public class UserServiceTest extends SecurityContextTest {
         int inActiveBefore = userRepository.findByActive(false).size();
         int activeBefore = userRepository.findByActive(true).size();
 
-        User user1 = new User("testInstallationId");
-        user1.setUsername("UserServiceTest user");
+        User user1 = new User("testInstallationId", "UserServiceTest user");
         int serialId = userService.findFreeSerialId();
         user1.setSerialId(serialId);
         userRepository.save(user1);
@@ -95,8 +94,7 @@ public class UserServiceTest extends SecurityContextTest {
         int serialIdToBeReused = createThenDeleteSomeUsers("serId ", userList, USER_TO_DELETE);
 
         // re-create
-        User user = new User("testInstId99");
-        user.setUsername("user 99");
+        User user = new User("testInstId99", "user 99");
         int serialId = userService.findFreeSerialId();
         user.setSerialId(serialId);
         userRepository.save(user);
@@ -114,8 +112,7 @@ public class UserServiceTest extends SecurityContextTest {
 
         // first create some Users, then delete one. This serialId should be reused then.
         for (int userNumber = 0; userNumber < 4; userNumber++) {
-            User user = new User(prefix + "InstId" + userNumber);
-            user.setUsername(prefix + "user " + userNumber);
+            User user = new User(prefix + "InstId" + userNumber, prefix + "user " + userNumber);
             int serialId = userService.findFreeSerialId();
             user.setSerialId(serialId);
             userRepository.save(user);
@@ -138,8 +135,7 @@ public class UserServiceTest extends SecurityContextTest {
 
         // create more users than available serialIds
         for (int userNumber = 0; userNumber < UserService.MAX_SERIAL_ID + 1; userNumber++) {
-            User user = new User("ovfl InstId" + userNumber);
-            user.setUsername("ovfl user " + userNumber);
+            User user = new User("ovfl InstId" + userNumber, "ovfl user " + userNumber);
             int serialId = userService.findFreeSerialId();
             user.setSerialId(serialId);
             logger.debug("save user with serialId {}", serialId);

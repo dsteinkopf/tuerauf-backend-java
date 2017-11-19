@@ -29,7 +29,10 @@ public class UserService {
     private LogAndMailService logAndMailService;
 
 
-    final static int MAX_SERIAL_ID = 20;
+    /**
+     * Must be set to same same value as in arduino code.
+     */
+    static final int MAX_SERIAL_ID = 16;
 
 
     /**
@@ -67,7 +70,7 @@ public class UserService {
             existingUser = userRepository.findByUsername(username);  // can only be 1 or none.
             if ( ! existingUser.isPresent()) {
                 // create new User
-                user = new User(installationId);
+                user = new User(installationId, username);
                 user.setSerialId(findFreeSerialId());
             }
             else {
@@ -131,9 +134,9 @@ public class UserService {
      * @throws IndexOutOfBoundsException if all serial ids are used.
      */
     @SuppressWarnings("WeakerAccess")
-    public int findFreeSerialId() throws IndexOutOfBoundsException {
+    public int findFreeSerialId() {
 
-        boolean serialIdIsUsed[] = new boolean[MAX_SERIAL_ID];
+        boolean[] serialIdIsUsed = new boolean[MAX_SERIAL_ID];
 
         // mark used serialIds
         userRepository.findAll().forEach(user -> serialIdIsUsed[user.getSerialId()] = true);
@@ -147,7 +150,6 @@ public class UserService {
         }
 
         // none found
-        // TODO Global Exception Handler
         logAndMailService.logAndMail("too many users - MAX_SERIAL_ID reached", null);
         throw new IndexOutOfBoundsException("too many users - MAX_SERIAL_ID reached");
     }
@@ -175,7 +177,7 @@ public class UserService {
      * @param pinList Pins to be deleted.
      * @exception IllegalArgumentException if any user does not exist.
      */
-    public void deletePins(final String[] pinList) throws IllegalArgumentException {
+    public void deletePins(final String[] pinList) {
 
         IntStream.range(0, pinList.length)
                 .filter(serialId -> pinList[serialId] != null)
