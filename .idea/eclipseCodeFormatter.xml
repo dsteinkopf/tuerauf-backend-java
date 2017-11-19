@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="EclipseCodeFormatterProjectSettings">
+    <option name="selectedGlobalProfile">
+      <Settings>
+        <option name="disabledFileTypes" value="groovy" />
+        <option name="eclipseVersion" value="ECLIPSE_44" />
+        <option name="id" value="1447771715963" />
+        <option name="importOrderConfigFilePath" value="$PROJECT_DIR$/../mgm/download/lisa.importorder" />
+        <option name="importOrderFromFile" value="true" />
+        <option name="name" value="default" />
+        <option name="pathToConfigFileJava" value="$PROJECT_DIR$/../mgm/download/lisa-formatter.xml" />
+        <option name="selectedJavaProfile" value="LiSA" />
+        <option name="useOldEclipseJavaFormatter" value="true" />
+      </Settings>
+    </option>
+  </component>
+</project>
