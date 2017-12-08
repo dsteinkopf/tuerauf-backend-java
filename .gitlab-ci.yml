@@ -104,4 +104,11 @@ builddocker:
   tags:
     - dockerCreator
   stage: buildcontainer
-  script: mvn -Dmaven.test.skip=true package docker:build # TODO configure to get package from previous step
+  script:
+    - mvn -Dmaven.test.skip=true package docker:build # TODO configure to get package from previous step
+    - docker version
+    - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+    - docker tag -f dsteinkopf/tuerauf dsteinkopf/tuerauf:test
+    - docker push dsteinkopf/tuerauf:test
+  only:
+    - ecuberetreat
