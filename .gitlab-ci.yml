@@ -108,7 +108,8 @@ builddocker:
     - mvn -Dmaven.test.skip=true package docker:build # TODO configure to get package from previous step
     - docker version
     - echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin
-    - docker tag -f dsteinkopf/tuerauf dsteinkopf/tuerauf:test
+    - docker tag dsteinkopf/tuerauf dsteinkopf/tuerauf:test
     - docker push dsteinkopf/tuerauf:test
+    # todo cleanup, remove etc.
   only:
     - ecuberetreat
