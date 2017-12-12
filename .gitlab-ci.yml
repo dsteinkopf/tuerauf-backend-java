@@ -89,12 +89,13 @@ deploytest:
     name: test
     url: http://DOCKER_TARGET_HOST:$PORT/tuerauf/dashboard/
   only:
-      - ecuberetreat
+    - ecuberetreat
+  image: kroniak/ssh-client
   script:
     # properties auf den docker host kopieren:
     - ssh $RUNAS_USER@$DOCKER_TARGET_HOST mkdir -p $DOCKERVOLUMES_BASEPATH/tuerauf-$ENVIRONMENT_NAME/
     - >
-     rsync src/main/resources/application-$ENVIRONMENT_NAME.properties
+     scp -v src/main/resources/application-$ENVIRONMENT_NAME.properties
            $RUNAS_USER@$DOCKER_TARGET_HOST:$DOCKERVOLUMES_BASEPATH/tuerauf-$ENVIRONMENT_NAME/application-$ENVIRONMENT_NAME.properties
     # Zertifikate für docker-connection:
     - mkdir $DOCKER_CERT_PATH
