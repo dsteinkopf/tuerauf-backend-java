@@ -33,9 +33,9 @@ cache:
 stages:
   - build
   - test
-#  - deploy
 #  - pages
   - buildcontainer
+  - deploy
 
 # This will only validate and compile stuff and run e.g. maven-enforcer-plugin.
 # Because some enforcer rules might check dependency convergence and class duplications
@@ -65,51 +65,49 @@ verify:jdk8:
   <<: *verify
   image: maven:3-jdk-8
 
-
-# For `master` branch run `mvn deploy` automatically.
-# Here you need to decide whether you want to use JDK7 or 8.
-# To get this working you need to define a volume while configuring your gitlab-ci-multi-runner.
-# Mount your `settings.xml` as `/root/.m2/settings.xml` which holds your secrets.
-# See https://maven.apache.org/settings.html
-#deploy:jdk8:
-#  stage: deploy
-#  script:
-#    # DSTK was: - 'mvn $MAVEN_CLI_OPTS deploy site site:stage'
-#    - 'mvn $MAVEN_CLI_OPTS deploy'
-#  only:
-#    - master
-#  # Archive up the built documentation site.
-#  artifacts:
-#    paths:
-#    - target/staging
-#  image: maven:3-jdk-8
-
-
-#pages:
-#  image: busybox:latest
-#  stage: pages
-#  script:
-#    # Because Maven appends the artifactId automatically to the staging path if you did define a parent pom,
-#    # you might need to use `mv target/staging/YOUR_ARTIFACT_ID public` instead.
-#    - mv target/staging public
-#  dependencies:
-#    - deploy:jdk8
-#  artifacts:
-#    paths:
-#    - public
-#  only:
-#    - master
-
 builddocker:
   tags:
     - dockerCreator
   stage: buildcontainer
   script:
+    # build with maven
     - mvn -Dmaven.test.skip=true package docker:build # TODO configure to get package from previous step
+    # push to docker
     - docker version
     - echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin
     - docker tag dsteinkopf/tuerauf dsteinkopf/tuerauf:test
     - docker push dsteinkopf/tuerauf:test
     # todo cleanup, remove etc.
+  after_script:
+    - docker logout
   only:
     - ecuberetreat
+
+deploytest:
+  stage: deploy
+  environment:
+    name: test
+    url: http://DOCKER_TARGET_HOST:$PORT/tuerauf/dashboard/
+  only:
+      - ecuberetreat
+  script:
+    # properties auf den docker host kopieren:
+    - ssh $RUNAS_USER@$DOCKER_TARGET_HOST mkdir -p $DOCKERVOLUMES_BASEPATH/tuerauf-$ENVIRONMENT_NAME/
+    - >
+     rsync src/main/resources/application-$ENVIRONMENT_NAME.properties
+           $RUNAS_USER@$DOCKER_TARGET_HOST:$DOCKERVOLUMES_BASEPATH/tuerauf-$ENVIRONMENT_NAME/application-$ENVIRONMENT_NAME.properties
+    # Zertifikate für docker-connection:
+    - mkdir $DOCKER_CERT_PATH
+    - echo "$DOCKER_TARGET_HOST_CA" > $DOCKER_CERT_PATH/ca.pem
+    - echo "$DOCKER_TARGET_HOST_CLIENT_CERT" > $DOCKER_CERT_PATH/cert.pem
+    - echo "$DOCKER_TARGET_HOST_CLIENT_KEY" > $DOCKER_CERT_PATH/key.pem
+    # deploy:
+    - docker-compose -f src/main/docker/docker-compose.yml --tls up -d --force-recreate
+  after_script:
+    - rm -rf $DOCKER_CERT_PATH
+  variables:
+    # see https://medium.com/@Empanado/simple-continuous-deployment-with-docker-compose-docker-machine-and-gitlab-ci-9047765322e1
+    ENVIRONMENT_NAME: test
+    DOCKER_TLS_VERIFY: "1"
+    DOCKER_HOST: "tcp://$DOCKER_TARGET_HOST:2376"
+    DOCKER_CERT_PATH: "certs"

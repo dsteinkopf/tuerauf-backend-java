@@ -69,6 +69,13 @@ Desktop.ini
 *~
 .merge_file*
 
+certs
+
+######################
+# IntelliJ
+######################
+.idea/sonarlint/issuestore
+
 ######################
 # Gradle Wrapper
 ######################
