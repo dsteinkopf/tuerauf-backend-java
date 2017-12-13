@@ -92,8 +92,6 @@ deploytest:
     - ecuberetreat
   image: dsteinkopf/gitlab-ci-compose
   before_script:
-    - docker info
-    - docker-compose --version
     # Install ssh-agent if not already installed, it is required by Docker.
     # (change apt-get to yum if you use a CentOS-based image)
     - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
@@ -131,6 +129,9 @@ deploytest:
     - echo "$DOCKER_TARGET_HOST_CA" > $DOCKER_CERT_PATH/ca.pem
     - echo "$DOCKER_TARGET_HOST_CLIENT_CERT" > $DOCKER_CERT_PATH/cert.pem
     - echo "$DOCKER_TARGET_HOST_CLIENT_KEY" > $DOCKER_CERT_PATH/key.pem
+    - docker version
+    - docker info
+    - docker-compose --version
     # deploy:
     - ( cd src/main/docker && docker-compose up -d --force-recreate )
   after_script:
@@ -140,4 +141,4 @@ deploytest:
     ENVIRONMENT_NAME: test
     DOCKER_TLS_VERIFY: "1"
     DOCKER_HOST: "tcp://$DOCKER_TARGET_HOST:2376"
-    DOCKER_CERT_PATH: "./certs"
+    DOCKER_CERT_PATH: "certs"
