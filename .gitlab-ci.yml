@@ -87,23 +87,51 @@ deploytest:
   stage: deploy
   environment:
     name: test
-    url: http://DOCKER_TARGET_HOST:$PORT/tuerauf/dashboard/
+    url: http://$DOCKER_TARGET_HOST:$DOCKER_TARGET_HOST_PORT/tuerauf/dashboard/
   only:
     - ecuberetreat
-  image: kroniak/ssh-client
+  tags:
+    # todo use docker image (must contain ssh, scp + docker + docker-compose)
+    - dockerCreator
+  before_script:
+    # Install ssh-agent if not already installed, it is required by Docker.
+    # (change apt-get to yum if you use a CentOS-based image)
+    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+
+    # Run ssh-agent (inside the build environment)
+    - eval $(ssh-agent -s)
+
+    # Add the SSH key stored in SSH_PRIVATE_KEY variable to the agent store
+    - ssh-add <(echo "$DOCKER_TARGET_HOST_SSH_PRIVATE_KEY")
+
+    # For Docker builds disable host key checking. Be aware that by adding that
+    # you are suspectible to man-in-the-middle attacks.
+    # WARNING: Use this only with the Docker executor, if you use it with shell
+    # you will overwrite your user's SSH config.
+    - mkdir -p ~/.ssh
+    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+    # In order to properly check the server's host key, assuming you created the
+    # SSH_SERVER_HOSTKEYS variable previously, uncomment the following two lines
+    # instead.
+    # - mkdir -p ~/.ssh
+    # - '[[ -f /.dockerenv ]] && echo "$SSH_SERVER_HOSTKEYS" > ~/.ssh/known_hosts'
   script:
     # properties auf den docker host kopieren:
-    - ssh $RUNAS_USER@$DOCKER_TARGET_HOST mkdir -p $DOCKERVOLUMES_BASEPATH/tuerauf-$ENVIRONMENT_NAME/
+    - ssh $DOCKER_TARGET_HOST_USER@$DOCKER_TARGET_HOST mkdir -p $DOCKERVOLUMES_BASEPATH/tuerauf-$ENVIRONMENT_NAME/
+    - echo ssh $DOCKER_TARGET_HOST_USER@$DOCKER_TARGET_HOST mkdir -p $DOCKERVOLUMES_BASEPATH/tuerauf-$ENVIRONMENT_NAME/
     - >
      scp -v src/main/resources/application-$ENVIRONMENT_NAME.properties
-           $RUNAS_USER@$DOCKER_TARGET_HOST:$DOCKERVOLUMES_BASEPATH/tuerauf-$ENVIRONMENT_NAME/application-$ENVIRONMENT_NAME.properties
+           $DOCKER_TARGET_HOST_USER@$DOCKER_TARGET_HOST:$DOCKERVOLUMES_BASEPATH/tuerauf-$ENVIRONMENT_NAME/application-$ENVIRONMENT_NAME.properties
+    - >
+     echo scp -v src/main/resources/application-$ENVIRONMENT_NAME.properties
+           $DOCKER_TARGET_HOST_USER@$DOCKER_TARGET_HOST:$DOCKERVOLUMES_BASEPATH/tuerauf-$ENVIRONMENT_NAME/application-$ENVIRONMENT_NAME.properties
     # Zertifikate für docker-connection:
     - mkdir $DOCKER_CERT_PATH
     - echo "$DOCKER_TARGET_HOST_CA" > $DOCKER_CERT_PATH/ca.pem
     - echo "$DOCKER_TARGET_HOST_CLIENT_CERT" > $DOCKER_CERT_PATH/cert.pem
     - echo "$DOCKER_TARGET_HOST_CLIENT_KEY" > $DOCKER_CERT_PATH/key.pem
     # deploy:
-    - docker-compose -f src/main/docker/docker-compose.yml --tls up -d --force-recreate
+    - ( cd src/main/docker && docker-compose up -d --force-recreate )
   after_script:
     - rm -rf $DOCKER_CERT_PATH
   variables:
@@ -111,4 +139,4 @@ deploytest:
     ENVIRONMENT_NAME: test
     DOCKER_TLS_VERIFY: "1"
     DOCKER_HOST: "tcp://$DOCKER_TARGET_HOST:2376"
-    DOCKER_CERT_PATH: "certs"
+    DOCKER_CERT_PATH: "./certs"

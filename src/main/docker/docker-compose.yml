@@ -30,7 +30,7 @@ services:
     links:
       - 'mysql'
     ports:
-      - ${PORT}:8080
+      - ${DOCKER_TARGET_HOST_PORT}:8080
     restart: always
     volumes:
       - ${DOCKERVOLUMES_BASEPATH}/tuerauf-${ENVIRONMENT_NAME}/application-${ENVIRONMENT_NAME}.properties:/usr/local/tomcat/conf/application-${ENVIRONMENT_NAME}.properties:ro
