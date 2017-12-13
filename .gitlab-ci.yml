@@ -122,12 +122,8 @@ deploytest:
   script:
     # properties auf den docker host kopieren:
     - ssh $DOCKER_TARGET_HOST_USER@$DOCKER_TARGET_HOST mkdir -p $DOCKERVOLUMES_BASEPATH/tuerauf-$ENVIRONMENT_NAME/
-    - >
-     echo scp -v src/main/resources/application-$ENVIRONMENT_NAME.properties
-           $DOCKER_TARGET_HOST_USER@$DOCKER_TARGET_HOST:$DOCKERVOLUMES_BASEPATH/tuerauf-$ENVIRONMENT_NAME/application-$ENVIRONMENT_NAME.properties
-    - >
-     scp -v src/main/resources/application-$ENVIRONMENT_NAME.properties
-           $DOCKER_TARGET_HOST_USER@$DOCKER_TARGET_HOST:$DOCKERVOLUMES_BASEPATH/tuerauf-$ENVIRONMENT_NAME/application-$ENVIRONMENT_NAME.properties
+    - echo scp -v src/main/resources/application-$ENVIRONMENT_NAME.properties $DOCKER_TARGET_HOST_USER@$DOCKER_TARGET_HOST:$DOCKERVOLUMES_BASEPATH/tuerauf-$ENVIRONMENT_NAME/application-$ENVIRONMENT_NAME.properties
+    - scp -v src/main/resources/application-$ENVIRONMENT_NAME.properties $DOCKER_TARGET_HOST_USER@$DOCKER_TARGET_HOST:$DOCKERVOLUMES_BASEPATH/tuerauf-$ENVIRONMENT_NAME/application-$ENVIRONMENT_NAME.properties
     - docker version
     - docker info
     - docker-compose --version
