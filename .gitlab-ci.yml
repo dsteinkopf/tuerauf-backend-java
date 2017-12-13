@@ -90,9 +90,7 @@ deploytest:
     url: http://$DOCKER_TARGET_HOST:$DOCKER_TARGET_HOST_PORT/tuerauf/dashboard/
   only:
     - ecuberetreat
-  tags:
-    # todo use docker image (must contain ssh, scp + docker + docker-compose)
-    - dockerCreator
+  image: jonaskello/docker-and-compose:1.12.1-1.8.0
   before_script:
     # Install ssh-agent if not already installed, it is required by Docker.
     # (change apt-get to yum if you use a CentOS-based image)
