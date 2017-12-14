@@ -127,7 +127,8 @@ deploytest:
     - docker info
     - docker-compose --version
     # deploy:
-    - docker-compose -f src/main/docker/docker-compose.yml up -d --force-recreate
+    - docker-compose -f src/main/docker/docker-compose.yml pull
+    - docker-compose -f src/main/docker/docker-compose.yml up -d --force-recreate --remove-orphans
   after_script:
     - rm -rf $DOCKER_CERT_PATH
   variables:
