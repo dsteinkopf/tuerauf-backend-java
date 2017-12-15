@@ -27,9 +27,6 @@ variables:
   ENVIRONMENT_NAME: $CI_ENVIRONMENT_NAME
   IMAGE_NAME: dsteinkopf/tuerauf
   IMAGE_NAME_WITH_TAG: $IMAGE_NAME:$ENVIRONMENT_NAME-$CI_COMMIT_SHA
-  DOCKER_TLS_VERIFY: "1"
-  DOCKER_HOST: "tcp://$DOCKER_TARGET_HOST:2376"
-  DOCKER_CERT_PATH: "certs"
 
 # Cache downloaded dependencies and plugins between builds.
 # To keep cache across branches add 'key: "$CI_JOB_REF_NAME"'
@@ -141,3 +138,7 @@ deploytest:
     - docker-compose -f src/main/docker/docker-compose.yml up -d --force-recreate --remove-orphans
   after_script:
     - rm -rf $DOCKER_CERT_PATH
+  variables:
+    DOCKER_TLS_VERIFY: "1"
+    DOCKER_HOST: "tcp://$DOCKER_TARGET_HOST:2376"
+    DOCKER_CERT_PATH: "certs"
