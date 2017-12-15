@@ -23,6 +23,13 @@ variables:
   # when running from the command line.
   # `installAtEnd` and `deployAtEnd` are only effective with recent version of the corresponding plugins.
   MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version -DinstallAtEnd=true -DdeployAtEnd=true"
+  # for deployment:
+  ENVIRONMENT_NAME: $CI_ENVIRONMENT_NAME
+  IMAGE_NAME: dsteinkopf/tuerauf
+  IMAGE_NAME_WITH_TAG: $IMAGE_NAME:$ENVIRONMENT_NAME-$CI_COMMIT_SHA
+  DOCKER_TLS_VERIFY: "1"
+  DOCKER_HOST: "tcp://$DOCKER_TARGET_HOST:2376"
+  DOCKER_CERT_PATH: "certs"
 
 # Cache downloaded dependencies and plugins between builds.
 # To keep cache across branches add 'key: "$CI_JOB_REF_NAME"'
@@ -93,6 +100,8 @@ deploytest:
     - ecuberetreat
   image: dsteinkopf/gitlab-ci-compose
   before_script:
+    # see https://medium.com/@Empanado/simple-continuous-deployment-with-docker-compose-docker-machine-and-gitlab-ci-9047765322e1
+
     # Install ssh-agent if not already installed, it is required by Docker.
     # (change apt-get to yum if you use a CentOS-based image)
     - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
@@ -132,11 +141,3 @@ deploytest:
     - docker-compose -f src/main/docker/docker-compose.yml up -d --force-recreate --remove-orphans
   after_script:
     - rm -rf $DOCKER_CERT_PATH
-  variables:
-    # see https://medium.com/@Empanado/simple-continuous-deployment-with-docker-compose-docker-machine-and-gitlab-ci-9047765322e1
-    ENVIRONMENT_NAME: $CI_ENVIRONMENT_NAME
-    IMAGE_NAME: dsteinkopf/tuerauf
-    IMAGE_NAME_WITH_TAG: $IMAGE_NAME:$ENVIRONMENT_NAME-$CI_COMMIT_SHA
-    DOCKER_TLS_VERIFY: "1"
-    DOCKER_HOST: "tcp://$DOCKER_TARGET_HOST:2376"
-    DOCKER_CERT_PATH: "certs"
