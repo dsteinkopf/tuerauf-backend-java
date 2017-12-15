@@ -75,6 +75,7 @@ builddocker:
     # push to docker
     - docker version
     - echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin
+    - echo docker tag $IMAGE_NAME $IMAGE_NAME_WITH_TAG
     - docker tag $IMAGE_NAME $IMAGE_NAME_WITH_TAG
     - docker push $IMAGE_NAME_WITH_TAG
     # todo cleanup, remove etc.
