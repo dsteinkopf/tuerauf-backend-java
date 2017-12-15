@@ -24,7 +24,7 @@ variables:
   # `installAtEnd` and `deployAtEnd` are only effective with recent version of the corresponding plugins.
   MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version -DinstallAtEnd=true -DdeployAtEnd=true"
   # for deployment:
-  ENVIRONMENT_NAME: $CI_ENVIRONMENT_NAME
+  ENVIRONMENT_NAME: test
   IMAGE_NAME: dsteinkopf/tuerauf
   IMAGE_NAME_WITH_TAG: $IMAGE_NAME:$ENVIRONMENT_NAME-$CI_COMMIT_SHA
 
