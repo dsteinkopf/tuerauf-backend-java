@@ -75,8 +75,8 @@ builddocker:
     # push to docker
     - docker version
     - echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin
-    - docker tag ${IMAGE_NAME}
-    - docker push ${IMAGE_NAME}
+    - docker tag ${IMAGE_NAME} ${IMAGE_NAME_WITH_TAG}
+    - docker push ${IMAGE_NAME_WITH_TAG}
     # todo cleanup, remove etc.
   after_script:
     - docker logout
@@ -134,7 +134,8 @@ deploytest:
   variables:
     # see https://medium.com/@Empanado/simple-continuous-deployment-with-docker-compose-docker-machine-and-gitlab-ci-9047765322e1
     ENVIRONMENT_NAME: test
-    IMAGE_NAME: dsteinkopf/tuerauf:${ENVIRONMENT_NAME}-${CI_COMMIT_SHA}
+    IMAGE_NAME: dsteinkopf/tuerauf
+    IMAGE_NAME_WITH_TAG: ${IMAGE_NAME}:${ENVIRONMENT_NAME}-${CI_COMMIT_SHA}
     DOCKER_TLS_VERIFY: "1"
     DOCKER_HOST: "tcp://$DOCKER_TARGET_HOST:2376"
     DOCKER_CERT_PATH: "certs"

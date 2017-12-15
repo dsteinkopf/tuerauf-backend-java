@@ -20,7 +20,7 @@ services:
 
   tuerauf:
 
-    image: ${IMAGE_NAME}
+    image: ${IMAGE_NAME_WITH_TAG}
     environment:
       - SPRING_CONFIG_LOCATION=/usr/local/tomcat/conf/application-${ENVIRONMENT_NAME}.properties
       - SPRING_PROFILES_ACTIVE=${ENVIRONMENT_NAME}
