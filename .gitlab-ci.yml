@@ -85,7 +85,9 @@ builddocker:
     - docker push $DOCKER_REGISTRY$IMAGE_NAME_WITH_TAG
     # todo cleanup, remove etc.
   after_script:
-    - docker logout
+    - docker logout $DOCKER_REGISTRY
+    - docker images -qf dangling=true | xargs --no-run-if-empty docker rmi
+    - docker ps -aqf status=exited | xargs --no-run-if-empty docker rm
   only:
     - ecuberetreat
 
@@ -131,6 +133,7 @@ deploytest:
     # properties auf den docker host kopieren:
     - ssh $DOCKER_TARGET_HOST_USER@$DOCKER_TARGET_HOST mkdir -p $DOCKERVOLUMES_BASEPATH/tuerauf-$ENVIRONMENT_NAME/
     - scp src/main/resources/application-$ENVIRONMENT_NAME.properties $DOCKER_TARGET_HOST_USER@$DOCKER_TARGET_HOST:$DOCKERVOLUMES_BASEPATH/tuerauf-$ENVIRONMENT_NAME/application-$ENVIRONMENT_NAME.properties
+    - echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin $DOCKER_REGISTRY
     - docker version
     - docker info
     - docker-compose --version
@@ -138,6 +141,7 @@ deploytest:
     - docker-compose -f src/main/docker/docker-compose.yml pull
     - docker-compose -f src/main/docker/docker-compose.yml up -d --force-recreate --remove-orphans
   after_script:
+    - docker logout $DOCKER_REGISTRY
     - rm -rf $DOCKER_CERT_PATH
   variables:
     DOCKER_TLS_VERIFY: "1"
