@@ -80,8 +80,8 @@ builddocker:
     - docker version
     - echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin
     - echo docker tag $IMAGE_NAME $IMAGE_NAME_WITH_TAG
-    - docker tag $IMAGE_NAME $IMAGE_NAME_WITH_TAG
-    - docker push $IMAGE_NAME_WITH_TAG
+    - docker tag $IMAGE_NAME $DOCKER_REGISTRY$IMAGE_NAME_WITH_TAG
+    - docker push $DOCKER_REGISTRY$IMAGE_NAME_WITH_TAG
     # todo cleanup, remove etc.
   after_script:
     - docker logout
@@ -142,3 +142,4 @@ deploytest:
     DOCKER_TLS_VERIFY: "1"
     DOCKER_HOST: "tcp://$DOCKER_TARGET_HOST:2376"
     DOCKER_CERT_PATH: "certs"
+    DOCKER_REGISTRY: https://gitlab.steinkopf.net:8093/
