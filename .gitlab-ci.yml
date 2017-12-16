@@ -142,4 +142,4 @@ deploytest:
     DOCKER_TLS_VERIFY: "1"
     DOCKER_HOST: "tcp://$DOCKER_TARGET_HOST:2376"
     DOCKER_CERT_PATH: "certs"
-    DOCKER_REGISTRY: https://gitlab.steinkopf.net:8093/
+    DOCKER_REGISTRY: gitlab.steinkopf.net:8093/stk/tuerauf-backend-java:
