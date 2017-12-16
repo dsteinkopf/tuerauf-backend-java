@@ -27,7 +27,7 @@ variables:
   ENVIRONMENT_NAME: test
   IMAGE_NAME: dsteinkopf/tuerauf
   IMAGE_NAME_WITH_TAG: $IMAGE_NAME:$ENVIRONMENT_NAME-$CI_COMMIT_SHA
-  DOCKER_REGISTRY: "gitlab.steinkopf.net:8093/stk/tuerauf-backend-java:"
+  DOCKER_REGISTRY: "gitlab.steinkopf.net:8093/stk/tuerauf-backend-java/"
 
 # Cache downloaded dependencies and plugins between builds.
 # To keep cache across branches add 'key: "$CI_JOB_REF_NAME"'
