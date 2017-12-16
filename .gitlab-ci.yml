@@ -79,7 +79,7 @@ builddocker:
     - mvn -Dmaven.test.skip=true package docker:build # TODO configure to get package from previous step
     # push to docker
     - docker version
-    - echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin
+    - echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin $DOCKER_REGISTRY
     - echo docker tag $IMAGE_NAME $DOCKER_REGISTRY$IMAGE_NAME_WITH_TAG
     - docker tag $IMAGE_NAME $DOCKER_REGISTRY$IMAGE_NAME_WITH_TAG
     - docker push $DOCKER_REGISTRY$IMAGE_NAME_WITH_TAG
