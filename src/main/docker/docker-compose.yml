@@ -1,0 +1,38 @@
+version: '2'
+services:
+
+  mysql:
+
+    # see https://hub.docker.com/_/mysql/
+    image: mysql:5.7
+    mem_limit: 300m
+    environment:
+      - MYSQL_ROOT_PASSWORD=verysecretdbpw
+      # name of a database to be created on image startup
+      - MYSQL_DATABASE=tuerauf
+    ports:
+      - 3306:3306
+    restart: always
+    volumes:
+      #- /opt/dockervolumes/tuerauf-prod/var_lib_mysql:/var/lib/mysql
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+
+  tuerauf:
+
+    image: ${DOCKER_REGISTRY}${IMAGE_NAME_WITH_TAG}
+    environment:
+      - SPRING_CONFIG_LOCATION=/usr/local/tomcat/conf/application-${ENVIRONMENT_NAME}.properties
+      - SPRING_PROFILES_ACTIVE=${ENVIRONMENT_NAME}
+      - CATALINA_OPTS=
+          -Xmx512m
+          -Xms64m
+    links:
+      - mysql
+    ports:
+      - ${DOCKER_TARGET_HOST_PORT}:8080
+    restart: always
+    volumes:
+      - ${DOCKERVOLUMES_BASEPATH}/tuerauf-${ENVIRONMENT_NAME}/application-${ENVIRONMENT_NAME}.properties:/usr/local/tomcat/conf/application-${ENVIRONMENT_NAME}.properties:ro
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro

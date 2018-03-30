@@ -1,0 +1,148 @@
+# This file is a template, and might need editing before it works on your project.
+---
+# Build JAVA applications using Apache Maven (http://maven.apache.org)
+# For docker image tags see https://hub.docker.com/_/maven/
+#
+# For general lifecycle information see https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html
+#
+# This template will build and test your projects as well as create the documentation.
+#
+# * Caches downloaded dependencies and plugins between invocation.
+# * Verify but don't deploy merge requests.
+# * Deploy built artifacts from master branch only.
+# * Shows how to use multiple jobs in test stage for verifying functionality
+#   with multiple JDKs.
+# * Uses site:stage to collect the documentation for multi-module projects.
+# * Publishes the documentation for `master` branch.
+
+variables:
+  # This will supress any download for dependencies and plugins or upload messages which would clutter the console log.
+  # `showDateTime` will show the passed time in milliseconds. You need to specify `--batch-mode` to make this work.
+  MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
+  # As of Maven 3.3.0 instead of this you may define these options in `.mvn/maven.config` so the same config is used
+  # when running from the command line.
+  # `installAtEnd` and `deployAtEnd` are only effective with recent version of the corresponding plugins.
+  MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version -DinstallAtEnd=true -DdeployAtEnd=true"
+  # for deployment:
+  ENVIRONMENT_NAME: test
+  IMAGE_NAME: dsteinkopf/tuerauf
+  IMAGE_NAME_WITH_TAG: $IMAGE_NAME:$ENVIRONMENT_NAME-$CI_COMMIT_SHA
+  DOCKER_REGISTRY: "gitlab.steinkopf.net:8093/stk/tuerauf-backend-java/"
+
+# Cache downloaded dependencies and plugins between builds.
+# To keep cache across branches add 'key: "$CI_JOB_REF_NAME"'
+cache:
+  paths:
+    - .m2/repository
+
+stages:
+  - build
+  - test
+#  - pages
+  - buildcontainer
+  - deploy
+
+# This will only validate and compile stuff and run e.g. maven-enforcer-plugin.
+# Because some enforcer rules might check dependency convergence and class duplications
+# we use `test-compile` here instead of `validate`, so the correct classpath is picked up.
+.validate: &validate
+  stage: build
+  script:
+    - 'mvn $MAVEN_CLI_OPTS test-compile'
+
+# For merge requests do not `deploy` but only run `verify`.
+# See https://maven.apache.org/guides/introduction/introduction-to-the-lifecycle.html
+.verify: &verify
+  stage: test
+  script:
+    # DSTK was: - 'mvn $MAVEN_CLI_OPTS verify site site:stage'
+    - 'mvn $MAVEN_CLI_OPTS verify'
+  except:
+    - master
+
+# Validate merge requests using JDK8
+validate:jdk8:
+  <<: *validate
+  image: maven:3-jdk-8
+
+# Verify merge requests using JDK8
+verify:jdk8:
+  <<: *verify
+  image: maven:3-jdk-8
+
+builddocker:
+  tags:
+    - dockerCreator
+  stage: buildcontainer
+  script:
+    # build with maven
+    - mvn -Dmaven.test.skip=true package docker:build # TODO configure to get package from previous step
+    # push to docker
+    - docker version
+    - echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin $DOCKER_REGISTRY
+    - echo docker tag $IMAGE_NAME $DOCKER_REGISTRY$IMAGE_NAME_WITH_TAG
+    - docker tag $IMAGE_NAME $DOCKER_REGISTRY$IMAGE_NAME_WITH_TAG
+    - docker push $DOCKER_REGISTRY$IMAGE_NAME_WITH_TAG
+  after_script:
+    - docker logout $DOCKER_REGISTRY
+    - docker images -qf dangling=true | xargs --no-run-if-empty docker rmi
+    - docker ps -aqf status=exited | xargs --no-run-if-empty docker rm
+  only:
+    - ecuberetreat
+
+deploytest:
+  stage: deploy
+  environment:
+    name: test
+    url: http://$DOCKER_TARGET_HOST:$DOCKER_TARGET_HOST_PORT/tuerauf/dashboard/
+  only:
+    - ecuberetreat
+  image: dsteinkopf/gitlab-ci-compose
+  before_script:
+    # see https://medium.com/@Empanado/simple-continuous-deployment-with-docker-compose-docker-machine-and-gitlab-ci-9047765322e1
+
+    # Install ssh-agent if not already installed, it is required by Docker.
+    # (change apt-get to yum if you use a CentOS-based image)
+    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+
+    # Run ssh-agent (inside the build environment)
+    - eval $(ssh-agent -s)
+
+    # Add the SSH key stored in SSH_PRIVATE_KEY variable to the agent store
+    - echo "$DOCKER_TARGET_HOST_SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+
+    # For Docker builds disable host key checking. Be aware that by adding that
+    # you are suspectible to man-in-the-middle attacks.
+    # WARNING: Use this only with the Docker executor, if you use it with shell
+    # you will overwrite your user's SSH config.
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+    # In order to properly check the server's host key, assuming you created the
+    # SSH_SERVER_HOSTKEYS variable previously, uncomment the following two lines
+    # instead.
+    # - mkdir -p ~/.ssh
+    # - '[[ -f /.dockerenv ]] && echo "$SSH_SERVER_HOSTKEYS" > ~/.ssh/known_hosts'
+    # Zertifikate für docker-connection:
+    - mkdir $DOCKER_CERT_PATH
+    - echo "$DOCKER_TARGET_HOST_CA" > $DOCKER_CERT_PATH/ca.pem
+    - echo "$DOCKER_TARGET_HOST_CLIENT_CERT" > $DOCKER_CERT_PATH/cert.pem
+    - echo "$DOCKER_TARGET_HOST_CLIENT_KEY" > $DOCKER_CERT_PATH/key.pem
+  script:
+    # properties auf den docker host kopieren:
+    - ssh $DOCKER_TARGET_HOST_USER@$DOCKER_TARGET_HOST mkdir -p $DOCKERVOLUMES_BASEPATH/tuerauf-$ENVIRONMENT_NAME/
+    - scp src/main/resources/application-$ENVIRONMENT_NAME.properties $DOCKER_TARGET_HOST_USER@$DOCKER_TARGET_HOST:$DOCKERVOLUMES_BASEPATH/tuerauf-$ENVIRONMENT_NAME/application-$ENVIRONMENT_NAME.properties
+    - echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin $DOCKER_REGISTRY
+    - docker version
+    - docker info
+    - docker-compose --version
+    # deploy:
+    - docker-compose -f src/main/docker/docker-compose.yml pull
+    - docker-compose -f src/main/docker/docker-compose.yml up -d --force-recreate --remove-orphans
+  after_script:
+    - docker logout $DOCKER_REGISTRY
+    - rm -rf $DOCKER_CERT_PATH
+  variables:
+    DOCKER_TLS_VERIFY: "1"
+    DOCKER_HOST: "tcp://$DOCKER_TARGET_HOST:2376"
+    DOCKER_CERT_PATH: "certs"
