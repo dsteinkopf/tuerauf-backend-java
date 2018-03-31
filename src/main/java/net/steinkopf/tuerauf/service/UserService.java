@@ -228,8 +228,8 @@ public class UserService {
         // check if join is possible
         if (newUser.equals(existingUser)) {
             throw new IllegalArgumentException(
-                String.format("New user %s and existing user %s are must be different.",
-                    newUser, existingUser));
+                String.format("New user %s and existing user %s must be different.",
+                    newUser.getUsername(), existingUser.getUsername()));
         }
         if (accessLogRepository.countByUser(newUser) != 0) {
             throw new IllegalArgumentException(
@@ -237,7 +237,7 @@ public class UserService {
         }
 
         // remove new user:
-        userRepository.deleteById(newUserId);
+        userRepository.delete(newUser);
 
         // now join:
         existingUser.setPinOld(existingUser.getPin());
@@ -247,6 +247,7 @@ public class UserService {
         existingUser.setInstallationId(newUser.getInstallationId());
         // serial id is kept in existing user.
         // activation state is unchanged.
+        userRepository.save(existingUser);
     }
 
     public class DuplicateUsernameException extends Exception {

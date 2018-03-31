@@ -24,6 +24,4 @@ public interface UserRepository extends PagingAndSortingRepository<User, Long> {
     long countById(long id);
 
     Optional<User> findByUsername(String username);
-
-    void deleteById(long id);
 }

@@ -94,4 +94,25 @@
     <spring:url value="/accessLog/" var="accessLogUrl"/>
     <a href="${accessLogUrl}">goto access logs</a>
 
+
+    <h2>Join Users:</h2>
+
+    <form id="joinUsers" action="joinUsers" method="post" commandName="joinUsers">
+        Join new user
+        <select name="newUserId">
+            <c:forEach var="user" items="${users}">
+                <option value="${user.id}">${user.username}<c:if test="${user.newUser}"> - new</c:if> (${user.id})</option>
+            </c:forEach>
+        </select>
+        to existing user
+        <select name="existingUserId">
+            <c:forEach var="user" items="${users}">
+                <option value="${user.id}">${user.username} (${user.id})</option>
+            </c:forEach>
+        </select>:
+        <input type="submit" name="submit" value="Join Now"/>
+
+        <input type="hidden" name="nocsrf${_csrf.parameterName}" value="${_csrf.token}"/>
+    </form>
+
 </template:page>

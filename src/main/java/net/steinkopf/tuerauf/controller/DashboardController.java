@@ -181,10 +181,39 @@ public class DashboardController {
 
         // e.g. tuerauf:///?https%3A%2F%2Fbackend.myhome%3A39931%2Ftuerauf%2F/MyAppsecret
         final String myUrl = externalUrl + (externalUrl.endsWith("/") ? "" : "/");
-        final String prefex = prodVersion ? "tuerauf" : "tuerauftest";
-        final String configLink = String.format("%s:///?%s/%s", prefex, URLEncoder.encode(myUrl, "UTF-8"), appsecret);
+        final String prefix = prodVersion ? "tuerauf" : "tuerauftest";
+        final String configLink = String.format("%s:///?%s/%s", prefix, URLEncoder.encode(myUrl, "UTF-8"), appsecret);
 
         attr.addFlashAttribute(MESSAGE, String.format("Secret config Link:<br>%s", configLink));
+
+        return REDIRECT_TO_DASHBOARD;
+    }
+
+    /**
+     * Join users.
+     */
+    @RequestMapping(value = "/joinUsers", method = RequestMethod.POST)
+    public String joinUsers(
+        @RequestParam("newUserId") String newUserIdString,
+        @RequestParam("existingUserId") String existingUserIdString,
+        RedirectAttributes attr) {
+
+        try {
+            final long newUserId = Integer.parseInt(newUserIdString);
+            final long existingUserId = Integer.parseInt(existingUserIdString);
+
+            // fetch for display before it is deleted resp. updated by join operation.
+            final User newUser = userRepository.findOne(newUserId);
+            final User existingUser = userRepository.findOne(existingUserId);
+
+            userService.joinNewUserToExistingUser(newUserId, existingUserId);
+
+            attr.addFlashAttribute(MESSAGE, String.format("Successfully joined user %s (%d) to %s (%d).",
+                newUser.getUsername(), newUserId, existingUser.getUsername(), existingUserId));
+        }
+        catch (IllegalArgumentException ex) {
+            attr.addFlashAttribute(MESSAGE, ex.getMessage());
+        }
 
         return REDIRECT_TO_DASHBOARD;
     }
