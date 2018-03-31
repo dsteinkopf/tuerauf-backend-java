@@ -1,8 +1,5 @@
 package net.steinkopf.tuerauf.repository;
 
-import java.util.List;
-import java.util.Optional;
-
 import net.steinkopf.tuerauf.data.AccessLog;
 import net.steinkopf.tuerauf.data.User;
 import org.springframework.data.repository.PagingAndSortingRepository;

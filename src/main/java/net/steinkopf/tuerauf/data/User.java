@@ -194,16 +194,8 @@ public class User implements Serializable {
         return creationTime;
     }
 
-    public void setCreationTime(final Date creationTime) {
-        this.creationTime = creationTime;
-    }
-
     public Date getModificationTime() {
         return modificationTime;
-    }
-
-    public void setModificationTime(final Date modificationTime) {
-        this.modificationTime = modificationTime;
     }
 
     private void markAsChanged() {

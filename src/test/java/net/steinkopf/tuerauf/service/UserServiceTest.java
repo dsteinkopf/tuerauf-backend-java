@@ -33,6 +33,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * Integration tests for {@link UserService}.
  */
+@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = TueraufApplication.class)
 public class UserServiceTest extends SecurityContextTest {
@@ -61,7 +62,7 @@ public class UserServiceTest extends SecurityContextTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
 
         // delete users created by any test.
         // those from import.sql must not be deleted.
@@ -72,7 +73,7 @@ public class UserServiceTest extends SecurityContextTest {
     }
 
     @Test
-    public void testActivateAllNew() throws Exception {
+    public void testActivateAllNew() {
 
         // Prepare
         int inActiveBefore = userRepository.findByActive(false).size();
@@ -95,7 +96,7 @@ public class UserServiceTest extends SecurityContextTest {
     }
 
     @Test
-    public void testFindFreeSerialId() throws Exception {
+    public void testFindFreeSerialId() {
 
         List<User> userList = new ArrayList<>();
 
@@ -138,7 +139,7 @@ public class UserServiceTest extends SecurityContextTest {
 
     @Test(expected = IndexOutOfBoundsException.class)
     @Transactional // makes insertions be rolled back on exception.
-    public void testFindFreeSerialIdOverflow() throws Exception {
+    public void testFindFreeSerialIdOverflow() {
 
         userRepository.findAll().forEach(user1 -> logger.debug("all users: {}", user1.toString()));
 
@@ -153,7 +154,7 @@ public class UserServiceTest extends SecurityContextTest {
     }
 
     @Test
-    public void testGetPinList() throws Exception {
+    public void testGetPinList() {
 
         // Prepare
         List<User> userList = new ArrayList<>();
@@ -187,7 +188,7 @@ public class UserServiceTest extends SecurityContextTest {
         User user1b = userService.registerOrUpdateUser("User1b", "1112", "InstIdUser1");
         assertThat(user1b.getId(), is(equalTo(user1.getId())));
 
-        //noinspection OptionalGetWithoutIsPresent
+        //noinspection OptionalGetWithoutIsPresent,ConstantConditions
         User user1read = userRepository.findByInstallationId("InstIdUser1").get();
         assertThat(user1read.getId(), is(equalTo(user1.getId())));
         assertThat(user1read.getUsername(), is(equalTo("User1b")));
@@ -210,7 +211,6 @@ public class UserServiceTest extends SecurityContextTest {
         // prepare:
         User newUser = userService.registerOrUpdateUser("NewUserToJoin1", "2387", "NewJInstId1");
         User existingUser = userRepository.findOne(3L); // active user
-        final long newUserId = newUser.getId();
 
         // do it:
         userService.joinNewUserToExistingUser(newUser.getId(), existingUser.getId());
@@ -240,17 +240,17 @@ public class UserServiceTest extends SecurityContextTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testJoinNewUserToExistingUser_Fail_EqualUsers() throws Exception {
+    public void testJoinNewUserToExistingUser_Fail_EqualUsers() {
         userService.joinNewUserToExistingUser(2L, 2L);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testJoinNewUserToExistingUser_Fail_MissingExisting() throws Exception {
+    public void testJoinNewUserToExistingUser_Fail_MissingExisting() {
         userService.joinNewUserToExistingUser(2L, 99L);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testJoinNewUserToExistingUser_Fail_MissingNew() throws Exception {
+    public void testJoinNewUserToExistingUser_Fail_MissingNew() {
         userService.joinNewUserToExistingUser(99L, 2L);
     }
 
