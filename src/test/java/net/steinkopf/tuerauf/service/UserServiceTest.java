@@ -1,9 +1,17 @@
 package net.steinkopf.tuerauf.service;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Stream;
+
 import net.steinkopf.tuerauf.SecurityContextTest;
 import net.steinkopf.tuerauf.TestConstants;
 import net.steinkopf.tuerauf.TueraufApplication;
+import net.steinkopf.tuerauf.data.AccessLog;
 import net.steinkopf.tuerauf.data.User;
+import net.steinkopf.tuerauf.repository.AccessLogRepository;
 import net.steinkopf.tuerauf.repository.UserRepository;
 import org.junit.After;
 import org.junit.Before;
@@ -16,14 +24,11 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Stream;
-
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Integration tests for {@link UserService}.
@@ -34,16 +39,20 @@ public class UserServiceTest extends SecurityContextTest {
 
     private final static Logger logger = LoggerFactory.getLogger(UserServiceTest.class);
 
-
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private AccessLogRepository accessLogRepository;
+
+    @Autowired
+    private AccessLogService accessLogService;
 
     /**
      * System under Test.
      */
     @Autowired
     private UserService userService;
-
 
     @Before
     public void setup() throws Exception {
@@ -57,9 +66,9 @@ public class UserServiceTest extends SecurityContextTest {
         // delete users created by any test.
         // those from import.sql must not be deleted.
         Stream.of(0L, 4L, 5L, 6L)
-                .map(id -> userRepository.findOne(id))
-                .filter(Objects::nonNull)
-                .forEach(user -> userRepository.delete(user));
+            .map(id -> userRepository.findOne(id))
+            .filter(Objects::nonNull)
+            .forEach(user -> userRepository.delete(user));
     }
 
     @Test
@@ -192,5 +201,89 @@ public class UserServiceTest extends SecurityContextTest {
         User user1 = userService.registerOrUpdateUser("User1", "1111", "InstIdUser1");
         //noinspection unused
         User user2 = userService.registerOrUpdateUser("User1", "1112", "InstIdUser2");
+    }
+
+    @Test
+    @Transactional // makes insertions be rolled back on exception.
+    public void testJoinNewUserToExistingUser() throws Exception {
+
+        // prepare:
+        User newUser = userService.registerOrUpdateUser("NewUserToJoin1", "2387", "NewJInstId1");
+        User existingUser = userRepository.findOne(3L); // active user
+        final long newUserId = newUser.getId();
+
+        // do it:
+        userService.joinNewUserToExistingUser(newUser.getId(), existingUser.getId());
+
+        // check:
+
+        assertThat(userRepository.countById(newUser.getId()), is(equalTo(0L))); // new user removed
+        assertThat(userRepository.countById(existingUser.getId()), is(equalTo(1L))); // existing user still there
+
+        Optional<User> checkNewUser1 = userRepository.findById(newUser.getId());
+        assertFalse(String.format("new user id %d must not exist anymore now", newUser.getId()),
+            checkNewUser1.isPresent());
+
+        // new installation, username id must be copied
+        Optional<User> checkNewUser2 = userRepository.findByInstallationId("NewJInstId1");
+        assertTrue(checkNewUser2.isPresent());
+        assertThat(checkNewUser2.get().getId(), is(equalTo(3L)));
+        Optional<User> checkNewUser3 = userRepository.findByUsername("NewUserToJoin1");
+        assertThat(checkNewUser3.isPresent(), is(true));
+        //noinspection ConstantConditions
+        assertThat(checkNewUser3.get().getId(), is(equalTo(3L)));
+
+        User joinedUser = userRepository.findOne(3L); // save active user id
+        assertThat(joinedUser.getInstallationId(), is(equalTo("NewJInstId1")));
+        assertThat(joinedUser.getPin(), is(equalTo("2387")));
+        assertThat(joinedUser.getUsername(), is(equalTo("NewUserToJoin1")));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testJoinNewUserToExistingUser_Fail_EqualUsers() throws Exception {
+        userService.joinNewUserToExistingUser(2L, 2L);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testJoinNewUserToExistingUser_Fail_MissingExisting() throws Exception {
+        userService.joinNewUserToExistingUser(2L, 99L);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testJoinNewUserToExistingUser_Fail_MissingNew() throws Exception {
+        userService.joinNewUserToExistingUser(99L, 2L);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    @Transactional // makes insertions be rolled back on exception.
+    public void testJoinNewUserToExistingUser_fail_AccessLog() throws Exception {
+
+        // prepare:
+        User newUser = userService.registerOrUpdateUser("NewUserToJoin1", "2387", "NewJInstId1");
+        User existingUser = userRepository.findOne(3L); // active user
+        accessLogService.log(newUser, AccessLog.AccessType.checkLocation, 1.0, 1.2, "bla");
+
+        // do it:
+        userService.joinNewUserToExistingUser(newUser.getId(), existingUser.getId());
+    }
+
+    @Test
+    @Transactional // makes insertions be rolled back on exception.
+    public void testJoinNewUserToExistingUser_AccessLog_untouched() throws Exception {
+
+        // prepare:
+        User newUser = userService.registerOrUpdateUser("NewUserToJoin1", "2387", "NewJInstId1");
+        User existingUser = userRepository.findOne(3L); // active user
+        accessLogService.log(existingUser, AccessLog.AccessType.checkLocation, 1.0, 1.2, "bla");
+        accessLogService.log(existingUser, AccessLog.AccessType.checkLocation, 1.0, 1.2, "bla2");
+        assertThat(accessLogRepository.countByUser(existingUser), is(2L));
+
+        // do it:
+        userService.joinNewUserToExistingUser(newUser.getId(), existingUser.getId());
+
+        // check
+        assertThat(accessLogRepository.countByUser(existingUser), is(2L));
+        accessLogService.log(existingUser, AccessLog.AccessType.checkLocation, 1.0, 1.2, "bla3");
+        assertThat(accessLogRepository.countByUser(existingUser), is(3L));
     }
 }

@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 /**
  * Main Info for Tuerauf-Admins.
  */
+@SuppressWarnings("WeakerAccess")
 @Controller
 @Secured({"ROLE_ADMIN"})
 @RequestMapping(DashboardController.DASHBOARD_URL)
@@ -41,6 +42,8 @@ public class DashboardController {
 
     public static final String DASHBOARD_URL = "/dashboard";
     public static final String DASHBOARD_VIEW = "dashboard";
+
+    public static final String REDIRECT_TO_DASHBOARD = "redirect:" + DASHBOARD_URL + "/";
 
     public static final String MESSAGE = "message";
 
@@ -110,7 +113,7 @@ public class DashboardController {
     public String activateAllNew(RedirectAttributes attr) {
 
         List<User> activatedUserList = userService.activateAllNew();
-        if (activatedUserList.size() >= 1) {
+        if (!activatedUserList.isEmpty()) {
             final String usernames = activatedUserList.stream().map(User::getUsername).collect(Collectors.joining("<br>\n"));
             attr.addFlashAttribute(MESSAGE, "successfully activated all new users:<br>\n" + usernames);
         }
@@ -118,7 +121,7 @@ public class DashboardController {
             attr.addFlashAttribute(MESSAGE, "no inactive users");
         }
 
-        return "redirect:" + DASHBOARD_URL + "/";
+        return REDIRECT_TO_DASHBOARD;
     }
 
     /**
@@ -142,7 +145,7 @@ public class DashboardController {
             attr.addFlashAttribute(MESSAGE, e.toString());
         }
 
-        return "redirect:" + DASHBOARD_URL + "/";
+        return REDIRECT_TO_DASHBOARD;
     }
 
     /**
@@ -166,7 +169,7 @@ public class DashboardController {
             attr.addFlashAttribute(MESSAGE, e.toString());
         }
 
-        return "redirect:" + DASHBOARD_URL + "/";
+        return REDIRECT_TO_DASHBOARD;
     }
 
     /**
@@ -183,6 +186,6 @@ public class DashboardController {
 
         attr.addFlashAttribute(MESSAGE, String.format("Secret config Link:<br>%s", configLink));
 
-        return "redirect:" + DASHBOARD_URL + "/";
+        return REDIRECT_TO_DASHBOARD;
     }
 }

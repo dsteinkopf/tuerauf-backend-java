@@ -19,5 +19,11 @@ public interface UserRepository extends PagingAndSortingRepository<User, Long> {
 
     Optional<User> findBySerialId(int serialId);
 
+    Optional<User> findById(long id);
+
+    long countById(long id);
+
     Optional<User> findByUsername(String username);
+
+    void deleteById(long id);
 }

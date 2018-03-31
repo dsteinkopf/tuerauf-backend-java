@@ -1,6 +1,10 @@
 package net.steinkopf.tuerauf.repository;
 
+import java.util.List;
+import java.util.Optional;
+
 import net.steinkopf.tuerauf.data.AccessLog;
+import net.steinkopf.tuerauf.data.User;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
@@ -8,4 +12,5 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 // @Secured({"ROLE_ADMIN"})
 public interface AccessLogRepository extends PagingAndSortingRepository<AccessLog, Long> {
 
+    long countByUser(final User user);
 }

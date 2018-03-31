@@ -1,6 +1,7 @@
 package net.steinkopf.tuerauf.service;
 
 import net.steinkopf.tuerauf.data.User;
+import net.steinkopf.tuerauf.repository.AccessLogRepository;
 import net.steinkopf.tuerauf.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +25,9 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private AccessLogRepository accessLogRepository;
 
     @Autowired
     private LogAndMailService logAndMailService;
@@ -202,6 +206,48 @@ public class UserService {
         return userRepository.count();
     }
 
+    /**
+     * Remove the new User and give the existing user the new user's installationId, pin and username.
+     *
+     * @param newUserId User that has just been created - must not have any access logs.
+     * @param existingUserId Old/existing user.
+     * @exception IllegalArgumentException if any user does not exist
+     *                                      or both are equal.
+     *                                      or new user has access logs.
+     */
+    public void joinNewUserToExistingUser(final long newUserId, final long existingUserId) {
+        final User newUser = userRepository
+            .findById(newUserId)
+            .orElseThrow(() -> new IllegalArgumentException(
+                String.format("New user with id %s does not exist.", newUserId)));
+        final User existingUser = userRepository
+            .findById(existingUserId)
+            .orElseThrow(() -> new IllegalArgumentException(
+                String.format("Existing user with id %s does not exist.", existingUserId)));
+
+        // check if join is possible
+        if (newUser.equals(existingUser)) {
+            throw new IllegalArgumentException(
+                String.format("New user %s and existing user %s are must be different.",
+                    newUser, existingUser));
+        }
+        if (accessLogRepository.countByUser(newUser) != 0) {
+            throw new IllegalArgumentException(
+                String.format("New user %s must not have any access log.", newUser));
+        }
+
+        // remove new user:
+        userRepository.deleteById(newUserId);
+
+        // now join:
+        existingUser.setPinOld(existingUser.getPin());
+        existingUser.setPin(newUser.getPin());
+        existingUser.setUsernameOld(existingUser.getUsername());
+        existingUser.setUsername(newUser.getUsername());
+        existingUser.setInstallationId(newUser.getInstallationId());
+        // serial id is kept in existing user.
+        // activation state is unchanged.
+    }
 
     public class DuplicateUsernameException extends Exception {
 
