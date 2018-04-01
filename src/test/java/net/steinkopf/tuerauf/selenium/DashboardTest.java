@@ -21,6 +21,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.htmlunit.HtmlUnitDriver;
+import org.openqa.selenium.support.ui.Select;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -216,7 +217,7 @@ public class DashboardTest /*extends FluentTest*/ {
             assertThat(flashMessage.getText(), containsString("pins to arduino"));
 
             assertThat(driver.findElement(By.tagName("h1")).getText(), containsString("Dashboard"));
-            assertThat(driver.getCurrentUrl(), not(containsString("activate"))); // should be back on normal dashboard url.
+            assertThat(driver.getCurrentUrl(), not(containsString("send"))); // should be back on normal dashboard url.
             User testUserActive = userRepository.findOne(TestConstants.USER_ID_ACTIVE);
             assertThat(testUserActive.getPin(), is(equalTo(null)));
 
@@ -225,6 +226,56 @@ public class DashboardTest /*extends FluentTest*/ {
             assertThat(tableAfter.getText(), containsString(TestConstants.PIN_INACTIVE));
 
             verify(mockHttpFetcherService, times(1)).fetchFromUrl(any(String.class), anyInt());
+        }
+    }
+
+    /**
+     * Tests to join users.
+     */
+    @Test
+    @DirtiesContext
+    public void testJoinUsers() throws Exception {
+
+        // Prepare
+        final String url = getUrl() + DashboardController.DASHBOARD_URL + "/";
+        logger.debug("testJoinUsers: url={}", url);
+        driver.get(url);
+        // logger.debug("testJoinUsers: content = {}", driver.getPageSource());
+
+        final WebElement table = driver.findElement(By.className("users"));
+        assertThat(table.getText(), containsString(TestConstants.USER_NAME_INACTIVE)); // will be deleted by join
+        assertThat(table.getText(), containsString(TestConstants.USER_NAME_ACTIVE)); // will NOT be deleted by join
+
+        {
+            // Run
+
+            final Select newUserDropdown = new Select(driver.findElement(By.name("newUserId")));
+            newUserDropdown.selectByVisibleText(TestConstants.USER_NAME_INACTIVE + " (" + TestConstants.USER_ID_INACTIVE + ")");
+
+            final Select existingUserDropdown = new Select(driver.findElement(By.name("existingUserId")));
+            existingUserDropdown.selectByVisibleText(TestConstants.USER_NAME_ACTIVE + " (" + TestConstants.USER_ID_ACTIVE + ")");
+
+            final WebElement buttonContainer = driver.findElement(By.id("joinUsers"));
+            buttonContainer.findElement(By.name("submit")).click();
+
+            SeleniumHelper.waitForComponentWithText(driver, "joined");
+            logger.debug("testJoinUsers: content = {}", driver.getPageSource());
+
+            // Check
+            final WebElement flashMessage = driver.findElement(By.id("flash-message"));
+            assertThat(flashMessage.getText(), containsString("Successfully joined user"));
+
+            assertThat(driver.findElement(By.tagName("h1")).getText(), containsString("Dashboard"));
+            assertThat(driver.getCurrentUrl(), not(containsString("join"))); // should be back on normal dashboard url.
+
+            final WebElement tableAfter = driver.findElement(By.className("users"));
+            assertThat(tableAfter.getText(), not(containsString(TestConstants.INSTALLATION_ID_ACTIVE)));
+            final String shownUsername = String.format("%s (was: %s)",
+                TestConstants.USER_NAME_INACTIVE, TestConstants.USER_NAME_ACTIVE);
+            assertThat(tableAfter.getText(), containsString(shownUsername));
+
+            final WebElement userCountLine = driver.findElement(By.id("userCount"));
+            assertThat(userCountLine.getText(), containsString("User count: 3"));
         }
     }
 }

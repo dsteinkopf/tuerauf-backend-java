@@ -21,4 +21,5 @@ public class TestConstants {
     public static final String USER_PASSWORD = "user";
     public static final String USER_NAME_INACTIVE = "my inactive User";
     public static final String USER_NAME_ACTIVE = "my active User";
+    public static final String INSTALLATION_ID_ACTIVE = "testInstallation3";
 }

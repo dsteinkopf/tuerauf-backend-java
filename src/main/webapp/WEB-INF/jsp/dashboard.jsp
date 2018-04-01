@@ -54,7 +54,9 @@
         </c:forEach>
     </table>
 
+    <div id="userCount">
     User count: ${users.size()}<br/>
+    </div>
     <br/>
 
     <form id="activateAllNewForm" action="activateAllNew" method="post" commandName="activateAllNew">
@@ -101,13 +103,17 @@
         Join new user
         <select name="newUserId">
             <c:forEach var="user" items="${users}">
-                <option value="${user.id}">${user.username}<c:if test="${user.newUser}"> - new</c:if> (${user.id})</option>
+                <c:if test="${user.newUser}">
+                    <option value="${user.id}">${user.username} (${user.id})</option>
+                </c:if>
             </c:forEach>
         </select>
         to existing user
         <select name="existingUserId">
             <c:forEach var="user" items="${users}">
-                <option value="${user.id}">${user.username} (${user.id})</option>
+                <c:if test="${!user.newUser}">
+                    <option value="${user.id}">${user.username} (${user.id})</option>
+                </c:if>
             </c:forEach>
         </select>:
         <input type="submit" name="submit" value="Join Now"/>
