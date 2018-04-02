@@ -36,3 +36,14 @@ services:
       - ${DOCKERVOLUMES_BASEPATH}/tuerauf-${ENVIRONMENT_NAME}/application-${ENVIRONMENT_NAME}.properties:/usr/local/tomcat/conf/application-${ENVIRONMENT_NAME}.properties:ro
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
+
+  phpmyadmin:
+
+    image: 'corbinu/docker-phpmyadmin:latest'
+    environment:
+      - MYSQL_PORT_3306_TCP_ADDR=mysql
+    ports:
+      - ${DOCKER_TARGET_HOST_MYSQLADMIN_PORT}:8080
+    restart: always
+    links:
+      - mysql
