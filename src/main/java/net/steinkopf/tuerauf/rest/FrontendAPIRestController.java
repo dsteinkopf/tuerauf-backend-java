@@ -31,7 +31,7 @@ public class FrontendAPIRestController {
     @SuppressWarnings("WeakerAccess")
     public static final String FRONTEND_URL = "/frontend";
     public static final String FRONTEND_URL_PATTERN = FRONTEND_URL + "/**";
-
+    private static final String USER_UNKNOWN = "user unknown";
 
     @Autowired
     private UserService userService;
@@ -106,7 +106,7 @@ public class FrontendAPIRestController {
         if ( ! userOptional.isPresent()) {
             logger.debug("openDoor(installationId={}, geoyString={}, geoxString={})", installationId, geoyString, geoxString);
 
-            return "user unknown";
+            return USER_UNKNOWN;
         }
         final User user = userOptional.get();
 
@@ -160,7 +160,7 @@ public class FrontendAPIRestController {
         if ( ! userOptional.isPresent()) {
             logger.debug("checkLocation(installationId={}, geoyString={}, geoxString={})", installationId, geoyString, geoxString);
 
-            return "user unknown";
+            return USER_UNKNOWN;
         }
         final User user = userOptional.get();
 

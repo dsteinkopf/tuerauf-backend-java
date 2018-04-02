@@ -248,6 +248,12 @@ public class UserService {
         // serial id is kept in existing user.
         // activation state is unchanged.
         userRepository.save(existingUser);
+
+        logAndMailService.logAndMail("User {} joined to {}.",
+            null,
+            newUser,
+            existingUser
+        );
     }
 
     public class DuplicateUsernameException extends Exception {
