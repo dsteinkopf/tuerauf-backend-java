@@ -57,8 +57,6 @@ stages:
   script:
     # DSTK was: - 'mvn $MAVEN_CLI_OPTS verify site site:stage'
     - 'mvn $MAVEN_CLI_OPTS verify'
-  except:
-    - master
 
 # Validate merge requests using JDK8
 validate:jdk8:
@@ -87,16 +85,17 @@ builddocker:
     - docker logout $DOCKER_REGISTRY
     - docker images -qf dangling=true | xargs --no-run-if-empty docker rmi
     - docker ps -aqf status=exited | xargs --no-run-if-empty docker rm
-  only:
-    - ecuberetreat
 
 deploytest:
   stage: deploy
   environment:
     name: test
     url: http://$DOCKER_TARGET_HOST:$DOCKER_TARGET_HOST_PORT/tuerauf/dashboard/
-  only:
-    - ecuberetreat
+  #except:
+  #  - master
+  # when: manual
+  #only:
+  #  - ecuberetreat
   image: dsteinkopf/gitlab-ci-compose
   before_script:
     # see https://medium.com/@Empanado/simple-continuous-deployment-with-docker-compose-docker-machine-and-gitlab-ci-9047765322e1
