@@ -43,7 +43,7 @@ services:
     environment:
       - MYSQL_PORT_3306_TCP_ADDR=mysql
     ports:
-      - ${DOCKER_TARGET_HOST_MYSQLADMIN_PORT}:8080
+      - ${DOCKER_TARGET_HOST_MYSQLADMIN_PORT}:80
     restart: always
     links:
       - mysql
