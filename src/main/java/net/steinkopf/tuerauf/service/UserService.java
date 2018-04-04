@@ -236,8 +236,11 @@ public class UserService {
                 String.format("New user %s must not have any access log.", newUser));
         }
 
-        // remove new user:
+        // remove new user before copying values (to prevent duplicate keys):
         userRepository.delete(newUser);
+
+        // keep values for logging below
+        final String existingUsername = existingUser.getUsername();
 
         // now join:
         existingUser.setPinOld(existingUser.getPin());
@@ -245,14 +248,19 @@ public class UserService {
         existingUser.setUsernameOld(existingUser.getUsername());
         existingUser.setUsername(newUser.getUsername());
         existingUser.setInstallationId(newUser.getInstallationId());
-        // serial id is kept in existing user.
-        // activation state is unchanged.
+
+        // Flags:
+        existingUser.setSerialId(newUser.getSerialId()); // in case PIN has already been sent to arduino
+        existingUser.setActive(newUser.isActive()); // user has to be activated separately (better manual check)
+        existingUser.setNewUser(newUser.isNewUser()); // user has to be activated separately
+
         userRepository.save(existingUser);
 
-        logAndMailService.logAndMail("User {} joined to {}.",
+        logAndMailService.logAndMail("User {} joined to {} (id {}).",
             null,
             newUser,
-            existingUser
+            existingUsername,
+            existingUserId
         );
     }
 

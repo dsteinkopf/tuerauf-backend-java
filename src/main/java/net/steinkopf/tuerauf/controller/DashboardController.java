@@ -203,13 +203,13 @@ public class DashboardController {
             final long existingUserId = Integer.parseInt(existingUserIdString);
 
             // fetch for display before it is deleted resp. updated by join operation.
-            final User newUser = userRepository.findOne(newUserId);
-            final User existingUser = userRepository.findOne(existingUserId);
+            final String newUsername = userRepository.findOne(newUserId).getUsername();
+            final String existingUsername = userRepository.findOne(existingUserId).getUsername();
 
             userService.joinNewUserToExistingUser(newUserId, existingUserId);
 
             attr.addFlashAttribute(MESSAGE, String.format("Successfully joined user %s (%d) to %s (%d).",
-                newUser.getUsername(), newUserId, existingUser.getUsername(), existingUserId));
+                newUsername, newUserId, existingUsername, existingUserId));
         }
         catch (IllegalArgumentException ex) {
             attr.addFlashAttribute(MESSAGE, ex.getMessage());

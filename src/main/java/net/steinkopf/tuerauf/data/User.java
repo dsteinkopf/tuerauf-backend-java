@@ -138,8 +138,10 @@ public class User implements Serializable {
 
     public void setActive(final boolean active) {
         this.active = active;
-        setNewUser(false);
-        markAsChanged();
+        if (active) {
+            setNewUser(false);
+            markAsChanged();
+        }
     }
 
     public boolean isNewUser() {

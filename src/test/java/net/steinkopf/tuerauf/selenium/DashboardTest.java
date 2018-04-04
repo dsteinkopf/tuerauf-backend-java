@@ -264,6 +264,8 @@ public class DashboardTest /*extends FluentTest*/ {
             // Check
             final WebElement flashMessage = driver.findElement(By.id("flash-message"));
             assertThat(flashMessage.getText(), containsString("Successfully joined user"));
+            assertThat(flashMessage.getText(), containsString(TestConstants.USER_NAME_INACTIVE));
+            assertThat(flashMessage.getText(), containsString(TestConstants.USER_NAME_ACTIVE));
 
             assertThat(driver.findElement(By.tagName("h1")).getText(), containsString("Dashboard"));
             assertThat(driver.getCurrentUrl(), not(containsString("join"))); // should be back on normal dashboard url.

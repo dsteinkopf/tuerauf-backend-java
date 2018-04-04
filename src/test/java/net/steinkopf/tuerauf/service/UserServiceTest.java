@@ -211,6 +211,7 @@ public class UserServiceTest extends SecurityContextTest {
         // prepare:
         User newUser = userService.registerOrUpdateUser("NewUserToJoin1", "2387", "NewJInstId1");
         User existingUser = userRepository.findOne(3L); // active user
+        assertThat(existingUser.getUsername(), is(equalTo(TestConstants.USER_NAME_ACTIVE)));
 
         // do it:
         userService.joinNewUserToExistingUser(newUser.getId(), existingUser.getId());
@@ -237,6 +238,7 @@ public class UserServiceTest extends SecurityContextTest {
         assertThat(joinedUser.getInstallationId(), is(equalTo("NewJInstId1")));
         assertThat(joinedUser.getPin(), is(equalTo("2387")));
         assertThat(joinedUser.getUsername(), is(equalTo("NewUserToJoin1")));
+        assertThat(joinedUser.getUsernameOld(), is(equalTo(TestConstants.USER_NAME_ACTIVE)));
     }
 
     @Test(expected = IllegalArgumentException.class)
