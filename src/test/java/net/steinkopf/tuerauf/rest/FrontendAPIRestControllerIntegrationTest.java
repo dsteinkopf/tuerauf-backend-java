@@ -1,5 +1,10 @@
 package net.steinkopf.tuerauf.rest;
 
+import java.security.Principal;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Stream;
+
 import net.steinkopf.tuerauf.SecurityContextTest;
 import net.steinkopf.tuerauf.TestConstants;
 import net.steinkopf.tuerauf.TueraufApplication;
@@ -30,14 +35,16 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.security.Principal;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Stream;
-
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyDouble;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -47,6 +54,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * Tests for {@link FrontendAPIRestController} with very little mocking.
  */
+@SuppressWarnings({ "SpringJavaInjectionPointsAutowiringInspection", "ConstantConditions" })
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = TueraufApplication.class)
 @WebAppConfiguration
@@ -117,7 +125,7 @@ public class FrontendAPIRestControllerIntegrationTest extends SecurityContextTes
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
 
         // delete users created by any test.
         // those from import.sql must not be deleted.
@@ -159,7 +167,6 @@ public class FrontendAPIRestControllerIntegrationTest extends SecurityContextTes
         Optional<User> newUserOptional = userRepository.findByInstallationId(TEST_INSTALLATION_ID);
         assertTrue(newUserOptional.isPresent());
 
-        //noinspection OptionalGetWithoutIsPresent
         final User newUser = newUserOptional.get();
         assertThat(newUser.getInstallationId(), is(equalTo(TEST_INSTALLATION_ID)));
         assertThat(newUser.getPin(), is(equalTo(TEST_PIN)));
@@ -211,19 +218,17 @@ public class FrontendAPIRestControllerIntegrationTest extends SecurityContextTes
         Optional<User> newUserOptional = userRepository.findByInstallationId(TEST_INSTALLATION_ID2);
         assertTrue(newUserOptional.isPresent());
 
-        //noinspection OptionalGetWithoutIsPresent
         User newUser = newUserOptional.get();
         assertThat(newUser.getInstallationId(), is(equalTo(TEST_INSTALLATION_ID2)));
         assertThat(newUser.getPin(), is(equalTo(TEST_PIN2)));
         assertThat(newUser.getUsername(), is(equalTo(TEST_USERNAME2)));
         assertThat(newUser.isActive(), is(equalTo(false)));
-        assertThat(newUser.isNewUser(), is(equalTo(false)));
+        assertThat(newUser.isNewUser(), is(equalTo(true))); // user remains "new" when updated
         assertThat(newUser.getPinOld(), is(equalTo(TEST_PIN)));
         assertThat(newUser.getUsernameOld(), is(equalTo(TEST_USERNAME)));
         assertThat(newUser.getSerialId(), is(notNullValue())); // cannot check specific value because this might change
 
         // Run - 2: Reset Old values.
-        //noinspection OptionalGetWithoutIsPresent
         User user2 = userRepository.findByInstallationId(TEST_INSTALLATION_ID2).get();
         user2.setActive(true);
         userRepository.save(user2);
@@ -231,7 +236,6 @@ public class FrontendAPIRestControllerIntegrationTest extends SecurityContextTes
         assertThat(userRepository.findByActive(true).size(), is(equalTo(activeBefore+1)));
 
         // Check - 2
-        //noinspection OptionalGetWithoutIsPresent
         User user3 = userRepository.findByInstallationId(TEST_INSTALLATION_ID2).get(); // re-read because newUser won't be updated.
         assertThat(user3.getPinOld(), is(equalTo(null)));
         assertThat(user3.getUsernameOld(), is(equalTo(null)));

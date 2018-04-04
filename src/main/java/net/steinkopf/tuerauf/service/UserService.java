@@ -81,9 +81,8 @@ public class UserService {
                 throw new DuplicateUsernameException("Username " + username + " already exists.");
             }
         } else {
-            // update existing User
+            // update existing User - stays "new" (if it was "new")
             user = existingUser.get();
-            user.setNewUser(false);
         }
         user.updateData(username, pin);
         userRepository.save(user);
@@ -115,13 +114,23 @@ public class UserService {
     }
 
     /**
+     * Fetches a user.
+     *
+     * @return user object, if existing, empty if not.
+     */
+    public Optional<User> getUser(final String installationId) {
+
+        return userRepository.findByInstallationId(installationId);
+    }
+
+    /**
      * Checks if this user is active
      *
      * @return user object, if existing and active, empty if not.
      */
     public Optional<User> getUserIfActive(final String installationId) {
 
-        final Optional<User> userOptional = userRepository.findByInstallationId(installationId);
+        final Optional<User> userOptional = getUser(installationId);
         if ( ! userOptional.isPresent()) {
             return Optional.empty();
         }

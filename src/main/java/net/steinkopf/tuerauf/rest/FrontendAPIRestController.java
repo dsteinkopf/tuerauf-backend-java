@@ -61,16 +61,16 @@ public class FrontendAPIRestController {
     @RequestMapping(value = "registerUser", method = { RequestMethod.GET, RequestMethod.POST })
     public String registerUser(@RequestParam("username") String username,
                                @RequestParam("pin") String pin,
-                               @RequestParam("installationId") String installationId)
-            throws Exception {
+                               @RequestParam("installationId") String installationId) {
 
         logger.debug("registerUser(installationId={}, username={})", installationId, username);
 
         try {
+            final Optional<User> existingUser = userService.getUser(installationId);
             final User user = userService.registerOrUpdateUser(username, pin, installationId);
 
             return "saved:"
-                    + (user.isNewUser() ? " new" : " changed")
+                    + (existingUser.isPresent() ? " changed" : " new")
                     + (user.isActive() ? " active" : " inactive");
         }
         catch (UserService.DuplicateUsernameException ex) {
