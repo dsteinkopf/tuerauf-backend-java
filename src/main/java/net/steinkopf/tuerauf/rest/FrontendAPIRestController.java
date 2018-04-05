@@ -67,7 +67,7 @@ public class FrontendAPIRestController {
 
         try {
             final Optional<User> existingUser = userService.getUser(installationId);
-            final User user = userService.registerOrUpdateUser(username, pin, installationId);
+            final User user = userService.registerOrUpdateUser(username.trim(), pin, installationId);
 
             return "saved:"
                     + (existingUser.isPresent() ? " changed" : " new")
