@@ -100,10 +100,22 @@ public class DashboardController {
         addVersionInfo(model);
 
         final List<User> userList = Lists.newArrayList(userRepository.findAll());
+        userList.forEach(user -> {
+            user.setPin(getObfuscated(user.getPin()));
+            user.setPinOld(getObfuscated(user.getPinOld()));
+        });
         model.put("users", userList);
         logger.debug("userList.size()={}", userList.size());
 
         return DASHBOARD_VIEW;
+    }
+
+    private String getObfuscated(final String pin) {
+        if (pin == null) {
+            return null;
+        }
+        //noinspection ReplaceAllDot
+        return pin.replaceAll("[0-9]", "*");
     }
 
     /**
