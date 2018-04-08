@@ -111,7 +111,7 @@
         to existing user
         <select name="existingUserId">
             <c:forEach var="user" items="${users}">
-                <c:if test="${!user.newUser}">
+                <c:if test="${!user.newUser && user.active}">
                     <option value="${user.id}">${user.username} (${user.id})</option>
                 </c:if>
             </c:forEach>
